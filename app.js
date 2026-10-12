@@ -980,14 +980,50 @@ function calcSide16() {
 function bindEvents() {
   const on = (id, event, fn) => document.getElementById(id)?.addEventListener(event, fn);
 
+  // Skoleår og verktøy
   on('year-select', 'change', handleYearChange);
   on('validate-btn', 'click', () => runValidation(true));
   on('export-btn', 'click', typeof exportJSON === 'function' ? exportJSON : null);
   on('import-file', 'change', typeof importJSON === 'function' ? importJSON : null);
   on('s3_e_add_row', 'click', addRowSide3E);
-  
-  // Lytter til nullstillingsmenyen
   on('reset-select', 'change', handleResetSelect);
+
+// Hamburgermeny (Plassert helt til høyre, med robust valghåndtering)
+  const toolsBtn = document.getElementById('tools-menu-btn');
+  const toolsDropdown = document.getElementById('tools-dropdown');
+
+  if (toolsBtn && toolsDropdown) {
+    // Apne / Lukk ved klikk på hamburgermenyknappen
+    toolsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toolsDropdown.classList.toggle('show');
+    });
+
+    // Forhindre at klikk inne i menyen (f.eks. når du åpner select-boksen) lukker panelet
+    toolsDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Lukker menyen KUN når du klikker på vanlige knapper
+    toolsDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        toolsDropdown.classList.remove('show');
+      });
+    });
+
+    // Lukker menyen KUN etter at et nullstillingsvalg faktis er utført
+    const resetSelect = document.getElementById('reset-select');
+    if (resetSelect) {
+      resetSelect.addEventListener('change', () => {
+        toolsDropdown.classList.remove('show');
+      });
+    }
+
+    // Lukker menyen dersom du klikker et annet sted på skjermen
+    document.addEventListener('click', () => {
+      toolsDropdown.classList.remove('show');
+    });
+  }
 
   // Utskrift-modal
   on('print-modal-btn', 'click', openPrintModal);
@@ -1002,15 +1038,19 @@ function bindEvents() {
     document.querySelectorAll('.print-page-check').forEach(cb => cb.checked = false);
   });
 
+  // Navigasjon og manuell lagring
   document.querySelectorAll('[data-nav="prev"]').forEach(b => b.addEventListener('click', () => navigatePage(-1)));
   document.querySelectorAll('[data-nav="next"]').forEach(b => b.addEventListener('click', () => navigatePage(1)));
   document.querySelectorAll('[data-save],#save-1').forEach(b => b.addEventListener('click', () => saveData(true)));
 
+  // Automatisk lagring ved skriving i felter
   allFormElements().forEach(el => {
     const evt = ['radio', 'checkbox'].includes(el.type) || el.tagName === 'SELECT' ? 'change' : 'input';
     el.addEventListener(evt, () => {
-      calculateAll(false);
-      autoSave();
+      if (!isLoadingData) {
+        calculateAll(false);
+        autoSave();
+      }
     });
   });
 }

@@ -10,21 +10,12 @@
 
 <header class="topbar">
   <div class="brand">GSI - Grunnskolens innrapportering</div>
+
   <div class="year-control">
     <label for="year-select">Skoleår</label>
     <select id="year-select"></select>
-    <button class="mini-btn" id="export-btn" type="button">Eksporter</button>
-    <label class="mini-btn file-btn">Importer<input id="import-file" type="file" accept=".json"></label>
-    <button class="mini-btn" id="print-modal-btn" type="button">Skriv ut...</button>
-    
-    <!-- Nullstill-meny -->
-    <select id="reset-select" class="mini-btn btn-danger-select">
-      <option value="" disabled selected>Nullstill...</option>
-      <option value="page">Slett denne siden</option>
-      <option value="year_keep_1_2">Slett skoleår (behold side 1 & 2)</option>
-      <option value="year_all">Slett alt for skoleåret</option>
-    </select>
   </div>
+
   <div class="userbox">
     <div>
       <strong id="topbar-school">Heståsen skole</strong>
@@ -36,6 +27,26 @@
         <strong id="topbar-user-name">Tor Pettersen Skarprud</strong>
         <small id="topbar-user-role">Skoleleder</small>
       </div>
+    </div>
+  </div>
+
+  <!-- Hamburgermeny plassert helt til høyre, utenfor userbox -->
+  <div class="tools-menu-container">
+    <button class="icon-btn" id="tools-menu-btn" type="button" title="Verktøy og handlinger">☰</button>
+    <div class="tools-dropdown" id="tools-dropdown">
+      <button class="dropdown-item" id="export-btn" type="button">📥 Eksporter data</button>
+      <label class="dropdown-item file-btn">
+        📤 Importer data
+        <input id="import-file" type="file" accept=".json" style="display:none;">
+      </label>
+      <button class="dropdown-item" id="print-modal-btn" type="button">🖨️ Skriv ut...</button>
+      <div class="dropdown-divider"></div>
+      <select id="reset-select" class="dropdown-select btn-danger-select">
+        <option value="" disabled selected>⚠️ Nullstill...</option>
+        <option value="page">Slett denne siden</option>
+        <option value="year_keep_1_2">Slett skoleår (behold side 1 & 2)</option>
+        <option value="year_all">Slett alt for skoleåret</option>
+      </select>
     </div>
   </div>
 </header>

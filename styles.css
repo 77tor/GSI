@@ -9,37 +9,51 @@ body{min-height:100vh}
 /* =========================================================
    2. TOPPFELT
    ========================================================= */
-.topbar{height:72px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;background:#fff;position:sticky;top:0;z-index:20}
-.brand{font-size:24px;padding:0 26px;white-space:nowrap}
-.year-control{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:6px}
-.year-control label{font-weight:500}
-#year-select{font-weight:bold;background-color:#fff;color:#1a365d;border:2px solid #2b6cb0;border-radius:4px;padding:3px 8px;cursor:pointer}
-.mini-btn{padding:5px 10px;background:#57749b;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:13px}
-.file-btn input[type=file]{display:none}
-.userbox{display:flex;align-items:stretch;background:#f4ead9;min-width:390px;height:100%}
-.userbox>div:first-child{padding:12px 20px;border-left:1px solid #c9bda9;min-width:200px}
-.user{display:flex;align-items:center;gap:12px;padding:10px 18px;border-left:1px solid #c9bda9}
-.user-icon{font-size:25px;color:#263b64}
-.userbox strong,.userbox small{display:block}
-.userbox small{font-size:11px;margin-top:4px}
+/* ========================================================= 2. TOPPFELT (TOPBAR & VERKTØY) ========================================================= */
+.topbar { height: 72px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; top: 0; z-index: 20; padding-right: 12px; }
+.brand { font-size: 24px; padding: 0 26px; white-space: nowrap; }
+.year-control { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.15); padding: 4px 10px; border-radius: 6px; }
+.year-control label { font-weight: 500; }
+#year-select { font-weight: bold; background-color: #fff; color: #1a365d; border: 2px solid #2b6cb0; border-radius: 4px; padding: 3px 8px; cursor: pointer; }
+.mini-btn { padding: 5px 10px; background: #57749b; color: #fff; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
+.file-btn input[type="file"] { display: none; }
 
-/* Merke for skoleår og layout i overskriften */
-.page-head h1{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-#page-heading{display:flex;align-items:center;width:100%}
-.heading-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.school-year-badge{font-size:0.55em;font-weight:600;padding:4px 14px;border-radius:16px;letter-spacing:0.5px;transition:all 0.25s ease-in-out}
+/* Bruker- og skoleinformasjon i toppfeltet */
+.userbox { display: flex; align-items: center; background: #f4ead9; min-width: 390px; height: 100%; margin-left: auto; }
+.userbox > div:first-child { padding: 12px 20px; border-left: 1px solid #c9bda9; min-width: 200px; }
+.user { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-left: 1px solid #c9bda9; }
+.user-icon { font-size: 25px; color: #263b64; }
+.userbox strong, .userbox small { display: block; }
+.userbox small { font-size: 11px; margin-top: 4px; }
+
+/* ========================================================= HAMBURGERMENY & DROPDOWN (HELT TIL HØYRE) ========================================================= */
+.tools-menu-container { position: relative; margin-left: 12px; }
+.icon-btn { background: #3b82f6; color: #ffffff; border: none; font-size: 1.2rem; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s ease; }
+.icon-btn:hover { background: #2563eb; }
+.tools-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1); min-width: 220px; padding: 8px; z-index: 2000; }
+.tools-dropdown.show { display: flex; flex-direction: column; gap: 6px; }
+.dropdown-item { display: flex; align-items: center; width: 100%; padding: 8px 12px; background: none; border: none; text-align: left; font-size: 0.9rem; color: #1e293b; cursor: pointer; border-radius: 4px; transition: background 0.15s ease; }
+.dropdown-item:hover { background: #f1f5f9; }
+.dropdown-divider { height: 1px; background: #e2e8f0; margin: 4px 0; }
+.dropdown-select { width: 100%; padding: 8px 12px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #fca5a5; background-color: #fef2f2; color: #991b1b; cursor: pointer; }
+
+/* ========================================================= SIDE-OVERSKRIFT & SKOLEÅR-BADGES ========================================================= */
+.page-head h1 { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+#page-heading { display: flex; align-items: center; width: 100%; }
+.heading-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.school-year-badge { font-size: 0.55em; font-weight: 600; padding: 4px 14px; border-radius: 16px; letter-spacing: 0.5px; transition: all 0.25s ease-in-out; }
 
 /* 6 Fargetemaer for skoleår */
-.school-year-badge.year-theme-1{background-color:#e3f2fd;color:#0d47a1;border:1px solid #90caf9}
-.school-year-badge.year-theme-2{background-color:#fff3e0;color:#e65100;border:1px solid #ffcc80}
-.school-year-badge.year-theme-3{background-color:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
-.school-year-badge.year-theme-4{background-color:#f3e5f5;color:#4a148c;border:1px solid #ce93d8}
-.school-year-badge.year-theme-5{background-color:#e0f2f1;color:#004d40;border:1px solid #80cbc4}
-.school-year-badge.year-theme-6{background-color:#fce4ec;color:#880e4f;border:1px solid #f48fb1}
+.school-year-badge.year-theme-1 { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
+.school-year-badge.year-theme-2 { background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+.school-year-badge.year-theme-3 { background-color: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+.school-year-badge.year-theme-4 { background-color: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; }
+.school-year-badge.year-theme-5 { background-color: #e0f2f1; color: #004d40; border: 1px solid #80cbc4; }
+.school-year-badge.year-theme-6 { background-color: #fce4ec; color: #880e4f; border: 1px solid #f48fb1; }
 
-/* Styling for "Hent fra forrige år"-knappen */
-.btn-fetch-prev{background-color:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:4px 10px;font-size:0.8rem;font-weight:500;border-radius:6px;cursor:pointer;transition:all 0.2s ease;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
-.btn-fetch-prev:hover{background-color:#e2e8f0;border-color:#94a3b8;color:#0f172a}
+/* Knappen "Hent fra forrige år" */
+.btn-fetch-prev { background-color: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; padding: 4px 10px; font-size: 0.8rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+.btn-fetch-prev:hover { background-color: #e2e8f0; border-color: #94a3b8; color: #0f172a; }
 
 /* =========================================================
    3. VENSTREMENY OG LAYOUT
