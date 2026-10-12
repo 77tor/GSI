@@ -897,18 +897,42 @@ function restoreSide3ERows() {
 }
 
 function calcSide4() {
-  const keys = ['1', '2', '17', '3', 'sum'];
-  keys.forEach(k => {
-    setNumber(`s4_a3_${k}`, numberValue(`s4_a1_${k}`) + numberValue(`s4_a2_${k}`));
-    setNumber(`s4_c_${k}`, numberValue(`s4_a3_${k}`) - numberValue(`s4_b13_${k}`));
+  // 1. DEL 4A: Beregn vannrette summer (1.-7. trinn og Sum 1.-10. trinn)
+  [1, 2].forEach(r => {
+    const sum17 = numberValue(`s4_a${r}_1`) + numberValue(`s4_a${r}_2`);
+    setNumber(`s4_a${r}_17`, sum17);
+
+    const sumTotal = sum17 + numberValue(`s4_a${r}_3`);
+    setNumber(`s4_a${r}_sum`, sumTotal);
   });
+
+  // Rad 3 i 4A: Sum årstimer som gis til undervisning (Rad 1 + Rad 2 loddrett)
+  const cols4A = ['1', '2', '17', '3', 'sum'];
+  cols4A.forEach(col => {
+    setNumber(`s4_a3_${col}`, numberValue(`s4_a1_${col}`) + numberValue(`s4_a2_${col}`));
+  });
+
+  // 2. DEL 4B: Spesialundervisning og andre timer (Summer rader og kolonner)
   for (let r = 1; r <= 12; r++) {
     setNumber(`s4_b${r}_17`, numberValue(`s4_b${r}_1`) + numberValue(`s4_b${r}_2`));
     setNumber(`s4_b${r}_sum`, numberValue(`s4_b${r}_17`) + numberValue(`s4_b${r}_3`));
   }
-  [1, 2, 3].forEach(c => setNumber(`s4_b13_${c}`, sumIds(rangeIds('s4_b', 1, 12, `_${c}`))));
+
+  // Rad 13 i 4B: Sum av rad 1-12 loddrett
+  [1, 2, 3].forEach(c => {
+    setNumber(`s4_b13_${c}`, sumIds(rangeIds('s4_b', 1, 12, `_${c}`)));
+  });
   setNumber('s4_b13_17', numberValue('s4_b13_1') + numberValue('s4_b13_2'));
   setNumber('s4_b13_sum', numberValue('s4_b13_17') + numberValue('s4_b13_3'));
+
+  // 3. DEL 4C: Ordinær undervisning (4A Rad 3 minus 4B Rad 13)
+  cols4A.forEach(col => {
+    const a3Val = numberValue(`s4_a3_${col}`);
+    const b13Val = numberValue(`s4_b13_${col}`);
+    setNumber(`s4_c_${col}`, Math.max(0, a3Val - b13Val));
+  });
+
+  // 4. DEL 4D & 4E: Øvrige beregninger
   setNumber('s4_d_sum', numberValue('s4_d_17') + numberValue('s4_d_3'));
   ['e1', 'e2', 'e3', 'e4', 'e6'].forEach(row => setNumber(`s4_${row}_sum`, sumIds(rangeIds(`s4_${row}_`, 1, 3))));
   [1, 2, 3].forEach(col => setNumber(`s4_e5_${col}`, sumIds([1, 2, 3, 4].map(r => `s4_e${r}_${col}`))));
