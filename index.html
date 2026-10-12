@@ -1624,7 +1624,7 @@
 
 <!-- MODAL FOR SIDE 7 EXCEL-IMPORT / PASTE -->
 <div class="modal-backdrop" id="calc-s7-modal" style="display:none;">
-  <div class="modal-content" style="max-width: 850px;">
+  <div class="modal-content" style="max-width: 980px;">
     <div class="modal-header">
       <h3>📋 Lim inn elevdata direkte fra Excel (Side 7)</h3>
       <button class="close-btn" id="close-calc-s7-modal" type="button">&times;</button>
@@ -1636,7 +1636,7 @@
 
       <!-- VISUELL KOLONNE-GUIDE -->
       <div style="overflow-x: auto; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
-        <table class="gsi-table" style="width:100%; font-size: 0.82rem; text-align: center; white-space: nowrap;">
+        <table class="gsi-table" style="width:100%; font-size: 0.78rem; text-align: center; white-space: nowrap;">
           <thead>
             <tr style="background:#e2e8f0; color:#1e293b;">
               <th>Col 1</th>
@@ -1649,6 +1649,9 @@
               <th>Col 8</th>
               <th>Col 9</th>
               <th>Col 10</th>
+              <th>Col 11</th>
+              <th>Col 12</th>
+              <th>Col 13</th>
             </tr>
             <tr style="background:#f1f5f9; font-weight: bold;">
               <td>Trinn</td>
@@ -1657,10 +1660,13 @@
               <td>§11-4</td>
               <td>§11-5</td>
               <td>Audioped.</td>
+              <td>Logoped</td>
               <td>I klasse</td>
               <td>Gruppe 6+</td>
               <td>Gruppe 2-5</td>
               <td>Alene</td>
+              <td>Fast avd.</td>
+              <td>Fast alt.</td>
             </tr>
           </thead>
           <tbody>
@@ -1671,6 +1677,9 @@
               <td>timer</td>
               <td>ja / x</td>
               <td>timer</td>
+              <td>timer</td>
+              <td>x / ja</td>
+              <td>x / ja</td>
               <td>x / ja</td>
               <td>x / ja</td>
               <td>x / ja</td>
@@ -1684,7 +1693,7 @@
         <label style="font-weight: bold; display: block; margin-bottom: 4px;">
           Lim inn rader fra Excel her:
         </label>
-        <textarea id="excel-paste-input" rows="8" placeholder="Eksempel:&#10;1	g	142.5	0	0	0	x	0	0	0&#10;3	j	0	76	0	0	0	0	x	0" style="width:100%; font-family: monospace; font-size: 0.85rem; padding: 8px; border: 1px solid #94a3b8; border-radius: 4px;"></textarea>
+        <textarea id="excel-paste-input" rows="8" placeholder="Eksempel:&#10;1	g	142.5	0	0	0	0	x	0	0	0	0	0&#10;8	j	0	76	0	0	0	0	0	x	0	x	x" style="width:100%; font-family: monospace; font-size: 0.85rem; padding: 8px; border: 1px solid #94a3b8; border-radius: 4px;"></textarea>
       </div>
 
       <div id="excel-parse-summary" style="font-size: 0.85rem; color: #1e293b; background: #f1f5f9; padding: 10px; border-radius: 4px; display: none;"></div>

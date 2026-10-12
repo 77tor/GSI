@@ -1046,21 +1046,24 @@ function applyCalcSide7Data() {
     // 7B: Vedtak
     b1_ito_g: 0, b1_ito_j: 0,
     b2_ito_g: 0, b2_ito_j: 0,
+    // 7C: Faste avdelinger
+    c: { t17: 0, t810: 0, g: 0, j: 0 },
+    // 7D: Alternativ opplæringsarena
+    d: { t17: 0, t810: 0, g: 0, j: 0 },
     // 7E: Organisering
     e1: { g: 0, j: 0 }, // Ordinær klasse
     e2: { g: 0, j: 0 }, // Gruppe >= 6
     e3: { g: 0, j: 0 }, // Gruppe 2-5
     e4: { g: 0, j: 0 }, // Alene
-    // 7F: ITO timer per elev (1-75, 76-190, 191-270, 271+)
+    // 7F: Undervisningstimer per elev (ITO + Audioped. + Logoped)
     f: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } },
-    // 7G: Assistent-timer per elev
+    // 7G: Assistent-timer per elev (§ 11-4)
     g_tab: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } }
   };
 
   const lines = rawText.split('\n');
 
   lines.forEach(line => {
-    // Del opp linjen basert på tabulatorer fra Excel
     const cols = line.split('\t').map(c => c.trim().replace(',', '.'));
     if (cols.length < 2) return;
 
@@ -1077,40 +1080,62 @@ function applyCalcSide7Data() {
     
     if (!kjonn) return;
 
-    // Øvrige kolonner
-    const itoHours = parseNum(cols[2]);      // Kolonne 2: ITO timer
-    const p11_4Hours = parseNum(cols[3]);    // Kolonne 3: § 11-4 (Assistent-timer)
-    const p11_5Has = cols[4] && cols[4].toLowerCase() === 'ja'; // Kolonne 4: § 11-5
-    const audiopedHours = parseNum(cols[5]); // Kolonne 5: Audiopedagog
+    // Hent timer og avkryssinger fra kolonnene
+    const itoHours      = parseNum(cols[2]); // Col 2: ITO
+    const p11_4Hours    = parseNum(cols[3]); // Col 3: § 11-4 (Assistent)
+    const p11_5Has      = cols[4] && ['ja', 'x', '1'].includes(cols[4].toLowerCase()); // Col 4: § 11-5
+    const audiopedHours = parseNum(cols[5]); // Col 5: Audioped.
+    const logopedHours  = parseNum(cols[6]); // Col 6: Logoped
 
-    // Organisering (sjekker 'x', 'ja' eller '1' i kolonnene 6-9 hvis de finnes)
-    const isOrdKlasse = cols[6] && ['x', 'ja', '1'].includes(cols[6].toLowerCase());
-    const isGrp6Plus  = cols[7] && ['x', 'ja', '1'].includes(cols[7].toLowerCase());
-    const isGrp2Til5  = cols[8] && ['x', 'ja', '1'].includes(cols[8].toLowerCase());
-    const isAlene     = cols[9] && ['x', 'ja', '1'].includes(cols[9].toLowerCase());
+    // Samlet undervisningstimer (ITO + Audioped. + Logoped)
+    const totalTeachingHours = itoHours + audiopedHours + logopedHours;
 
-    // 1. Tell 7A (Elever per trinn) og 7F (Timer undervisningspersonale)
-    if (itoHours > 0) {
+    // Organisering (sjekker 'x', 'ja' eller '1' i kolonnene 7-10)
+    const isOrdKlasse = cols[7]  && ['x', 'ja', '1'].includes(cols[7].toLowerCase());
+    const isGrp6Plus  = cols[8]  && ['x', 'ja', '1'].includes(cols[8].toLowerCase());
+    const isGrp2Til5  = cols[9]  && ['x', 'ja', '1'].includes(cols[9].toLowerCase());
+    const isAlene     = cols[10] && ['x', 'ja', '1'].includes(cols[10].toLowerCase());
+
+    // Faste avdelinger & Alternativ opplæringsarena (kolonnene 11 og 12)
+    const isFastAvd   = cols[11] && ['x', 'ja', '1'].includes(cols[11].toLowerCase());
+    const isFastAlt   = cols[12] && ['x', 'ja', '1'].includes(cols[12].toLowerCase());
+
+    // 1. Tell 7A (Elever per trinn) og 7F (Undervisningstimer)
+    if (totalTeachingHours > 0) {
       if (!isNaN(trinn) && trinn >= 1 && trinn <= 10) {
         counts.a[trinn][kjonn]++;
       }
-      const cat = getHourIntervalCategory(itoHours);
+      const cat = getHourIntervalCategory(totalTeachingHours);
       if (cat) counts.f[cat][kjonn]++;
     }
 
-    // 2. Tell 7B1 og 7G (Personlig assistanse / §11-4)
+    // 2. Tell 7B1 og 7G (Personlig assistanse / § 11-4)
     if (p11_4Hours > 0) {
       counts[`b1_ito_${kjonn}`]++;
       const cat = getHourIntervalCategory(p11_4Hours);
       if (cat) counts.g_tab[cat][kjonn]++;
     }
 
-    // 3. Tell 7B2 (§11-5 / Audiopedagog)
-    if (p11_5Has || audiopedHours > 0) {
+    // 3. Tell 7B2 (§ 11-5)
+    if (p11_5Has) {
       counts[`b2_ito_${kjonn}`]++;
     }
 
-    // 4. Tell 7E (Organisering)
+    // 4. Tell 7C (Faste avdelinger)
+    if (isFastAvd) {
+      counts.c[kjonn]++;
+      if (!isNaN(trinn) && trinn >= 1 && trinn <= 7) counts.c.t17++;
+      else if (!isNaN(trinn) && trinn >= 8 && trinn <= 10) counts.c.t810++;
+    }
+
+    // 5. Tell 7D (Alternativ opplæringsarena)
+    if (isFastAlt) {
+      counts.d[kjonn]++;
+      if (!isNaN(trinn) && trinn >= 1 && trinn <= 7) counts.d.t17++;
+      else if (!isNaN(trinn) && trinn >= 8 && trinn <= 10) counts.d.t810++;
+    }
+
+    // 6. Tell 7E (Organisering)
     if (isOrdKlasse) counts.e1[kjonn]++;
     if (isGrp6Plus)  counts.e2[kjonn]++;
     if (isGrp2Til5)  counts.e3[kjonn]++;
@@ -1128,6 +1153,18 @@ function applyCalcSide7Data() {
   setNumber('s7_b1_ito_j', counts.b1_ito_j);
   setNumber('s7_b2_ito_g', counts.b2_ito_g);
   setNumber('s7_b2_ito_j', counts.b2_ito_j);
+
+  // --- SETT INN I 7C (Faste avdelinger) ---
+  setNumber('s7_c_17', counts.c.t17);
+  setNumber('s7_c_810', counts.c.t810);
+  setNumber('s7_c_g', counts.c.g);
+  setNumber('s7_c_j', counts.c.j);
+
+  // --- SETT INN I 7D (Alternativ opplæringsarena) ---
+  setNumber('s7_d_17', counts.d.t17);
+  setNumber('s7_d_810', counts.d.t810);
+  setNumber('s7_d_g', counts.d.g);
+  setNumber('s7_d_j', counts.d.j);
 
   // --- SETT INN I 7E (Organisering) ---
   setNumber('s7_e1_g', counts.e1.g); setNumber('s7_e1_j', counts.e1.j);
@@ -1152,7 +1189,7 @@ function applyCalcSide7Data() {
   saveData(false);
 
   closeCalcSide7Modal();
-  showSaveMessage('Excel-data ble overført til Side 7 (7A, 7B, 7E, 7F og 7G)!');
+  showSaveMessage('Excel-data overført til Side 7 (inkludert 7C og 7D)!');
 }
 
 function calcSide8() {
