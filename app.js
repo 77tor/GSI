@@ -580,6 +580,40 @@ function copyPreviousYearPageData() {
    NULLSTILLING / SLETTING AV DATA
    ========================================================= */
 
+function clearDynamicRows3E() {
+  const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
+  if (tbody) tbody.innerHTML = '';
+  side3ERowCount = 0;
+  
+  const sumNo = document.getElementById('s3-e-sum-no') || document.getElementById('s3_e_sum_row_no');
+  if (sumNo) sumNo.textContent = '1';
+
+  // Slett alle nøkler for 3E i formData
+  if (typeof formData !== 'undefined') {
+    Object.keys(formData).forEach(key => {
+      if (key.startsWith('s3_e_')) delete formData[key];
+    });
+  }
+  calcSide3E();
+}
+
+function clearDynamicRows7H() {
+  const tbody = document.getElementById('s7-h-tbody');
+  if (tbody) tbody.innerHTML = '';
+  if (typeof side7HRowCount !== 'undefined') side7HRowCount = 0;
+
+  const sumNo = document.getElementById('s7-h-sum-no');
+  if (sumNo) sumNo.textContent = '1';
+
+  // Slett alle nøkler for 7H i formData
+  if (typeof formData !== 'undefined') {
+    Object.keys(formData).forEach(key => {
+      if (key.startsWith('s7_h_')) delete formData[key];
+    });
+  }
+  if (typeof calcSide7H === 'function') calcSide7H();
+}
+
 function resetCurrentPageData() {
   const pageObj = pages.find(p => p.id === currentPage);
   const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
@@ -599,13 +633,17 @@ function resetCurrentPageData() {
       el.checked = false;
     } else if (el.id) {
       delete formData[el.id];
-      el.value = ''; // Tømmer feltet helt i stedet for å bruke HTML-defaultValue
+      el.value = '';
     }
   });
 
+  // Tøm dynamiske rader dersom vi står på Side 3 eller Side 7
+  if (currentPage === 3) clearDynamicRows3E();
+  if (currentPage === 7) clearDynamicRows7H();
+
   calculateAll(false);
   saveData(false);
-  syncDataToInputs(); // Sørger for at skjermen oppdateres umiddelbart
+  syncDataToInputs();
   showSaveMessage(`Innholdet på ${pageName} ble slettet.`);
 }
 
@@ -622,7 +660,6 @@ function resetSchoolYearData(keepPage1And2 = true) {
     // Bevar kun nøkler som tilhører side 1 og side 2
     const preservedData = {};
     
-    // Hent elementer fra side 1 og 2
     const page1and2Elements = document.querySelectorAll('.page[data-page="1"] [id], .page[data-page="2"] [id]');
     const preservedKeys = new Set();
     
@@ -646,7 +683,9 @@ function resetSchoolYearData(keepPage1And2 = true) {
     formData = {};
   }
 
-  // Slett dynamiske rader
+  // Slett alle dynamiske rader fra skjermbildet (Side 3E, 7H og 9C)
+  clearDynamicRows3E();
+  clearDynamicRows7H();
   document.querySelectorAll('#page-9 .table-s9-c tbody tr:not(.total-row)').forEach(row => row.remove());
 
   // Oppdater skjermbilde og lagre
@@ -672,6 +711,7 @@ function handleResetSelect(event) {
   // Tilbakestill valgmenyen til overskriften "Nullstill..."
   event.target.value = '';
 }
+
 
 /* =========================================================
    EKSPORT OG IMPORT (JSON)
@@ -763,145 +803,142 @@ function calcSide3() {
   setNumber('s3_b_total', numberValue('s3_b_sum17') + numberValue('s3_b_sum810'));
   setNumber('s3_c_sum', sumIds(rangeIds('s3_c_', 1, 10)));
 
-  // BEREGNING FOR DEL E: Sum av elever fra andre kommuner
-  let totalEleverE = 0;
-  const tbody = document.getElementById('s3_e_tbody');
-  if (tbody) {
-    tbody.querySelectorAll('input[type="number"]').forEach(input => {
-      totalEleverE += (parseInt(input.value, 10) || 0);
-    });
-  }
-  setNumber('s3_e_total', totalEleverE);
+  // BEREGNING FOR DEL E
+  calcSide3E();
 }
 
-// Liste over norske kommuner for GSI (alfabetisk)
-const NORWEGIAN_MUNICIPALITIES = [
-  "Agdenes", "Agder fylkeskommune", "Akershus fylkeskommune", "Alstahaug", "Alta", "Alvdal", "Alver", "Andebu", "Andøy",
-  "Aremark", "Arendal", "Asker", "Askim", "Askvoll", "Askøy", "Aukra", "Aure", "Aurland", "Aurskog-Høland", "Austevoll",
-  "Austrheim", "Averøy", "Balestrand", "Ballangen", "Balsfjord", "Bamble", "Bardu", "Beiarn", "Berg", "Bergen", "Berlevåg",
-  "Bindal", "Birkenes", "Bjerkreim", "Bjørnafjorden", "Bodhø", "Bokn", "Bremanger", "Brønnøy", "Bygland", "Bykle", "Bærum",
-  "Bø", "Bømlo", "Båtsfjord", "Dovre", "Drammen", "Drangedal", "Dyrøy", "Dønna", "Eid", "Eidsberg", "Eidfjord", "Eidsvoll",
-  "Eigersund", "Elverum", "Enebakk", "Engerdal", "Etne", "Etnedal", "Evje og Hornnes", "Farsund", "Fauske", "Fedje", "Fitjar",
-  "Fjaler", "Fjord", "Flakstad", "Flatanger", "Flekkefjord", "Flå", "Folldal", "Fredrikstad", "Frogn", "Froland", "Frosta",
-  "Frøya", "Fyresdal", "Færder", "Gáivuotna - Kåfjord", "Gausdal", "Gildeskål", "Giske", "Gjemnes", "Gjerdrum", "Gjøvik",
-  "Gloppen", "Gol", "Gran", "Grane", "Granvin", "Gratangen", "Grimstad", "Grue", "Gulen", "Hadsel", "Halden", "Hamar",
-  "Hamarøy", "Hammerfest", "Harstad", "Hasvik", "Hattfjelldal", "Haugesund", "Heim", "Hemnes", "Hemsedal", "Herøy", "Hitra",
-  "Hjartdal", "Hjelmeland", "Hobøl", "Hol", "Hole", "Holtålen", "Horten", "Hurdal", "Hustadvika", "Hvaler", "Hyllestad",
-  "Hå", "Ibestad", "Inderøy", "Indre Fosen", "Indre Østfold", "Iveland", "Jevnaker", "Karasjok", "Karlsøy", "Karmøy",
-  "Kautokeino", "Kinn", "Klep", "Kongsberg", "Kongsvinger", "Kragero", "Kristiansand", "Kristiansund", "Krødsherad",
-  "Kvam", "Kvinesdal", "Kvinnherad", "Kvitesseid", "Kvitsøy", "Kvæfjord", "Kvænangen", "Kåfjord", "Larvik", "Leka",
-  "Lenvik", "Lesja", "Levanger", "Lier", "Lierne", "Lillehammer", "Lillesand", "Lillestrøm", "Lindesnes", "Lom", "Loppa",
-  "Lund", "Lúnner", "Lurøy", "Luster", "Lyngdal", "Lyngen", "Lærdal", "Lødingen", "Lørenskog", "Løten", "Malvik", "Marker",
-  "Masfjorden", "Melhus", "Meløy", "Meråker", "Midt-Telemark", "Midtre Gauldal", "Modum", "Molde", "Moskenes", "Moss",
-  "Nærøysund", "Namsos", "Namsskogan", "Nannestad", "Narvik", "Nes", "Nesna", "Nesodden", "Nissedal", "Nittedal",
-  "Nome", "Nord-Aurdal", "Nord-Fron", "Nord-Odal", "Nordkapp", "Nordre Land", "Nordre Follo", "Nordreisa", "Nore og Uvdal",
-  "Notodden", "Nærøy", "Oppdal", "Orkland", "Os", "Osen", "Oslo", "Osterøy", "Overhalla", "Pasvik", "Porsgrunn", "Rakkestad",
-  "Rana", "Randaberg", "Rauma", "Rendalen", "Renesøy", "Rindal", "Ringebu", "Ringerike", "Ringsaker", "Risør", "Rode",
-  "Rollag", "Rælingen", "Rødøy", "Røros", "Røst", "Røyrvik", "Råde", "Saltdal", "Samnanger", "Sande", "Sandefjord",
-  "Sandnes", "Sarpsborg", "Sauda", "Sel", "Selbu", "Selje", "Seljord", "Senja", "Sigdal", "Siljan", "Sirdal", "Skaun",
-  "Skien", "Skiptvet", "Skjervøy", "Skjåk", "Smøla", "Snåsa", "Sogndal", "Sokndal", "Sola", "Solund", "Somna", "Songdalen",
-  "Sortland", "Stavanger", "Steinkjer", "Stjørdal", "Stord", "Stordal", "Storfjord", "Strand", "Stranda", "Stryn",
-  "Sula", "Suldal", "Sunndal", "Sunnfjord", "Surnadal", "Sveio", "Svelvik", "Sykkylven", "Sømna", "Søndre Land", "Sør-Aurdal",
-  "Sør-Fron", "Sør-Odal", "Sør-Varanger", "Sørfold", "Sørreisa", "Sørum", "Tana", "Time", "Tingvoll", "Tinn", "Tjeldsund",
-  "Tokke", "Tolga", "Tromsø", "Trondheim", "Trysil", "Træna", "Tvedestrand", "Tydal", "Tynset", "Tysnes", "Tysvær",
-  "Ullensvang", "Ullensaker", "Ulstein", "Ulvik", "Vadsø", "Vaksdal", "Valalle", "Valle", "Vang", "Vanylven", "Vardø",
-  "Vefsn", "Vega", "Vegårshei", "Vennesla", "Verdal", "Vestby", "Vestnes", "Vestre Slidre", "Vestre Toten", "Vestvågøy",
-  "Vevelstad", "Vik", "Vikna", "Vindafjord", "Vinje", "Volda", "Voss", "Værøy", "Vågan", "Vågå", "Våler", "Øksnes",
-  "Ørland", "Ørsta", "Østre Toten", "Øvre Eiker", "Øyer", "Øygarden", "Øystre Slidre", "Åfjord", "Ål", "Ålesund",
-  "Åmli", "Åmot", "Årdal", "Ås", "Åseral", "Åsnes"
-];
+/* =========================================================
+   TABELL 3E: DYNAMISKE RADER (GSI-DESIGN & STABIL LASTRUTINE)
+   ========================================================= */
 
-function getMunicipalityOptionsHTML() {
-  let html = `<option value="">Legg til</option>`;
-  NORWEGIAN_MUNICIPALITIES.forEach(muni => {
-    html += `<option value="${muni}">${muni}</option>`;
-  });
-  return html;
-}
+let side3ERowCount = 0;
 
-function addRowSide3E() {
-  const tbody = document.getElementById('s3_e_tbody');
+function addSide3ERowWithId(rowId, kommuneVal = '', eleverVal = '') {
+  const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
   if (!tbody) return;
 
-  const currentRows = tbody.querySelectorAll('tr').length;
-  const newIndex = currentRows + 1;
+  const tr = document.createElement('tr');
+  tr.id = `s3-e-row-${rowId}`;
 
-  const newRow = document.createElement('tr');
-  newRow.setAttribute('data-s3e-idx', newIndex);
-  newRow.innerHTML = `
-    <td class="row-no-cell">${newIndex}</td>
-    <td>
-      <select id="s3_e_kommune_${newIndex}" class="gsi-select">
-        ${getMunicipalityOptionsHTML()}
-      </select>
+  tr.innerHTML = `
+    <td style="text-align: center; background: #d8ebe2; border: 1px solid #526b8e; font-weight: bold; color: #0f172a;" class="s3-e-row-index"></td>
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="text" list="kommuner-list" id="s3_e_kommune_${rowId}" value="${kommuneVal}" style="width: 100%; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 2px; font-size: 0.88rem; text-align: left;" oninput="if(typeof saveData === 'function') saveData(false);">
     </td>
-    <td>
-      <input id="s3_e_elever_${newIndex}" type="number" min="0" placeholder="0">
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s3_e_elever_${rowId}" value="${eleverVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 2px; font-size: 0.88rem;" oninput="calcSide3E(); if(typeof saveData === 'function') saveData(false);">
     </td>
-    <td style="text-align:center; vertical-align:middle;">
-      <button type="button" class="btn-delete-row" onclick="deleteRowSide3E(this)" title="Slett rad">⊗</button>
+    <td style="text-align: center; vertical-align: middle; background: #ffffff; border: 1px solid #526b8e;">
+      <button type="button" onclick="removeSide3ERow(${rowId})" style="background: none; border: none; color: #1e293b; font-size: 1.15rem; cursor: pointer; padding: 0; line-height: 1;" title="Slett rad">&#8855;</button>
     </td>
   `;
 
-  tbody.appendChild(newRow);
-
-  newRow.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('change', () => { calculateAll(false); autoSave(); });
-    el.addEventListener('input', () => { calculateAll(false); autoSave(); });
-  });
-
-  updateSide3ERowNumbers();
-  calculateAll(false);
+  tbody.appendChild(tr);
 }
 
+function addSide3ERow(kommuneVal = '', eleverVal = '') {
+  const safeKommune = (typeof kommuneVal === 'string') ? kommuneVal : '';
+  const safeElever = (typeof eleverVal === 'number' || typeof eleverVal === 'string') && typeof eleverVal !== 'object' ? eleverVal : '';
+
+  side3ERowCount++;
+  addSide3ERowWithId(side3ERowCount, safeKommune, safeElever);
+  updateSide3ERowNumbers();
+  calcSide3E();
+}
+
+function removeSide3ERow(rowId) {
+  const row = document.getElementById(`s3-e-row-${rowId}`);
+  if (row) {
+    // Slett også fra formData hvis det finnes
+    if (typeof formData !== 'undefined') {
+      delete formData[`s3_e_kommune_${rowId}`];
+      delete formData[`s3_e_elever_${rowId}`];
+    }
+    row.remove();
+    updateSide3ERowNumbers();
+    calcSide3E();
+    if (typeof saveData === 'function') saveData(false);
+  }
+}
+
+// Bakoverkompatibilitet
+const addRowSide3E = addSide3ERow;
 function deleteRowSide3E(btnEl) {
   const tr = btnEl.closest('tr');
-  if (!tr) return;
-
-  tr.querySelectorAll('input[id], select[id]').forEach(el => {
-    delete formData[el.id];
-  });
-
-  tr.remove();
-  updateSide3ERowNumbers();
-  calculateAll(false);
-  autoSave();
+  if (tr) {
+    const rowId = tr.id.replace('s3-e-row-', '');
+    removeSide3ERow(rowId);
+  }
 }
 
 function updateSide3ERowNumbers() {
-  const tbody = document.getElementById('s3_e_tbody');
+  const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
   if (!tbody) return;
 
   const rows = tbody.querySelectorAll('tr');
-  rows.forEach((row, idx) => {
-    const num = idx + 1;
-    const cell = row.querySelector('.row-no-cell');
-    if (cell) cell.textContent = num;
+  rows.forEach((tr, index) => {
+    const idxTd = tr.querySelector('.s3-e-row-index') || tr.querySelector('.row-no-cell');
+    if (idxTd) idxTd.textContent = index + 1;
   });
 
-  const sumRowNoCell = document.getElementById('s3_e_sum_row_no');
-  if (sumRowNoCell) {
-    sumRowNoCell.textContent = rows.length + 1;
+  const sumNoTd = document.getElementById('s3-e-sum-no') || document.getElementById('s3_e_sum_row_no');
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
+
+function calcSide3E() {
+  const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
+  if (!tbody) return;
+
+  let totalElever = 0;
+  let hasAnyInput = false;
+
+  const eleverInputs = tbody.querySelectorAll('input[type="number"]');
+
+  eleverInputs.forEach(input => {
+    const val = typeof parseNum === 'function' ? parseNum(input.value) : (parseInt(input.value, 10) || 0);
+    if (input.value !== '') hasAnyInput = true;
+    totalElever += val;
+  });
+
+  const sumInput = document.getElementById('s3_e_total');
+  if (sumInput) {
+    sumInput.value = (totalElever > 0) ? totalElever : (hasAnyInput ? 0 : '');
   }
 }
 
 function restoreSide3ERows() {
-  const tbody = document.getElementById('s3_e_tbody');
+  const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
   if (!tbody) return;
 
-  let maxIdx = 0;
+  tbody.innerHTML = '';
+  side3ERowCount = 0;
+
+  if (typeof formData === 'undefined') return;
+
+  // Hent alle unike rad-numre fra formData
+  const existingIndices = new Set();
   Object.keys(formData).forEach(key => {
     if (key.startsWith('s3_e_kommune_') || key.startsWith('s3_e_elever_')) {
       const idx = parseInt(key.split('_').pop(), 10);
-      if (!isNaN(idx) && idx > maxIdx) maxIdx = idx;
+      if (!isNaN(idx)) existingIndices.add(idx);
     }
   });
 
-  const targetCount = Math.max(1, maxIdx);
-  tbody.innerHTML = '';
-  for (let i = 1; i <= targetCount; i++) {
-    addRowSide3E();
-  }
+  const sortedIndices = Array.from(existingIndices).sort((a, b) => a - b);
+
+  sortedIndices.forEach(i => {
+    const kVal = formData[`s3_e_kommune_${i}`] || '';
+    const eVal = formData[`s3_e_elever_${i}`] || '';
+
+    // Gjenopprett KUN dersom feltene faktisk har innhold
+    if (kVal !== '' || eVal !== '') {
+      addSide3ERowWithId(i, kVal, eVal);
+      if (i > side3ERowCount) side3ERowCount = i;
+    }
+  });
+
+  updateSide3ERowNumbers();
+  calcSide3E();
 }
 
 function calcSide4() {
@@ -1382,33 +1419,32 @@ function bindEvents() {
   on('validate-btn', 'click', () => runValidation(true));
   on('export-btn', 'click', typeof exportJSON === 'function' ? exportJSON : null);
   on('import-file', 'change', typeof importJSON === 'function' ? importJSON : null);
-  on('s3_e_add_row', 'click', addRowSide3E);
   on('reset-select', 'change', handleResetSelect);
 
-// Hamburgermeny (Plassert helt til høyre, med robust valghåndtering)
+  // Knapper for å legge til rad i kommunetabellene
+  on('add-s3-e-row-btn', 'click', () => { if (typeof addSide3ERow === 'function') addSide3ERow(); });
+  on('add-s7-h-row-btn', 'click', () => { if (typeof addSide7HRow === 'function') addSide7HRow(); });
+
+  // Hamburgermeny
   const toolsBtn = document.getElementById('tools-menu-btn');
   const toolsDropdown = document.getElementById('tools-dropdown');
 
   if (toolsBtn && toolsDropdown) {
-    // Apne / Lukk ved klikk på hamburgermenyknappen
     toolsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toolsDropdown.classList.toggle('show');
     });
 
-    // Forhindre at klikk inne i menyen (f.eks. når du åpner select-boksen) lukker panelet
     toolsDropdown.addEventListener('click', (e) => {
       e.stopPropagation();
     });
 
-    // Lukker menyen KUN når du klikker på vanlige knapper
     toolsDropdown.querySelectorAll('.dropdown-item').forEach(item => {
       item.addEventListener('click', () => {
         toolsDropdown.classList.remove('show');
       });
     });
 
-    // Lukker menyen KUN etter at et nullstillingsvalg faktis er utført
     const resetSelect = document.getElementById('reset-select');
     if (resetSelect) {
       resetSelect.addEventListener('change', () => {
@@ -1416,13 +1452,12 @@ function bindEvents() {
       });
     }
 
-    // Lukker menyen dersom du klikker et annet sted på skjermen
     document.addEventListener('click', () => {
       toolsDropdown.classList.remove('show');
     });
   }
 
-// Side 7 Kalkulator
+  // Side 7 Kalkulator
   on('open-calc-s7-modal-btn', 'click', openCalcSide7Modal);
   on('close-calc-s7-modal', 'click', closeCalcSide7Modal);
   on('cancel-calc-s7-btn', 'click', closeCalcSide7Modal);
@@ -1462,4 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSchoolYears();
   bindEvents();
   loadDataForYear();
+
+  // Gjenopprett dynamiske rader fra lagrede data dersom de finnes
+  if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
 });
