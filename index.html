@@ -378,6 +378,9 @@
 </section>
 
 <!-- SIDE 4 -->
+<button class="mini-btn btn-fetch-prev" id="open-calc-modal-btn" type="button" style="margin-bottom:10px;">
+  🧮 Åpne time-kalkulator (fra Excel)
+</button>
 <section class="page" id="page-4" data-page="4">
 
   <!-- A. Årstimer til undervisning totalt -->
@@ -1610,6 +1613,103 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" id="cancel-print">Avbryt</button>
       <button type="button" class="btn btn-primary" id="start-print-btn">🖨️ Skriv ut</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOR TIME-KALKULATOR -->
+<div class="modal-backdrop" id="calc-modal" style="display:none;">
+  <div class="modal-content" style="max-width: 850px;">
+    <div class="modal-header">
+      <h3>🧮 Hjelpeverktøy: Beregn årstimer fra Excel-data</h3>
+      <button class="close-btn" id="close-calc-modal" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 0.9rem; color: #475569; margin-top:0;">
+        Fyll inn samlede årstimer fra Excel-oversikten oppdelt på trinn. Når du trykker «Overfør til Side 4», vil alle tallene plasseres i de riktige feltene i 4A, 4B og 4E.
+      </p>
+
+      <table class="gsi-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th>Kategori / Hjemmel</th>
+            <th style="width:18%;">1.-4. trinn</th>
+            <th style="width:18%;">5.-7. trinn</th>
+            <th style="width:18%;">8.-10. trinn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f8fafc;"><td colspan="4"><strong>4A. Undervisningspersonale (Totale undervisningstimer)</strong></td></tr>
+          <tr>
+            <td>Kompetent undervisningspersonale (4A1)</td>
+            <td><input id="modal_a1_1" type="number"></td>
+            <td><input id="modal_a1_2" type="number"></td>
+            <td><input id="modal_a1_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Ikke-kompetent undervisningspersonale (4A2)</td>
+            <td><input id="modal_a2_1" type="number"></td>
+            <td><input id="modal_a2_2" type="number"></td>
+            <td><input id="modal_a2_3" type="number"></td>
+          </tr>
+
+          <tr style="background:#f8fafc;"><td colspan="4"><strong>4B. Tilrettelagt opplæring / §11.4 / §11.5 / Særskilt språk</strong></td></tr>
+          <tr>
+            <td>Individuelt tilrettelagt opplæring (4B1)</td>
+            <td><input id="modal_b1_1" type="number"></td>
+            <td><input id="modal_b1_2" type="number"></td>
+            <td><input id="modal_b1_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Forsterket opplæring i norsk (4B2)</td>
+            <td><input id="modal_b2_1" type="number"></td>
+            <td><input id="modal_b2_2" type="number"></td>
+            <td><input id="modal_b2_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Morsmålsopplæring (4B3)</td>
+            <td><input id="modal_b3_1" type="number"></td>
+            <td><input id="modal_b3_2" type="number"></td>
+            <td><input id="modal_b3_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Audiopedagog / Horselshemmede (§11.5 e.l.) (4B5/Annet)</td>
+            <td><input id="modal_b5_1" type="number"></td>
+            <td><input id="modal_b5_2" type="number"></td>
+            <td><input id="modal_b5_3" type="number"></td>
+          </tr>
+
+          <tr style="background:#f8fafc;"><td colspan="4"><strong>4E. Assistenter og Annet Personale</strong></td></tr>
+          <tr>
+            <td>Barne- og ungdomsarbeidere / Fagarbeidere (4E1)</td>
+            <td><input id="modal_e1_1" type="number"></td>
+            <td><input id="modal_e1_2" type="number"></td>
+            <td><input id="modal_e1_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Vernepleier / Barnevern / Sosionom (4E2)</td>
+            <td><input id="modal_e2_1" type="number"></td>
+            <td><input id="modal_e2_2" type="number"></td>
+            <td><input id="modal_e2_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Assistenttimer totalt (Annen bakgrunn) (4E4)</td>
+            <td><input id="modal_e4_1" type="number"></td>
+            <td><input id="modal_e4_2" type="number"></td>
+            <td><input id="modal_e4_3" type="number"></td>
+          </tr>
+          <tr>
+            <td>Hvorav vedtak om personlig assistanse (4E6)</td>
+            <td><input id="modal_e6_1" type="number"></td>
+            <td><input id="modal_e6_2" type="number"></td>
+            <td><input id="modal_e6_3" type="number"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-white" id="cancel-calc-btn" type="button">Avbryt</button>
+      <button class="btn" id="apply-calc-btn" type="button" style="background:#2563eb; color:white;">Overfør til Side 4</button>
     </div>
   </div>
 </div>

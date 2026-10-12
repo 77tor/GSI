@@ -943,6 +943,68 @@ function calcSide4() {
   setNumber('s4_e5_sum', sumIds(['s4_e5_1', 's4_e5_2', 's4_e5_3']));
 }
 
+
+/* =========================================================
+   KALKULATOR FOR EXCEL-DATA PÅ SIDE 4
+   ========================================================= */
+
+function openCalcModal() {
+  const modal = document.getElementById('calc-modal');
+  if (!modal) return;
+
+  // Hent eksisterende verdier fra side 4 og fyll inn i modalen
+  const fields = [
+    'a1_1', 'a1_2', 'a1_3', 'a2_1', 'a2_2', 'a2_3',
+    'b1_1', 'b1_1', 'b1_3', 'b2_1', 'b2_2', 'b2_3', 'b3_1', 'b3_2', 'b3_3', 'b5_1', 'b5_2', 'b5_3',
+    'e1_1', 'e1_2', 'e1_3', 'e2_1', 'e2_2', 'e2_3', 'e4_1', 'e4_2', 'e4_3', 'e6_1', 'e6_2', 'e6_3'
+  ];
+
+  fields.forEach(f => {
+    const mainEl = document.getElementById(`s4_${f}`);
+    const modalEl = document.getElementById(`modal_${f}`);
+    if (mainEl && modalEl) {
+      modalEl.value = mainEl.value || '';
+    }
+  });
+
+  modal.style.display = 'flex';
+}
+
+function closeCalcModal() {
+  const modal = document.getElementById('calc-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function applyCalcData() {
+  const mappings = [
+    { from: 'modal_a1_1', to: 's4_a1_1' }, { from: 'modal_a1_2', to: 's4_a1_2' }, { from: 'modal_a1_3', to: 's4_a1_3' },
+    { from: 'modal_a2_1', to: 's4_a2_1' }, { from: 'modal_a2_2', to: 's4_a2_2' }, { from: 'modal_a2_3', to: 's4_a2_3' },
+    { from: 'modal_b1_1', to: 's4_b1_1' }, { from: 'modal_b1_2', to: 's4_b1_2' }, { from: 'modal_b1_3', to: 's4_b1_3' },
+    { from: 'modal_b2_1', to: 's4_b2_1' }, { from: 'modal_b2_2', to: 's4_b2_2' }, { from: 'modal_b2_3', to: 's4_b2_3' },
+    { from: 'modal_b3_1', to: 's4_b3_1' }, { from: 'modal_b3_2', to: 's4_b3_2' }, { from: 'modal_b3_3', to: 's4_b3_3' },
+    { from: 'modal_b5_1', to: 's4_b5_1' }, { from: 'modal_b5_2', to: 's4_b5_2' }, { from: 'modal_b5_3', to: 's4_b5_3' },
+    { from: 'modal_e1_1', to: 's4_e1_1' }, { from: 'modal_e1_2', to: 's4_e1_2' }, { from: 'modal_e1_3', to: 's4_e1_3' },
+    { from: 'modal_e2_1', to: 's4_e2_1' }, { from: 'modal_e2_2', to: 's4_e2_2' }, { from: 'modal_e2_3', to: 's4_e2_3' },
+    { from: 'modal_e4_1', to: 's4_e4_1' }, { from: 'modal_e4_2', to: 's4_e4_2' }, { from: 'modal_e4_3', to: 's4_e4_3' },
+    { from: 'modal_e6_1', to: 's4_e6_1' }, { from: 'modal_e6_2', to: 's4_e6_2' }, { from: 'modal_e6_3', to: 's4_e6_3' }
+  ];
+
+  mappings.forEach(m => {
+    const modalInput = document.getElementById(m.from);
+    const targetInput = document.getElementById(m.to);
+    if (modalInput && targetInput) {
+      targetInput.value = modalInput.value;
+    }
+  });
+
+  // Re-beregn alle summer for Side 4 og lagre
+  calculateAll(false);
+  saveData(false);
+
+  closeCalcModal();
+  showSaveMessage('Tall fra kalkulatoren ble lagt inn i Side 4!');
+}
+
 function calcSide5() {
   ['a1', 'a2'].forEach(row => {
     const trinn = numberValue(`s5_${row}_14`) + numberValue(`s5_${row}_57`) + numberValue(`s5_${row}_810`);
@@ -1116,6 +1178,12 @@ function bindEvents() {
       toolsDropdown.classList.remove('show');
     });
   }
+
+// Kalkulator-modal
+  on('open-calc-modal-btn', 'click', openCalcModal);
+  on('close-calc-modal', 'click', closeCalcModal);
+  on('cancel-calc-btn', 'click', closeCalcModal);
+  on('apply-calc-btn', 'click', applyCalcData);
 
   // Utskrift-modal
   on('print-modal-btn', 'click', openPrintModal);
