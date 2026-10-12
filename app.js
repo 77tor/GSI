@@ -26,13 +26,17 @@ const numberValue = id => parseNum(document.getElementById(id)?.value);
 function setNumber(id, value) {
   let n = parseNum(value);
 
-  // Avrund til maks 2 desimaler for å unngå flyttallsfeil (f.eks. 6.0799999999999 -> 6.08)
+  // Avrund til maks 2 desimaler for å unngå flyttallsfeil
   n = Math.round((n + Number.EPSILON) * 100) / 100;
 
   formData[id] = n;
   const el = document.getElementById(id);
-  if (el) el.value = n;
+  if (el) {
+    // Viser tomt felt dersom verdien er 0, ellers tallet
+    el.value = (n === 0) ? '' : n;
+  }
 }
+
 
 const sumIds = ids => ids.reduce((sum, id) => sum + numberValue(id), 0);
 const rangeIds = (prefix, from, to, suffix = '') => Array.from({ length: to - from + 1 }, (_, i) => `${prefix}${from + i}${suffix}`);
@@ -990,7 +994,16 @@ function calcSide7() {
     setNumber(`s7_b${r}_uten_sum`, uten);
     setNumber(`s7_b${r}_tot`, ito + uten);
   }
-  ['c', 'd'].forEach(sumGJ);
+
+  // --- EGEN SPESIALBEREGNING FOR 7C OG 7D ---
+  // Summerer 1.-7. trinn + 8.-10. trinn (ev. Gutter + Jenter)
+  const sumC = numberValue('s7_c_17') + numberValue('s7_c_810') || (numberValue('s7_c_g') + numberValue('s7_c_j'));
+  setNumber('s7_c_sum', sumC);
+
+  const sumD = numberValue('s7_d_17') + numberValue('s7_d_810') || (numberValue('s7_d_g') + numberValue('s7_d_j'));
+  setNumber('s7_d_sum', sumD);
+
+  // Summering for E, F og G
   [1, 2, 3, 4].forEach(r => ['e', 'f', 'g'].forEach(sec => sumGJ(`s7_${sec}${r}`)));
   ['14', '57', '810', 'g', 'j'].forEach(sfx => setNumber(`s7_f5_${sfx}`, sumIds([1, 2, 3, 4].map(r => `s7_f${r}_${sfx}`))));
   sumGJ('s7_f5');
@@ -998,7 +1011,6 @@ function calcSide7() {
   setNumber('s7_g5_j', sumIds([1, 2, 3, 4].map(r => `s7_g${r}_j`)));
   sumGJ('s7_g5');
 }
-
 
 /* =========================================================
    SIDE 7 EXCEL PASTE / TOLKING
@@ -1206,6 +1218,90 @@ function applyCalcSide7Data() {
   closeCalcSide7Modal();
   showSaveMessage('Excel-data overført til Side 7 (med komplett trinnfordeling i 7F)!');
 }
+
+
+
+/* =========================================================
+   TABELL 7H: DYNAMISKE RADER OG TETT INTEGRASJON MED GSI
+   ========================================================= */
+
+let side7HRowCount = 0;
+
+function addSide7HRow(kommuneVal = '', eleverVal = '') {
+  const tbody = document.getElementById('s7-h-tbody');
+  if (!tbody) return;
+
+  side7HRowCount++;
+  const rowId = side7HRowCount;
+
+  const tr = document.createElement('tr');
+  tr.id = `s7-h-row-${rowId}`;
+
+  tr.innerHTML = `
+    <td style="text-align: center; background: #d8ebe2; border: 1px solid #526b8e; font-weight: bold; color: #0f172a;" class="s7-h-row-index"></td>
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="text" list="kommuner-list" id="s7_h_kommune_${rowId}" placeholder="" value="${kommuneVal}" style="width: 100%; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 2px; font-size: 0.88rem; text-align: right;" oninput="saveData(false)">
+    </td>
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s7_h_elever_${rowId}" value="${eleverVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 2px; font-size: 0.88rem;" oninput="calcSide7H(); saveData(false)">
+    </td>
+    <td style="text-align: center; vertical-align: middle; background: #ffffff; border: 1px solid #526b8e;">
+      <button type="button" onclick="removeSide7HRow(${rowId})" style="background: none; border: none; color: #1e293b; font-size: 1.15rem; cursor: pointer; padding: 0; line-height: 1;" title="Slett rad">&#8855;</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+  updateSide7HRowNumbers();
+  calcSide7H();
+}
+
+function removeSide7HRow(rowId) {
+  const row = document.getElementById(`s7-h-row-${rowId}`);
+  if (row) {
+    row.remove();
+    updateSide7HRowNumbers();
+    calcSide7H();
+    saveData(false);
+  }
+}
+
+function updateSide7HRowNumbers() {
+  const tbody = document.getElementById('s7-h-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((tr, index) => {
+    const idxTd = tr.querySelector('.s7-h-row-index');
+    if (idxTd) idxTd.textContent = index + 1;
+  });
+
+  // Oppdater radnummeret for sum-raden nederst
+  const sumNoTd = document.getElementById('s7-h-sum-no');
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
+
+function calcSide7H() {
+  const tbody = document.getElementById('s7-h-tbody');
+  if (!tbody) return;
+
+  let totalElever = 0;
+  let hasAnyInput = false;
+
+  const eleverInputs = tbody.querySelectorAll('input[type="number"]');
+
+  eleverInputs.forEach(input => {
+    const val = parseNum(input.value);
+    if (input.value !== '') hasAnyInput = true;
+    totalElever += val;
+  });
+
+  const sumInput = document.getElementById('s7_h_sum');
+  if (sumInput) {
+    // Hvis ingen rader eller ingen verdier er lagt inn, viser vi tomt felt
+    sumInput.value = (totalElever > 0) ? totalElever : (hasAnyInput ? 0 : '');
+  }
+}
+
 
 function calcSide8() {
   setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a', 1, 10, '_norsk')));
