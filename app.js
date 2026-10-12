@@ -1056,7 +1056,12 @@ function applyCalcSide7Data() {
     e3: { g: 0, j: 0 }, // Gruppe 2-5
     e4: { g: 0, j: 0 }, // Alene
     // 7F: Undervisningstimer per elev (ITO + Audioped. + Logoped)
-    f: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } },
+    f: { 
+      1: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
+      2: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
+      3: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
+      4: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 } 
+    },
     // 7G: Assistent-timer per elev (§ 11-4)
     g_tab: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } }
   };
@@ -1100,13 +1105,20 @@ function applyCalcSide7Data() {
     const isFastAvd   = cols[11] && ['x', 'ja', '1'].includes(cols[11].toLowerCase());
     const isFastAlt   = cols[12] && ['x', 'ja', '1'].includes(cols[12].toLowerCase());
 
-    // 1. Tell 7A (Elever per trinn) og 7F (Undervisningstimer)
+    // 1. Tell 7A (Elever per trinn) og 7F (Undervisningstimer + trinnfordeling)
     if (totalTeachingHours > 0) {
       if (!isNaN(trinn) && trinn >= 1 && trinn <= 10) {
         counts.a[trinn][kjonn]++;
       }
       const cat = getHourIntervalCategory(totalTeachingHours);
-      if (cat) counts.f[cat][kjonn]++;
+      if (cat) {
+        counts.f[cat][kjonn]++;
+        if (!isNaN(trinn)) {
+          if (trinn >= 1 && trinn <= 4) counts.f[cat].t14++;
+          else if (trinn >= 5 && trinn <= 7) counts.f[cat].t57++;
+          else if (trinn >= 8 && trinn <= 10) counts.f[cat].t810++;
+        }
+      }
     }
 
     // 2. Tell 7B1 og 7G (Personlig assistanse / § 11-4)
@@ -1172,8 +1184,11 @@ function applyCalcSide7Data() {
   setNumber('s7_e3_g', counts.e3.g); setNumber('s7_e3_j', counts.e3.j);
   setNumber('s7_e4_g', counts.e4.g); setNumber('s7_e4_j', counts.e4.j);
 
-  // --- SETT INN I 7F (Undervisningstimer per elev) ---
+  // --- SETT INN I 7F (Undervisningstimer per elev: Trinn + Kjønn) ---
   [1, 2, 3, 4].forEach(cat => {
+    setNumber(`s7_f${cat}_14`, counts.f[cat].t14);
+    setNumber(`s7_f${cat}_57`, counts.f[cat].t57);
+    setNumber(`s7_f${cat}_810`, counts.f[cat].t810);
     setNumber(`s7_f${cat}_g`, counts.f[cat].g);
     setNumber(`s7_f${cat}_j`, counts.f[cat].j);
   });
@@ -1189,7 +1204,7 @@ function applyCalcSide7Data() {
   saveData(false);
 
   closeCalcSide7Modal();
-  showSaveMessage('Excel-data overført til Side 7 (inkludert 7C og 7D)!');
+  showSaveMessage('Excel-data overført til Side 7 (med komplett trinnfordeling i 7F)!');
 }
 
 function calcSide8() {
