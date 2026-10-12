@@ -13,8 +13,8 @@ const pages = [
 ];
 
 let currentPage = 1, formData = {}, saveTimer = null;
-let activeSchoolYear = ''; // Holder styr på aktivt år direkte
-let isLoadingData = false; // <-- Legg til denne øverst!
+let activeSchoolYear = '';
+let isLoadingData = false;
 
 /* =========================================================
    HJELPEFUNKSJONER
@@ -25,25 +25,21 @@ const numberValue = id => parseNum(document.getElementById(id)?.value);
 
 function setNumber(id, value) {
   let n = parseNum(value);
-
-  // Avrund til maks 2 desimaler for å unngå flyttallsfeil
   n = Math.round((n + Number.EPSILON) * 100) / 100;
 
   formData[id] = n;
   const el = document.getElementById(id);
   if (el) {
-    // Viser tomt felt dersom verdien er 0, ellers tallet
     el.value = (n === 0) ? '' : n;
   }
 }
-
 
 const sumIds = ids => ids.reduce((sum, id) => sum + numberValue(id), 0);
 const rangeIds = (prefix, from, to, suffix = '') => Array.from({ length: to - from + 1 }, (_, i) => `${prefix}${from + i}${suffix}`);
 const allFormElements = () => document.querySelectorAll('main input[id], main select[id], main textarea[id], main input[name]');
 
 /* =========================================================
-   SKOLEÅR OG HÅNDTERING (SEPARERT & TRYGG LAGRING PER ÅR)
+   SKOLEÅR OG HÅNDTERING
    ========================================================= */
 
 function getActiveSchoolYear() {
@@ -73,24 +69,16 @@ function populateSchoolYears() {
 
 function handleYearChange() {
   if (isLoadingData) return;
-
-  // 1. Lagre NÅVÆRENDE data for det året vi FORLATER
   saveDataForYear(activeSchoolYear);
-
-  // 2. Oppdater aktivt skoleår ut fra dropdown
   const select = document.getElementById('year-select');
   if (select) {
     activeSchoolYear = select.value;
   }
-
-  // 3. Last inn data for det nye skoleåret
   loadDataForYear();
 }
 
 function saveDataForYear(year) {
-  // Blokker lagring dersom data holder på å lastes inn
   if (isLoadingData || !year) return;
-
   syncInputsToData();
   try {
     localStorage.setItem(storageKeyFor(year), JSON.stringify(formData));
@@ -105,7 +93,7 @@ function saveData(showMessage = false) {
 }
 
 function loadDataForYear() {
-  isLoadingData = true; // Sperr lagring mens vi fyller skjermfeltene
+  isLoadingData = true;
 
   const saved = localStorage.getItem(storageKeyFor(activeSchoolYear));
   try {
@@ -115,60 +103,47 @@ function loadDataForYear() {
     formData = {};
   }
 
-  // Tøm dynamiske rader fra Side 9C
-  document.querySelectorAll('#page-9 .table-s9-c tbody tr:not(.total-row)').forEach(row => row.remove());
+  if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
+  if (typeof restoreSide7HRows === 'function') restoreSide7HRows();
+  if (typeof restoreSide8CRows === 'function') restoreSide8CRows();
+  if (typeof restoreSide8DRows === 'function') restoreSide8DRows();
+  if (typeof restoreSide9CRows === 'function') restoreSide9CRows();
 
-  // Gjenopprett dynamiske rader for side 3E og fyll skjermfelt
-  restoreSide3ERows();
   syncDataToInputs();
-
-  // Kjør beregninger uten å utløse lagring
   calculateAll(false);
 
-  // Oppdater grensesnitt
+  if (typeof toggleLibraryHours === 'function') toggleLibraryHours();
+
   updateTopbarInfo();
   updateHeading();
   renderSidebar();
 
-  // Åpne for lagring igjen
   setTimeout(() => {
     isLoadingData = false;
   }, 100);
 }
 
 function syncInputsToData() {
-  if (isLoadingData) return; // Unngå å hente fra tomme/delvis fylte felt under oppstart
+  if (isLoadingData) return;
 
   allFormElements().forEach(el => {
     if (el.type === 'file' || (!el.id && !el.name)) return;
 
     if (['radio', 'checkbox'].includes(el.type)) {
       const key = el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`;
-      formData[key] = el.checked;
+      if (el.checked) {
+        formData[key] = true;
+      } else {
+        delete formData[key];
+      }
     } else if (el.id) {
-      formData[el.id] = el.value;
+      if (el.value !== '' && el.value !== null && el.value !== undefined) {
+        formData[el.id] = el.value;
+      } else {
+        delete formData[el.id];
+      }
     }
   });
-}
-
-function restoreSide3ERows() {
-  const tbody = document.getElementById('s3_e_tbody');
-  if (!tbody) return;
-
-  // Finn høyeste indeks for side 3E i formData for AKTIVT år
-  let maxIdx = 0;
-  Object.keys(formData).forEach(key => {
-    if (key.startsWith('s3_e_kommune_') || key.startsWith('s3_e_elever_')) {
-      const idx = parseInt(key.split('_').pop(), 10);
-      if (!isNaN(idx) && idx > maxIdx) maxIdx = idx;
-    }
-  });
-
-  const targetCount = Math.max(1, maxIdx);
-  tbody.innerHTML = '';
-  for (let i = 1; i <= targetCount; i++) {
-    if (typeof addRowSide3E === 'function') addRowSide3E();
-  }
 }
 
 function syncDataToInputs() {
@@ -183,13 +158,6 @@ function syncDataToInputs() {
         el.checked = Boolean(formData[key]);
       } else {
         el.value = formData[key] !== undefined && formData[key] !== null ? formData[key] : '';
-      }
-    } else {
-      // TØM feltet helt dersom dette skoleåret ikke har registrerte verdier
-      if (isCheck) {
-        el.checked = false;
-      } else {
-        el.value = '';
       }
     }
   });
@@ -213,9 +181,8 @@ function calculateAll(saveAfter = false) {
   if (saveAfter) saveData(false);
 }
 
-
 /* =========================================================
-   SIDEMENY, BEREGNINGER OG BINDINGER
+   SIDEMENY OG NAVIGASJON
    ========================================================= */
 
 function renderSidebar() {
@@ -264,15 +231,10 @@ function selectPage(id) {
 
   updateHeading();
   renderSidebar();
-  if (id === 17) runValidation(false);
+  if (id === 17 && typeof runValidation === 'function') runValidation(false);
 }
 
 const navigatePage = dir => selectPage(currentPage + dir);
-
-function autoSave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => saveData(false), 200);
-}
 
 function showSaveMessage(msg) {
   let box = document.getElementById('save-message');
@@ -288,28 +250,19 @@ function showSaveMessage(msg) {
   box._timer = setTimeout(() => box.style.display = 'none', 1800);
 }
 
-
-/* =========================================================
-   OPPDATER TOPPLINJE (USERBOX)
-   ========================================================= */
-
 function updateTopbarInfo() {
-  // Hent skolenavn fra s1_skole, med fallback
   const schoolInput = document.getElementById('s1_skole');
   const schoolName = schoolInput?.value || formData['s1_skole'] || 'Skolenavn';
 
-  // Hent kommunenavn fra s1_kommunenavn, med fallback
   const muniInput = document.getElementById('s1_kommunenavn');
   const municipality = muniInput?.value || formData['s1_kommunenavn'] || 'Kommune';
 
-  // Hent navn og rolle fra side 18 (sjekker typiske ID-er)
   const userNameInput = document.getElementById('s18_navn') || document.getElementById('s18_a_navn');
   const userName = userNameInput?.value || formData['s18_navn'] || formData['s18_a_navn'] || 'Navn';
 
   const userRoleInput = document.getElementById('s18_rolle') || document.getElementById('s18_a_rolle');
   const userRole = userRoleInput?.value || formData['s18_rolle'] || formData['s18_a_rolle'] || 'Rolle';
 
-  // Oppdater elementene i userbox
   const elSchool = document.getElementById('topbar-school');
   const elMuni = document.getElementById('topbar-municipality');
   const elName = document.getElementById('topbar-user-name');
@@ -321,484 +274,11 @@ function updateTopbarInfo() {
   if (elRole) elRole.textContent = userRole;
 }
 
-
-/* =========================================================
-   UTSKRIFT OG UTSKRIFTSMODAL
-   ========================================================= */
-
-// Hjelpefunksjon for å hente listen over skoleår
-function getSchoolYearOptions() {
-  const yearSelect = document.getElementById('year-select');
-  if (yearSelect && yearSelect.options.length > 0) {
-    return Array.from(yearSelect.options).map(opt => ({
-      value: opt.value,
-      text: opt.text
-    }));
-  }
-  return [{ value: activeSchoolYear, text: activeSchoolYear }];
-}
-
-function openPrintModal() {
-  const modal = document.getElementById('print-modal');
-  const yearSelect = document.getElementById('print-year-select');
-  const pagesList = document.getElementById('print-pages-list');
-
-  if (!modal) return;
-
-  // 1. Fyll skoleår
-  if (yearSelect) {
-    yearSelect.innerHTML = '';
-    getSchoolYearOptions().forEach(yr => {
-      const opt = document.createElement('option');
-      opt.value = yr.value;
-      opt.textContent = yr.text;
-      if (yr.value === activeSchoolYear) opt.selected = true;
-      yearSelect.appendChild(opt);
-    });
-  }
-
-  // 2. Generer struktur med sider og underseksjoner
-  if (pagesList) {
-    pagesList.innerHTML = '';
-    pages.forEach(p => {
-      const pageEl = document.querySelector(`.page[data-page="${p.id}"]`);
-      const sections = pageEl ? Array.from(pageEl.querySelectorAll('.section-card')) : [];
-
-      const pageContainer = document.createElement('div');
-      pageContainer.className = 'print-page-group';
-
-      let sectionsHTML = '';
-      if (sections.length > 0) {
-        sectionsHTML = `<div class="print-sections-list">`;
-        sections.forEach((sec, idx) => {
-          const title = sec.querySelector('.section-header')?.textContent?.trim() || `Del ${idx + 1}`;
-          sectionsHTML += `
-            <label class="print-sub-item">
-              <input type="checkbox" class="print-section-check" data-page="${p.id}" data-section-idx="${idx}" checked>
-              <span>${title}</span>
-            </label>
-          `;
-        });
-        sectionsHTML += `</div>`;
-      }
-
-      pageContainer.innerHTML = `
-        <div class="print-page-header">
-          <label class="print-page-item">
-            <input type="checkbox" class="print-page-check" data-page="${p.id}" checked>
-            <span><strong>${p.id}.</strong> ${p.name}</span>
-          </label>
-          ${sections.length > 0 ? `<button type="button" class="toggle-sub-btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">▼ Deloppgaver</button>` : ''}
-        </div>
-        ${sectionsHTML}
-      `;
-
-      pagesList.appendChild(pageContainer);
-    });
-
-    // Kobl hovedsjekkboks til alle sine underseksjoner
-    pagesList.querySelectorAll('.print-page-check').forEach(cb => {
-      cb.addEventListener('change', (e) => {
-        const pageId = e.target.getAttribute('data-page');
-        const subChecks = pagesList.querySelectorAll(`.print-section-check[data-page="${pageId}"]`);
-        subChecks.forEach(sub => sub.checked = e.target.checked);
-      });
-    });
-  }
-
-  modal.style.display = 'flex';
-}
-
-function closePrintModal() {
-  const modal = document.getElementById('print-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-function handleStartPrint() {
-  const selectedYear = document.getElementById('print-year-select')?.value;
-  const isDataMode = document.querySelector('input[name="print-data-mode"]:checked')?.value === 'with-data';
-  
-  const checkedPageCbs = Array.from(document.querySelectorAll('.print-page-check:checked'));
-  const checkedPageIds = checkedPageCbs.map(cb => parseInt(cb.getAttribute('data-page'), 10));
-
-  if (checkedPageIds.length === 0) {
-    alert('Vennligst velg minst én side for utskrift.');
-    return;
-  }
-
-  let printData = {};
-  if (isDataMode && selectedYear) {
-    const raw = localStorage.getItem(storageKeyFor(selectedYear));
-    if (raw) {
-      try { printData = JSON.parse(raw) || {}; } catch (e) { printData = {}; }
-    }
-  }
-
-  const backupFormData = { ...formData };
-  const backupPage = currentPage;
-
-  formData = printData;
-  syncDataToInputs();
-  calculateAll(false);
-
-  const schoolName = formData['s1_skole'] || 'Skole';
-  const muniName = formData['s1_kommunenavn'] || 'Kommune';
-  const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
-
-  // Fjern eventuelle gamle utskriftstopptekster
-  document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
-
-  // Styr synlighet for sider og delseksjoner
-  document.querySelectorAll('.page').forEach(pageEl => {
-    const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
-    const pageObj = pages.find(p => p.id === pageNum);
-    const pageTitle = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${pageNum}`;
-
-    pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
-
-    if (checkedPageIds.includes(pageNum)) {
-      pageEl.classList.add('print-visible');
-
-      // Sett inn en egen topptekst øverst på DENNE siden for utskrift
-      const printHeader = document.createElement('div');
-      printHeader.className = 'print-header print-header-instance';
-      printHeader.innerHTML = `
-        <div><strong>${schoolName}</strong> — ${muniName}</div>
-        <div><strong>${pageTitle}</strong></div>
-        <div>${yearText}</div>
-      `;
-      pageEl.insertBefore(printHeader, pageEl.firstChild);
-
-      // Skjul delseksjoner som brukeren har valgt bort
-      const sections = pageEl.querySelectorAll('.section-card');
-      sections.forEach((secEl, idx) => {
-        const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
-        if (subCb && !subCb.checked) {
-          secEl.classList.add('print-section-hidden');
-        }
-      });
-
-    } else {
-      pageEl.classList.remove('print-visible');
-    }
-  });
-
-  closePrintModal();
-
-  setTimeout(() => {
-    window.print();
-
-    // Gjenopprett applikasjonen etter utskrift
-    formData = backupFormData;
-    syncDataToInputs();
-    calculateAll(false);
-
-    document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
-    document.querySelectorAll('.page').forEach(pageEl => {
-      pageEl.classList.remove('print-visible');
-      pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
-    });
-
-    if (typeof navigateToPage === 'function') navigateToPage(backupPage);
-  }, 150);
-}
-
-/* =========================================================
-   HENT DATA FRA FORRIGE SKOLEÅR (KUN FOR GJELDENDE SIDE)
-   ========================================================= */
-
-function copyPreviousYearPageData() {
-  // 1. Finne ut hva forrige skoleår er
-  const [startY, endY] = activeSchoolYear.split('-').map(Number);
-  if (!startY) {
-    alert('Ugyldig skoleår valgt.');
-    return;
-  }
-  
-  const prevSchoolYear = `${startY - 1}-${endY - 1}`;
-  const prevYearDisplay = `${startY - 1}/${endY - 1}`;
-  const prevKey = storageKeyFor(prevSchoolYear);
-
-  // 2. Sjekk om det finnes lagrede data for forrige år
-  const prevDataRaw = localStorage.getItem(prevKey);
-  if (!prevDataRaw) {
-    alert(`Fant ingen lagrede data for forrige skoleår (${prevYearDisplay}).`);
-    return;
-  }
-
-  let prevData = {};
-  try {
-    prevData = JSON.parse(prevDataRaw) || {};
-  } catch (err) {
-    alert(`Kunne ikke lese data for skoleåret ${prevYearDisplay}.`);
-    return;
-  }
-
-  const pageObj = pages.find(p => p.id === currentPage);
-  const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
-
-  // 3. Bekreftelse fra bruker
-  const confirmCopy = window.confirm(
-    `Vil du hente registreringene fra skoleåret ${prevYearDisplay} for "${pageName}"?\n\nNåværende tall/tekst på denne siden vil bli overskrevet.`
-  );
-
-  if (!confirmCopy) return;
-
-  // 4. Finn kun felt som tilhører gjeldende side
-  const pageEl = document.querySelector(`.page[data-page="${currentPage}"]`);
-  if (!pageEl) return;
-
-  const pageInputs = pageEl.querySelectorAll('input[id], select[id], textarea[id], input[name]');
-  let copiedCount = 0;
-
-  pageInputs.forEach(el => {
-    if (el.type === 'file') return;
-
-    const isCheck = ['radio', 'checkbox'].includes(el.type);
-    const key = isCheck ? (el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`) : el.id;
-
-    if (key && Object.prototype.hasOwnProperty.call(prevData, key)) {
-      formData[key] = prevData[key];
-      copiedCount++;
-    }
-  });
-
-  if (copiedCount === 0) {
-    alert(`Det ble ikke funnet noen lagrede data på ${pageName} for ${prevYearDisplay}.`);
-    return;
-  }
-
-  // 5. Synkroniser til felt, kjør beregninger og lagre
-  syncDataToInputs();
-  calculateAll(false);
-  saveData(false);
-
-  showSaveMessage(`Data for ${pageName} ble hentet fra ${prevYearDisplay}!`);
-}
-
-/* =========================================================
-   NULLSTILLING / SLETTING AV DATA (TRYGG VERSJON)
-   ========================================================= */
-
-function clearDynamicRows3E() {
-  try {
-    const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
-    if (tbody) tbody.innerHTML = '';
-    if (typeof side3ERowCount !== 'undefined') side3ERowCount = 0;
-    
-    const sumNo = document.getElementById('s3-e-sum-no') || document.getElementById('s3_e_sum_row_no');
-    if (sumNo) sumNo.textContent = '1';
-
-    if (typeof formData !== 'undefined') {
-      Object.keys(formData).forEach(key => {
-        if (key.startsWith('s3_e_')) delete formData[key];
-      });
-    }
-    if (typeof calcSide3E === 'function') calcSide3E();
-  } catch (err) {
-    console.warn("Feil ved tømming av Side 3E:", err);
-  }
-}
-
-function clearDynamicRows7H() {
-  try {
-    const tbody = document.getElementById('s7-h-tbody');
-    if (tbody) tbody.innerHTML = '';
-    if (typeof side7HRowCount !== 'undefined') side7HRowCount = 0;
-
-    const sumNo = document.getElementById('s7-h-sum-no');
-    if (sumNo) sumNo.textContent = '1';
-
-    if (typeof formData !== 'undefined') {
-      Object.keys(formData).forEach(key => {
-        if (key.startsWith('s7_h_')) delete formData[key];
-      });
-    }
-    if (typeof calcSide7H === 'function') calcSide7H();
-  } catch (err) {
-    console.warn("Feil ved tømming av Side 7H:", err);
-  }
-}
-
-function resetCurrentPageData() {
-  const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === currentPage) : null;
-  const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
-
-  if (!window.confirm(`Er du sikker på at du vil slette alle inndata på "${pageName}"?`)) return;
-
-  const pageEl = document.querySelector(`.page[data-page="${currentPage}"]`);
-  if (pageEl) {
-    const pageInputs = pageEl.querySelectorAll('input[id], select[id], textarea[id], input[name]');
-
-    pageInputs.forEach(el => {
-      if (['radio', 'checkbox'].includes(el.type)) {
-        const key = el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`;
-        delete formData[key];
-        el.checked = false;
-      } else if (el.id) {
-        delete formData[el.id];
-        el.value = '';
-      }
-    });
-  }
-
-  // Tøm dynamiske rader dersom vi står på Side 3 eller Side 7
-  if (currentPage === 3) clearDynamicRows3E();
-  if (currentPage === 7) clearDynamicRows7H();
-
-  if (typeof calculateAll === 'function') calculateAll(false);
-  if (typeof saveData === 'function') saveData(false);
-  if (typeof syncDataToInputs === 'function') syncDataToInputs();
-  if (typeof showSaveMessage === 'function') showSaveMessage(`Innholdet på ${pageName} ble slettet.`);
-}
-
-function resetSchoolYearData(keepPage1And2 = true) {
-  const currentYearText = document.getElementById('year-select')?.selectedOptions[0]?.text || activeSchoolYear;
-  
-  const msg = keepPage1And2
-    ? `Er du sikker på at du vil slette registreringene for ${currentYearText}?\n\nSide 1 og 2 (Enhetsopplysninger og Om skolen) vil BLI BEVART.`
-    : `Er du sikker på at du vil slette ABSOLUTT ALT for skoleåret ${currentYearText} (inkludert side 1 og 2)?`;
-
-  if (!window.confirm(msg)) return;
-
-  if (keepPage1And2) {
-    const preservedData = {};
-    const page1and2Elements = document.querySelectorAll('.page[data-page="1"] [id], .page[data-page="2"] [id]');
-    const preservedKeys = new Set();
-    
-    page1and2Elements.forEach(el => {
-      if (['radio', 'checkbox'].includes(el.type)) {
-        preservedKeys.add(el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`);
-      } else if (el.id) {
-        preservedKeys.add(el.id);
-      }
-    });
-
-    preservedKeys.forEach(key => {
-      if (Object.prototype.hasOwnProperty.call(formData, key)) {
-        preservedData[key] = formData[key];
-      }
-    });
-
-    formData = preservedData;
-  } else {
-    formData = {};
-  }
-
-  // Tøm dynamiske rader
-  clearDynamicRows3E();
-  clearDynamicRows7H();
-
-  try {
-    document.querySelectorAll('#page-9 .table-s9-c tbody tr:not(.total-row)').forEach(row => row.remove());
-  } catch (e) {
-    // Svelg feil dersom tabellen på side 9 ikke finnes
-  }
-
-  if (typeof syncDataToInputs === 'function') syncDataToInputs();
-  if (typeof calculateAll === 'function') calculateAll(false);
-  if (typeof saveData === 'function') saveData(false);
-
-  if (typeof showSaveMessage === 'function') {
-    showSaveMessage(keepPage1And2 ? `Skoleåret ${currentYearText} ble nullstilt (beholdt side 1 & 2).` : `Alt for ${currentYearText} ble slettet.`);
-  }
-}
-
-function handleResetSelect(event) {
-  const action = event.target.value;
-  if (!action) return;
-
-  if (action === 'page') {
-    resetCurrentPageData();
-  } else if (action === 'year_keep_1_2') {
-    resetSchoolYearData(true);
-  } else if (action === 'year_all') {
-    resetSchoolYearData(false);
-  }
-
-  event.target.value = '';
-}
-
-
-/* =========================================================
-   EKSPORT OG IMPORT (JSON)
-   ========================================================= */
-
-function exportJSON() {
-  syncInputsToData();
-
-  // Bygg et komplett objekt med metadata og data for gjeldende skoleår
-  const exportPayload = {
-    schoolYear: activeSchoolYear,
-    exportedAt: new Date().toISOString(),
-    formData: formData
-  };
-
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
-  const downloadAnchor = document.createElement('a');
-  
-  // Generer filnavn, f.eks. "GSI_data_2026-2027.json"
-  const fileName = `GSI_data_${activeSchoolYear}.json`;
-
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", fileName);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-
-  showSaveMessage(`Data for ${activeSchoolYear} ble eksportert!`);
-}
-
-function importJSON(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const imported = JSON.parse(e.target.result);
-
-      // Sjekk om filen har riktig struktur (enten direkte object eller med payload-wrapper)
-      const newFormData = imported.formData || imported;
-
-      if (typeof newFormData !== 'object' || newFormData === null) {
-        throw new Error('Ugyldig filformat.');
-      }
-
-      const confirmImport = window.confirm(
-        `Vil du importere dataene fra filen "${file.name}" into skoleåret ${activeSchoolYear}?\n\nNåværende registrerte data for dette året vil bli overskrevet.`
-      );
-
-      if (!confirmImport) return;
-
-      formData = newFormData;
-      
-      // Lagre de nye dataene for det aktive skoleåret
-      saveDataForYear(activeSchoolYear);
-
-      // Synkroniser til skjerm og beregn på nytt
-      syncDataToInputs();
-      calculateAll(false);
-
-      showSaveMessage(`Data ble importert fra ${file.name}!`);
-    } catch (err) {
-      console.error('Feil ved import:', err);
-      alert('Kunne ikke importere filen. Sjekk at det er en gyldig GSI JSON-fil.');
-    } finally {
-      // Tilbakestill file-input slik at samme fil kan velges på nytt om ønskelig
-      event.target.value = '';
-    }
-  };
-
-  reader.readAsText(file);
-}
-
 /* =========================================================
    SIDE 3 TIL 16 BEREGNINGSFUNKSJONER
    ========================================================= */
 
 function calcSide3() {
-  // A, B, C beregninger
   for (let t = 1; t <= 10; t++) setNumber(`s3_a_${t}_sum`, numberValue(`s3_a_${t}_gutter`) + numberValue(`s3_a_${t}_jenter`));
   ['gutter', 'jenter', 'sum'].forEach(sfx => {
     setNumber(`s3_a_sum17_${sfx}`, sumIds(rangeIds('s3_a_', 1, 7, `_${sfx}`)));
@@ -810,13 +290,8 @@ function calcSide3() {
   setNumber('s3_b_total', numberValue('s3_b_sum17') + numberValue('s3_b_sum810'));
   setNumber('s3_c_sum', sumIds(rangeIds('s3_c_', 1, 10)));
 
-  // BEREGNING FOR DEL E
   calcSide3E();
 }
-
-/* =========================================================
-   TABELL 3E: DYNAMISKE RADER (GSI-DESIGN & STABIL LASTRUTINE)
-   ========================================================= */
 
 let side3ERowCount = 0;
 
@@ -841,6 +316,11 @@ function addSide3ERowWithId(rowId, kommuneVal = '', eleverVal = '') {
   `;
 
   tbody.appendChild(tr);
+
+  if (typeof formData !== 'undefined') {
+    formData[`s3_e_kommune_${rowId}`] = kommuneVal;
+    formData[`s3_e_elever_${rowId}`] = eleverVal;
+  }
 }
 
 function addSide3ERow(kommuneVal = '', eleverVal = '') {
@@ -856,7 +336,6 @@ function addSide3ERow(kommuneVal = '', eleverVal = '') {
 function removeSide3ERow(rowId) {
   const row = document.getElementById(`s3-e-row-${rowId}`);
   if (row) {
-    // Slett også fra formData hvis det finnes
     if (typeof formData !== 'undefined') {
       delete formData[`s3_e_kommune_${rowId}`];
       delete formData[`s3_e_elever_${rowId}`];
@@ -864,17 +343,7 @@ function removeSide3ERow(rowId) {
     row.remove();
     updateSide3ERowNumbers();
     calcSide3E();
-    if (typeof saveData === 'function') saveData(false);
-  }
-}
-
-// Bakoverkompatibilitet
-const addRowSide3E = addSide3ERow;
-function deleteRowSide3E(btnEl) {
-  const tr = btnEl.closest('tr');
-  if (tr) {
-    const rowId = tr.id.replace('s3-e-row-', '');
-    removeSide3ERow(rowId);
+    if (typeof saveData === 'function') saveData(true);
   }
 }
 
@@ -922,7 +391,6 @@ function restoreSide3ERows() {
 
   if (typeof formData === 'undefined') return;
 
-  // Hent alle unike rad-numre fra formData
   const existingIndices = new Set();
   Object.keys(formData).forEach(key => {
     if (key.startsWith('s3_e_kommune_') || key.startsWith('s3_e_elever_')) {
@@ -937,7 +405,6 @@ function restoreSide3ERows() {
     const kVal = formData[`s3_e_kommune_${i}`] || '';
     const eVal = formData[`s3_e_elever_${i}`] || '';
 
-    // Gjenopprett KUN dersom feltene faktisk har innhold
     if (kVal !== '' || eVal !== '') {
       addSide3ERowWithId(i, kVal, eVal);
       if (i > side3ERowCount) side3ERowCount = i;
@@ -949,7 +416,6 @@ function restoreSide3ERows() {
 }
 
 function calcSide4() {
-  // 1. DEL 4A: Beregn vannrette summer (1.-7. trinn og Sum 1.-10. trinn)
   [1, 2].forEach(r => {
     const sum17 = numberValue(`s4_a${r}_1`) + numberValue(`s4_a${r}_2`);
     setNumber(`s4_a${r}_17`, sum17);
@@ -958,39 +424,33 @@ function calcSide4() {
     setNumber(`s4_a${r}_sum`, sumTotal);
   });
 
-  // Rad 3 i 4A: Sum årstimer som gis til undervisning (Rad 1 + Rad 2 loddrett)
   const cols4A = ['1', '2', '17', '3', 'sum'];
   cols4A.forEach(col => {
     setNumber(`s4_a3_${col}`, numberValue(`s4_a1_${col}`) + numberValue(`s4_a2_${col}`));
   });
 
-  // 2. DEL 4B: Spesialundervisning og andre timer (Summer rader og kolonner)
   for (let r = 1; r <= 12; r++) {
     setNumber(`s4_b${r}_17`, numberValue(`s4_b${r}_1`) + numberValue(`s4_b${r}_2`));
     setNumber(`s4_b${r}_sum`, numberValue(`s4_b${r}_17`) + numberValue(`s4_b${r}_3`));
   }
 
-  // Rad 13 i 4B: Sum av rad 1-12 loddrett
   [1, 2, 3].forEach(c => {
     setNumber(`s4_b13_${c}`, sumIds(rangeIds('s4_b', 1, 12, `_${c}`)));
   });
   setNumber('s4_b13_17', numberValue('s4_b13_1') + numberValue('s4_b13_2'));
   setNumber('s4_b13_sum', numberValue('s4_b13_17') + numberValue('s4_b13_3'));
 
-  // 3. DEL 4C: Ordinær undervisning (4A Rad 3 minus 4B Rad 13)
   cols4A.forEach(col => {
     const a3Val = numberValue(`s4_a3_${col}`);
     const b13Val = numberValue(`s4_b13_${col}`);
     setNumber(`s4_c_${col}`, Math.max(0, a3Val - b13Val));
   });
 
-  // 4. DEL 4D & 4E: Øvrige beregninger
   setNumber('s4_d_sum', numberValue('s4_d_17') + numberValue('s4_d_3'));
   ['e1', 'e2', 'e3', 'e4', 'e6'].forEach(row => setNumber(`s4_${row}_sum`, sumIds(rangeIds(`s4_${row}_`, 1, 3))));
   [1, 2, 3].forEach(col => setNumber(`s4_e5_${col}`, sumIds([1, 2, 3, 4].map(r => `s4_e${r}_${col}`))));
   setNumber('s4_e5_sum', sumIds(['s4_e5_1', 's4_e5_2', 's4_e5_3']));
 }
-
 
 function calcSide5() {
   ['a1', 'a2'].forEach(row => {
@@ -1019,6 +479,10 @@ function calcSide6() {
   setNumber('s6_c_sum', Math.round((c14 + c57 + c810) * 100) / 100);
 }
 
+/* =========================================================
+   SIDE 7: BEREGNINGER OG EXCEL-IMPORT
+   ========================================================= */
+
 function calcSide7() {
   const sumGJ = prefix => setNumber(`${prefix}_sum`, numberValue(`${prefix}_g`) + numberValue(`${prefix}_j`));
   let [totG, totJ] = [0, 0];
@@ -1032,22 +496,25 @@ function calcSide7() {
   setNumber('s7_a_tot', totG + totJ);
 
   for (let r = 1; r <= 2; r++) {
-    const ito = numberValue(`s7_b${r}_ito_g`) + numberValue(`s7_b${r}_ito_j`);
-    const uten = numberValue(`s7_b${r}_uten_g`) + numberValue(`s7_b${r}_uten_j`);
-    setNumber(`s7_b${r}_ito_sum`, ito);
-    setNumber(`s7_b${r}_uten_sum`, uten);
-    setNumber(`s7_b${r}_tot`, ito + uten);
+    const medG = numberValue(`s7_b${r}_med_g`);
+    const medJ = numberValue(`s7_b${r}_med_j`);
+    const medSum = medG + medJ;
+    setNumber(`s7_b${r}_med_sum`, medSum);
+
+    const utenG = numberValue(`s7_b${r}_uten_g`);
+    const utenJ = numberValue(`s7_b${r}_uten_j`);
+    const utenSum = utenG + utenJ;
+    setNumber(`s7_b${r}_uten_sum`, utenSum);
+
+    setNumber(`s7_b${r}_total`, medSum + utenSum);
   }
 
-  // --- EGEN SPESIALBEREGNING FOR 7C OG 7D ---
-  // Summerer 1.-7. trinn + 8.-10. trinn (ev. Gutter + Jenter)
   const sumC = numberValue('s7_c_17') + numberValue('s7_c_810') || (numberValue('s7_c_g') + numberValue('s7_c_j'));
   setNumber('s7_c_sum', sumC);
 
   const sumD = numberValue('s7_d_17') + numberValue('s7_d_810') || (numberValue('s7_d_g') + numberValue('s7_d_j'));
   setNumber('s7_d_sum', sumD);
 
-  // Summering for E, F og G
   [1, 2, 3, 4].forEach(r => ['e', 'f', 'g'].forEach(sec => sumGJ(`s7_${sec}${r}`)));
   ['14', '57', '810', 'g', 'j'].forEach(sfx => setNumber(`s7_f5_${sfx}`, sumIds([1, 2, 3, 4].map(r => `s7_f${r}_${sfx}`))));
   sumGJ('s7_f5');
@@ -1055,10 +522,6 @@ function calcSide7() {
   setNumber('s7_g5_j', sumIds([1, 2, 3, 4].map(r => `s7_g${r}_j`)));
   sumGJ('s7_g5');
 }
-
-/* =========================================================
-   SIDE 7 EXCEL PASTE / TOLKING
-   ========================================================= */
 
 function openCalcSide7Modal() {
   const modal = document.getElementById('calc-s7-modal');
@@ -1095,30 +558,24 @@ function applyCalcSide7Data() {
     return;
   }
 
-  // Tellesummer for Side 7
   let counts = {
-    // 7A: Per trinn (1-10) og kjønn
     a: Array.from({ length: 11 }, () => ({ g: 0, j: 0 })),
-    // 7B: Vedtak
-    b1_ito_g: 0, b1_ito_j: 0,
-    b2_ito_g: 0, b2_ito_j: 0,
-    // 7C: Faste avdelinger
+    b1_med_g: 0, b1_med_j: 0,
+    b1_uten_g: 0, b1_uten_j: 0,
+    b2_med_g: 0, b2_med_j: 0,
+    b2_uten_g: 0, b2_uten_j: 0,
     c: { t17: 0, t810: 0, g: 0, j: 0 },
-    // 7D: Alternativ opplæringsarena
     d: { t17: 0, t810: 0, g: 0, j: 0 },
-    // 7E: Organisering
-    e1: { g: 0, j: 0 }, // Ordinær klasse
-    e2: { g: 0, j: 0 }, // Gruppe >= 6
-    e3: { g: 0, j: 0 }, // Gruppe 2-5
-    e4: { g: 0, j: 0 }, // Alene
-    // 7F: Undervisningstimer per elev (ITO + Audioped. + Logoped)
+    e1: { g: 0, j: 0 },
+    e2: { g: 0, j: 0 },
+    e3: { g: 0, j: 0 },
+    e4: { g: 0, j: 0 },
     f: { 
       1: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
       2: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
       3: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 }, 
       4: { t14: 0, t57: 0, t810: 0, g: 0, j: 0 } 
     },
-    // 7G: Assistent-timer per elev (§ 11-4)
     g_tab: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } }
   };
 
@@ -1128,40 +585,32 @@ function applyCalcSide7Data() {
     const cols = line.split('\t').map(c => c.trim().replace(',', '.'));
     if (cols.length < 2) return;
 
-    // Hopp over overskrifter
     const lineLower = line.toLowerCase();
     if (lineLower.includes('kjønn') || lineLower.includes('kjonn') || lineLower.includes('trinn')) return;
 
-    // Kolonne 0: Trinn (1-10)
     const trinn = parseInt(cols[0], 10);
-    
-    // Kolonne 1: Kjønn (g / j)
     const kjonnStr = cols[1]?.toLowerCase() || '';
     const kjonn = kjonnStr.startsWith('g') ? 'g' : (kjonnStr.startsWith('j') ? 'j' : null);
     
     if (!kjonn) return;
 
-    // Hent timer og avkryssinger fra kolonnene
-    const itoHours      = parseNum(cols[2]); // Col 2: ITO
-    const p11_4Hours    = parseNum(cols[3]); // Col 3: § 11-4 (Assistent)
-    const p11_5Has      = cols[4] && ['ja', 'x', '1'].includes(cols[4].toLowerCase()); // Col 4: § 11-5
-    const audiopedHours = parseNum(cols[5]); // Col 5: Audioped.
-    const logopedHours  = parseNum(cols[6]); // Col 6: Logoped
+    const itoHours      = parseNum(cols[2]);
+    const p11_4Hours    = parseNum(cols[3]);
+    const p11_5Has      = cols[4] && ['ja', 'x', '1'].includes(cols[4].toLowerCase());
+    const audiopedHours = parseNum(cols[5]);
+    const logopedHours  = parseNum(cols[6]);
 
-    // Samlet undervisningstimer (ITO + Audioped. + Logoped)
+    const hasITO = itoHours > 0 || (cols[2] && ['ja', 'x', '1', 'iop'].includes(cols[2].toLowerCase()));
     const totalTeachingHours = itoHours + audiopedHours + logopedHours;
 
-    // Organisering (sjekker 'x', 'ja' eller '1' i kolonnene 7-10)
     const isOrdKlasse = cols[7]  && ['x', 'ja', '1'].includes(cols[7].toLowerCase());
     const isGrp6Plus  = cols[8]  && ['x', 'ja', '1'].includes(cols[8].toLowerCase());
     const isGrp2Til5  = cols[9]  && ['x', 'ja', '1'].includes(cols[9].toLowerCase());
     const isAlene     = cols[10] && ['x', 'ja', '1'].includes(cols[10].toLowerCase());
 
-    // Faste avdelinger & Alternativ opplæringsarena (kolonnene 11 og 12)
     const isFastAvd   = cols[11] && ['x', 'ja', '1'].includes(cols[11].toLowerCase());
     const isFastAlt   = cols[12] && ['x', 'ja', '1'].includes(cols[12].toLowerCase());
 
-    // 1. Tell 7A (Elever per trinn) og 7F (Undervisningstimer + trinnfordeling)
     if (totalTeachingHours > 0) {
       if (!isNaN(trinn) && trinn >= 1 && trinn <= 10) {
         counts.a[trinn][kjonn]++;
@@ -1177,70 +626,73 @@ function applyCalcSide7Data() {
       }
     }
 
-    // 2. Tell 7B1 og 7G (Personlig assistanse / § 11-4)
-    if (p11_4Hours > 0) {
-      counts[`b1_ito_${kjonn}`]++;
+    if (p11_4Hours > 0 || (cols[3] && ['ja', 'x', '1'].includes(cols[3].toLowerCase()))) {
+      if (hasITO) {
+        counts[`b1_med_${kjonn}`]++;
+      } else {
+        counts[`b1_uten_${kjonn}`]++;
+      }
+
       const cat = getHourIntervalCategory(p11_4Hours);
       if (cat) counts.g_tab[cat][kjonn]++;
     }
 
-    // 3. Tell 7B2 (§ 11-5)
     if (p11_5Has) {
-      counts[`b2_ito_${kjonn}`]++;
+      if (hasITO) {
+        counts[`b2_med_${kjonn}`]++;
+      } else {
+        counts[`b2_uten_${kjonn}`]++;
+      }
     }
 
-    // 4. Tell 7C (Faste avdelinger)
     if (isFastAvd) {
       counts.c[kjonn]++;
       if (!isNaN(trinn) && trinn >= 1 && trinn <= 7) counts.c.t17++;
       else if (!isNaN(trinn) && trinn >= 8 && trinn <= 10) counts.c.t810++;
     }
 
-    // 5. Tell 7D (Alternativ opplæringsarena)
     if (isFastAlt) {
       counts.d[kjonn]++;
       if (!isNaN(trinn) && trinn >= 1 && trinn <= 7) counts.d.t17++;
       else if (!isNaN(trinn) && trinn >= 8 && trinn <= 10) counts.d.t810++;
     }
 
-    // 6. Tell 7E (Organisering)
     if (isOrdKlasse) counts.e1[kjonn]++;
     if (isGrp6Plus)  counts.e2[kjonn]++;
     if (isGrp2Til5)  counts.e3[kjonn]++;
     if (isAlene)     counts.e4[kjonn]++;
   });
 
-  // --- SETT INN I 7A (Elever per trinn) ---
   for (let t = 1; t <= 10; t++) {
     setNumber(`s7_a${t}_g`, counts.a[t].g);
     setNumber(`s7_a${t}_j`, counts.a[t].j);
   }
 
-  // --- SETT INN I 7B ---
-  setNumber('s7_b1_ito_g', counts.b1_ito_g);
-  setNumber('s7_b1_ito_j', counts.b1_ito_j);
-  setNumber('s7_b2_ito_g', counts.b2_ito_g);
-  setNumber('s7_b2_ito_j', counts.b2_ito_j);
+  setNumber('s7_b1_med_g', counts.b1_med_g);
+  setNumber('s7_b1_med_j', counts.b1_med_j);
+  setNumber('s7_b1_uten_g', counts.b1_uten_g);
+  setNumber('s7_b1_uten_j', counts.b1_uten_j);
 
-  // --- SETT INN I 7C (Faste avdelinger) ---
+  setNumber('s7_b2_med_g', counts.b2_med_g);
+  setNumber('s7_b2_med_j', counts.b2_med_j);
+  setNumber('s7_b2_uten_g', counts.b2_uten_g);
+  setNumber('s7_b2_uten_j', counts.b2_uten_j);
+
   setNumber('s7_c_17', counts.c.t17);
   setNumber('s7_c_810', counts.c.t810);
   setNumber('s7_c_g', counts.c.g);
   setNumber('s7_c_j', counts.c.j);
 
-  // --- SETT INN I 7D (Alternativ opplæringsarena) ---
   setNumber('s7_d_17', counts.d.t17);
   setNumber('s7_d_810', counts.d.t810);
   setNumber('s7_d_g', counts.d.g);
   setNumber('s7_d_j', counts.d.j);
 
-  // --- SETT INN I 7E (Organisering) ---
   setNumber('s7_e1_g', counts.e1.g); setNumber('s7_e1_j', counts.e1.j);
   setNumber('s7_e2_g', counts.e2.g); setNumber('s7_e2_j', counts.e2.j);
   setNumber('s7_e3_g', counts.e3.g); setNumber('s7_e3_j', counts.e3.j);
   setNumber('s7_e4_g', counts.e4.g); setNumber('s7_e4_j', counts.e4.j);
 
-  // --- SETT INN I 7F (Undervisningstimer per elev: Trinn + Kjønn) ---
   [1, 2, 3, 4].forEach(cat => {
     setNumber(`s7_f${cat}_14`, counts.f[cat].t14);
     setNumber(`s7_f${cat}_57`, counts.f[cat].t57);
@@ -1249,25 +701,17 @@ function applyCalcSide7Data() {
     setNumber(`s7_f${cat}_j`, counts.f[cat].j);
   });
 
-  // --- SETT INN I 7G (Assistenttimer per elev) ---
   [1, 2, 3, 4].forEach(cat => {
     setNumber(`s7_g${cat}_g`, counts.g_tab[cat].g);
     setNumber(`s7_g${cat}_j`, counts.g_tab[cat].j);
   });
 
-  // Beregn alle summer loddrett/vannrett og lagre
   calculateAll(false);
-  saveData(false);
+  if (typeof saveData === 'function') saveData(true);
 
   closeCalcSide7Modal();
-  showSaveMessage('Excel-data overført til Side 7 (med komplett trinnfordeling i 7F)!');
+  showSaveMessage('Excel-data overført til Side 7 (med oppdeling i Med/Uten ITO for 7B)!');
 }
-
-
-
-/* =========================================================
-   TABELL 7H: DYNAMISKE RADER OG TETT INTEGRASJON MED GSI
-   ========================================================= */
 
 let side7HRowCount = 0;
 
@@ -1292,6 +736,11 @@ function addSide7HRowWithId(rowId, kommuneVal = '', eleverVal = '') {
   `;
 
   tbody.appendChild(tr);
+
+  if (typeof formData !== 'undefined') {
+    formData[`s7_h_kommune_${rowId}`] = kommuneVal;
+    formData[`s7_h_elever_${rowId}`] = eleverVal;
+  }
 }
 
 function addSide7HRow(kommuneVal = '', eleverVal = '') {
@@ -1314,7 +763,7 @@ function removeSide7HRow(rowId) {
     row.remove();
     updateSide7HRowNumbers();
     calcSide7H();
-    if (typeof saveData === 'function') saveData(false);
+    if (typeof saveData === 'function') saveData(true);
   }
 }
 
@@ -1386,13 +835,417 @@ function restoreSide7HRows() {
   calcSide7H();
 }
 
+/* =========================================================
+   SIDE 8: BEREGNINGER, MODAL OG EXCEL-IMPORT
+   ========================================================= */
 
 function calcSide8() {
   setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a', 1, 10, '_norsk')));
   setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a', 1, 10, '_gno')));
   ['b1', 'b2'].forEach(row => setNumber(`s8_${row}_sum`, numberValue(`s8_${row}_g`) + numberValue(`s8_${row}_j`)));
-  setNumber('s8_c1_sum', sumIds(['s8_c1_morsmal', 's8_c1_tosprak', 's8_c1_begge', 's8_c1_annen']));
+  
+  calcSide8C();
+  calcSide8D();
 }
+
+function openCalcSide8Modal() {
+  const modal = document.getElementById('calc-s8-modal');
+  if (modal) modal.style.display = 'block';
+}
+
+function closeCalcSide8Modal() {
+  const modal = document.getElementById('calc-s8-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function applyCalcSide8Data() {
+  const inputEl = document.getElementById('calc-s8-input');
+  const rawText = inputEl?.value || '';
+  if (!rawText.trim()) {
+    closeCalcSide8Modal();
+    return;
+  }
+
+  const lines = rawText.trim().split('\n');
+
+  const s8aNorsk = Array(11).fill(0);
+  const s8aGno = Array(11).fill(0);
+
+  let b1G = 0, b1J = 0;
+  let b2G = 0, b2J = 0;
+
+  const sprakMap = {};
+
+  lines.forEach(line => {
+    const cols = line.split('\t').map(c => c.trim());
+    if (cols.length < 2) return;
+
+    const lineLower = line.toLowerCase();
+    if (lineLower.includes('trinn') || lineLower.includes('tospråklig') || lineLower.includes('språk')) return;
+
+    const trinnRaw = parseInt(cols[0].replace(/\D/g, ''), 10);
+    if (isNaN(trinnRaw) || trinnRaw < 1 || trinnRaw > 10) return;
+
+    const kjonn = cols[1]?.toLowerCase() || '';
+    const plan = cols[2]?.toLowerCase() || '';
+    const egenGruppe = cols[3]?.toLowerCase() || '';
+    const asylsoker = cols[4]?.toLowerCase() || '';
+
+    const tosprakOpplRaw = cols[5] || '';
+    let sprakRaw = cols[6] || '';
+
+    if (!sprakRaw || !isNaN(parseFloat(sprakRaw.replace(',', '.')))) {
+      for (let i = cols.length - 1; i >= 5; i--) {
+        if (cols[i] && isNaN(parseFloat(cols[i].replace(',', '.')))) {
+          sprakRaw = cols[i];
+          break;
+        }
+      }
+    }
+
+    s8aNorsk[trinnRaw]++;
+    if (plan.includes('gno') || plan.includes('grunnleggende')) {
+      s8aGno[trinnRaw]++;
+    }
+
+    const isGutt = kjonn.startsWith('g');
+    const isJente = kjonn.startsWith('j');
+
+    const isEgenGruppe = egenGruppe !== '' && egenGruppe !== 'nei' && egenGruppe !== '0';
+    const isAsyl = asylsoker !== '' && asylsoker !== 'nei' && asylsoker !== '0';
+
+    if (isEgenGruppe) {
+      if (isGutt) b1G++;
+      if (isJente) b1J++;
+    }
+
+    if (isAsyl) {
+      if (isGutt) b2G++;
+      if (isJente) b2J++;
+    }
+
+    const hasTosprakOppl = tosprakOpplRaw !== '' && 
+                           tosprakOpplRaw !== '0' && 
+                           tosprakOpplRaw.toLowerCase() !== 'nei';
+
+    if (hasTosprakOppl && sprakRaw !== '' && !sprakRaw.toLowerCase().includes('norsk')) {
+      let matchedSprak = sprakRaw;
+      if (typeof GSI_SPRAK_LISTE !== 'undefined') {
+        const found = GSI_SPRAK_LISTE.find(s => s.toLowerCase() === sprakRaw.toLowerCase());
+        if (found) matchedSprak = found;
+      }
+
+      sprakMap[matchedSprak] = (sprakMap[matchedSprak] || 0) + 1;
+    }
+  });
+
+  for (let i = 1; i <= 10; i++) {
+    const nEl = document.getElementById(`s8_a${i}_norsk`);
+    const gEl = document.getElementById(`s8_a${i}_gno`);
+    if (nEl) nEl.value = s8aNorsk[i] || '';
+    if (gEl) gEl.value = s8aGno[i] || '';
+  }
+
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('s8_b1_g', b1G || '');
+  setVal('s8_b1_j', b1J || '');
+  setVal('s8_b2_g', b2G || '');
+  setVal('s8_b2_j', b2J || '');
+
+  const tbody8C = document.getElementById('s8-c-tbody');
+  if (tbody8C) tbody8C.innerHTML = '';
+  side8CRowCount = 0;
+
+  Object.keys(sprakMap).forEach((sprakNavn, index) => {
+    const antallElever = sprakMap[sprakNavn];
+    addSide8CRow(sprakNavn, '', antallElever, '', '');
+
+    const rowId = index + 1;
+    formData[`s8_c_sprak_${rowId}`] = sprakNavn;
+    formData[`s8_c_tosprak_${rowId}`] = antallElever;
+  });
+
+  calcSide8();
+  if (typeof saveData === 'function') saveData(true);
+
+  if (inputEl) inputEl.value = '';
+  closeCalcSide8Modal();
+}
+
+let side8CRowCount = 0;
+
+function addSide8CRowWithId(rowId, sprakVal = '', mVal = '', tVal = '', bVal = '', aVal = '') {
+  const tbody = document.getElementById('s8-c-tbody');
+  if (!tbody) return;
+
+  const tr = document.createElement('tr');
+  tr.id = `s8-c-row-${rowId}`;
+
+  tr.innerHTML = `
+    <td style="text-align: center; background: #d8ebe2; border: 1px solid #526b8e; font-weight: bold; color: #0f172a;" class="s8-c-row-index"></td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="text" list="sprak-list" id="s8_c_sprak_${rowId}" value="${sprakVal}" placeholder="Velg språk..." style="width: 100%; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s8_c_morsmal_${rowId}" value="${mVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="calcSide8C(); if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s8_c_tosprak_${rowId}" value="${tVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="calcSide8C(); if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s8_c_begge_${rowId}" value="${bVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="calcSide8C(); if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s8_c_annen_${rowId}" value="${aVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="calcSide8C(); if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #c2cad2;">
+      <input type="text" id="s8_c_sum_${rowId}" readonly style="width: 100%; text-align: right; font-weight: bold; border: none; background: transparent; padding: 3px 2px; font-size: 0.85rem;">
+    </td>
+    <td style="text-align: center; vertical-align: middle; background: #ffffff; border: 1px solid #526b8e;">
+      <button type="button" onclick="removeSide8CRow(${rowId})" style="background: none; border: none; color: #1e293b; font-size: 1.1rem; cursor: pointer; padding: 0; line-height: 1;" title="Slett rad">&#8855;</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+
+  if (typeof formData !== 'undefined') {
+    formData[`s8_c_sprak_${rowId}`] = sprakVal;
+    formData[`s8_c_morsmal_${rowId}`] = mVal;
+    formData[`s8_c_tosprak_${rowId}`] = tVal;
+    formData[`s8_c_begge_${rowId}`] = bVal;
+    formData[`s8_c_annen_${rowId}`] = aVal;
+  }
+}
+
+function addSide8CRow(sprakVal = '', mVal = '', tVal = '', bVal = '', aVal = '') {
+  side8CRowCount++;
+  addSide8CRowWithId(side8CRowCount, sprakVal, mVal, tVal, bVal, aVal);
+  updateSide8CRowNumbers();
+  calcSide8C();
+}
+
+function removeSide8CRow(rowId) {
+  const row = document.getElementById(`s8-c-row-${rowId}`);
+  if (row) {
+    if (typeof formData !== 'undefined') {
+      delete formData[`s8_c_sprak_${rowId}`];
+      delete formData[`s8_c_morsmal_${rowId}`];
+      delete formData[`s8_c_tosprak_${rowId}`];
+      delete formData[`s8_c_begge_${rowId}`];
+      delete formData[`s8_c_annen_${rowId}`];
+    }
+    row.remove();
+    updateSide8CRowNumbers();
+    calcSide8C();
+    if (typeof saveData === 'function') saveData(true);
+  }
+}
+
+function updateSide8CRowNumbers() {
+  const tbody = document.getElementById('s8-c-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((tr, index) => {
+    const idxTd = tr.querySelector('.s8-c-row-index');
+    if (idxTd) idxTd.textContent = index + 1;
+  });
+
+  const sumNoTd = document.getElementById('s8-c-sum-no');
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
+
+function calcSide8C() {
+  const tbody = document.getElementById('s8-c-tbody');
+  if (!tbody) return;
+
+  let sumM = 0, sumT = 0, sumB = 0, sumA = 0, total = 0;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    const rowId = tr.id.replace('s8-c-row-', '');
+    const parse = val => (typeof parseNum === 'function' ? parseNum(val) : (parseInt(val, 10) || 0));
+
+    const m = parse(document.getElementById(`s8_c_morsmal_${rowId}`)?.value);
+    const t = parse(document.getElementById(`s8_c_tosprak_${rowId}`)?.value);
+    const b = parse(document.getElementById(`s8_c_begge_${rowId}`)?.value);
+    const a = parse(document.getElementById(`s8_c_annen_${rowId}`)?.value);
+
+    const rowSum = m + t + b + a;
+    const rowSumEl = document.getElementById(`s8_c_sum_${rowId}`);
+    if (rowSumEl) rowSumEl.value = rowSum > 0 ? rowSum : '';
+
+    sumM += m; sumT += t; sumB += b; sumA += a; total += rowSum;
+  });
+
+  const setSum = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val > 0 ? val : '';
+  };
+
+  setSum('s8_c_morsmal_sum', sumM);
+  setSum('s8_c_tosprak_sum', sumT);
+  setSum('s8_c_begge_sum', sumB);
+  setSum('s8_c_annen_sum', sumA);
+  setSum('s8_c_total_sum', total);
+}
+
+function restoreSide8CRows() {
+  const tbody = document.getElementById('s8-c-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  side8CRowCount = 0;
+
+  if (typeof formData === 'undefined') return;
+
+  const existingIndices = new Set();
+  Object.keys(formData).forEach(key => {
+    if (key.startsWith('s8_c_sprak_')) {
+      const idx = parseInt(key.split('_').pop(), 10);
+      if (!isNaN(idx)) existingIndices.add(idx);
+    }
+  });
+
+  const sortedIndices = Array.from(existingIndices).sort((a, b) => a - b);
+
+  sortedIndices.forEach(i => {
+    const sVal = formData[`s8_c_sprak_${i}`] || '';
+    const mVal = formData[`s8_c_morsmal_${i}`] || '';
+    const tVal = formData[`s8_c_tosprak_${i}`] || '';
+    const bVal = formData[`s8_c_begge_${i}`] || '';
+    const aVal = formData[`s8_c_annen_${i}`] || '';
+
+    if (sVal !== '' || mVal !== '' || tVal !== '' || bVal !== '' || aVal !== '') {
+      addSide8CRowWithId(i, sVal, mVal, tVal, bVal, aVal);
+      if (i > side8CRowCount) side8CRowCount = i;
+    }
+  });
+
+  updateSide8CRowNumbers();
+  calcSide8C();
+}
+
+let side8DRowCount = 0;
+
+function addSide8DRowWithId(rowId, kommuneVal = '', eleverVal = '') {
+  const tbody = document.getElementById('s8-d-tbody');
+  if (!tbody) return;
+
+  const tr = document.createElement('tr');
+  tr.id = `s8-d-row-${rowId}`;
+
+  tr.innerHTML = `
+    <td style="text-align: center; background: #d8ebe2; border: 1px solid #526b8e; font-weight: bold; color: #0f172a;" class="s8-d-row-index"></td>
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="text" list="kommuner-list" id="s8_d_kommune_${rowId}" value="${kommuneVal}" style="width: 100%; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 2px; font-size: 0.88rem; text-align: left;" oninput="if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="padding: 2px 4px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="number" min="0" id="s8_d_elever_${rowId}" value="${eleverVal}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 2px; font-size: 0.88rem;" oninput="calcSide8D(); if(typeof saveData === 'function') saveData(false);">
+    </td>
+    <td style="text-align: center; vertical-align: middle; background: #ffffff; border: 1px solid #526b8e;">
+      <button type="button" onclick="removeSide8DRow(${rowId})" style="background: none; border: none; color: #1e293b; font-size: 1.15rem; cursor: pointer; padding: 0; line-height: 1;" title="Slett rad">&#8855;</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+}
+
+function addSide8DRow(kommuneVal = '', eleverVal = '') {
+  const safeKommune = (typeof kommuneVal === 'string') ? kommuneVal : '';
+  const safeElever = (typeof eleverVal === 'number' || typeof eleverVal === 'string') && typeof eleverVal !== 'object' ? eleverVal : '';
+
+  side8DRowCount++;
+  addSide8DRowWithId(side8DRowCount, safeKommune, safeElever);
+  updateSide8DRowNumbers();
+  calcSide8D();
+}
+
+function removeSide8DRow(rowId) {
+  const row = document.getElementById(`s8-d-row-${rowId}`);
+  if (row) {
+    if (typeof formData !== 'undefined') {
+      delete formData[`s8_d_kommune_${rowId}`];
+      delete formData[`s8_d_elever_${rowId}`];
+    }
+    row.remove();
+    updateSide8DRowNumbers();
+    calcSide8D();
+    if (typeof saveData === 'function') saveData(false);
+  }
+}
+
+function updateSide8DRowNumbers() {
+  const tbody = document.getElementById('s8-d-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((tr, index) => {
+    const idxTd = tr.querySelector('.s8-d-row-index');
+    if (idxTd) idxTd.textContent = index + 1;
+  });
+
+  const sumNoTd = document.getElementById('s8-d-sum-no');
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
+
+function calcSide8D() {
+  const tbody = document.getElementById('s8-d-tbody');
+  if (!tbody) return;
+
+  let totalElever = 0;
+  let hasAnyInput = false;
+
+  const eleverInputs = tbody.querySelectorAll('input[type="number"]');
+
+  eleverInputs.forEach(input => {
+    const val = typeof parseNum === 'function' ? parseNum(input.value) : (parseInt(input.value, 10) || 0);
+    if (input.value !== '') hasAnyInput = true;
+    totalElever += val;
+  });
+
+  const sumInput = document.getElementById('s8_d_sum');
+  if (sumInput) {
+    sumInput.value = (totalElever > 0) ? totalElever : (hasAnyInput ? 0 : '');
+  }
+}
+
+function restoreSide8DRows() {
+  const tbody = document.getElementById('s8-d-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  side8DRowCount = 0;
+
+  if (typeof formData === 'undefined') return;
+
+  const existingIndices = new Set();
+  Object.keys(formData).forEach(key => {
+    if (key.startsWith('s8_d_kommune_') || key.startsWith('s8_d_elever_')) {
+      const idx = parseInt(key.split('_').pop(), 10);
+      if (!isNaN(idx)) existingIndices.add(idx);
+    }
+  });
+
+  const sortedIndices = Array.from(existingIndices).sort((a, b) => a - b);
+
+  sortedIndices.forEach(i => {
+    const kVal = formData[`s8_d_kommune_${i}`] || '';
+    const eVal = formData[`s8_d_elever_${i}`] || '';
+
+    if (kVal !== '' || eVal !== '') {
+      addSide8DRowWithId(i, kVal, eVal);
+      if (i > side8DRowCount) side8DRowCount = i;
+    }
+  });
+
+  updateSide8DRowNumbers();
+  calcSide8D();
+}
+
+/* =========================================================
+   SIDE 9 OG YTTERLIGERE SIDER
+   ========================================================= */
 
 function calcSide9() {
   for (let t = 1; t <= 10; t++) {
@@ -1406,19 +1259,165 @@ function calcSide9() {
   ['14', '57', '810', 'sum'].forEach(col => setNumber(`s9_d3_${col}`, numberValue(`s9_d1_${col}`) + numberValue(`s9_d2_${col}`)));
 }
 
-function calcSide9C() {
-  const totals = Array(10).fill(0);
-  document.querySelectorAll('#page-9 .table-s9-c tbody tr:not(.total-row)').forEach(row => {
-    row.querySelectorAll('input[type="number"]').forEach((input, i) => {
-      if (i < 10) totals[i] += Number.parseFloat(input.value) || 0;
-    });
+let side9CRowCount = 0;
+
+function addSide9CRowWithId(rowId, sprakVal = '', trinnValues = []) {
+  const tbody = document.getElementById('s9-c-tbody');
+  if (!tbody) return;
+
+  const tr = document.createElement('tr');
+  tr.id = `s9-c-row-${rowId}`;
+
+  let trinnInputsHtml = '';
+  for (let t = 1; t <= 10; t++) {
+    const val = trinnValues[t - 1] !== undefined ? trinnValues[t - 1] : '';
+    trinnInputsHtml += `
+      <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+        <input type="number" min="0" id="s9_c_t${t}_${rowId}" value="${val}" style="width: 100%; text-align: right; border: 1px solid #cbd5e1; padding: 3px 2px; border-radius: 2px; font-size: 0.85rem;" oninput="calcSide9C(); if(typeof saveData === 'function') saveData(false);">
+      </td>
+    `;
+  }
+
+  tr.innerHTML = `
+    <td style="text-align: center; background: #d8ebe2; border: 1px solid #526b8e; font-weight: bold; color: #0f172a;" class="s9-c-row-index"></td>
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #ffffff;">
+      <input type="text" list="samisk-sprak-list" id="s9_c_sprak_${rowId}" value="${sprakVal}" placeholder="Velg språk..." style="width: 100%; border: 1px solid #cbd5e1; padding: 3px 4px; border-radius: 2px; font-size: 0.85rem;" oninput="if(typeof saveData === 'function') saveData(false);">
+    </td>
+    ${trinnInputsHtml}
+    <td style="padding: 2px; border: 1px solid #526b8e; background: #c2cad2;">
+      <input type="text" id="s9_c_sum_${rowId}" readonly style="width: 100%; text-align: right; font-weight: bold; border: none; background: transparent; padding: 3px 2px; font-size: 0.85rem;">
+    </td>
+    <td style="text-align: center; vertical-align: middle; background: #ffffff; border: 1px solid #526b8e;">
+      <button type="button" onclick="removeSide9CRow(${rowId})" style="background: none; border: none; color: #1e293b; font-size: 1.1rem; cursor: pointer; padding: 0; line-height: 1;" title="Slett rad">&#8855;</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+}
+
+function addSide9CRow(sprakVal = '', trinnValues = []) {
+  side9CRowCount++;
+  addSide9CRowWithId(side9CRowCount, sprakVal, trinnValues);
+  updateSide9CRowNumbers();
+  calcSide9C();
+}
+
+function removeSide9CRow(rowId) {
+  const row = document.getElementById(`s9-c-row-${rowId}`);
+  if (row) {
+    if (typeof formData !== 'undefined') {
+      delete formData[`s9_c_sprak_${rowId}`];
+      for (let t = 1; t <= 10; t++) {
+        delete formData[`s9_c_t${t}_${rowId}`];
+      }
+    }
+    row.remove();
+    updateSide9CRowNumbers();
+    calcSide9C();
+    if (typeof saveData === 'function') saveData(false);
+  }
+}
+
+function updateSide9CRowNumbers() {
+  const tbody = document.getElementById('s9-c-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach((tr, index) => {
+    const idxTd = tr.querySelector('.s9-c-row-index');
+    if (idxTd) idxTd.textContent = index + 1;
   });
-  totals.forEach((tot, i) => setNumber(`s9_c_${i + 1}`, tot));
-  setNumber('s9_c_sum', totals.reduce((a, b) => a + b, 0));
+
+  const sumNoTd = document.getElementById('s9-c-sum-no');
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
+
+function calcSide9C() {
+  const tbody = document.getElementById('s9-c-tbody');
+  if (!tbody) return;
+
+  const trinnTotals = Array(11).fill(0);
+  let totalAllRows = 0;
+
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    const rowId = tr.id.replace('s9-c-row-', '');
+    let rowSum = 0;
+
+    for (let t = 1; t <= 10; t++) {
+      const el = document.getElementById(`s9_c_t${t}_${rowId}`);
+      const val = typeof parseNum === 'function' ? parseNum(el?.value) : (parseInt(el?.value, 10) || 0);
+      rowSum += val;
+      trinnTotals[t] += val;
+    }
+
+    const rowSumEl = document.getElementById(`s9_c_sum_${rowId}`);
+    if (rowSumEl) rowSumEl.value = rowSum > 0 ? rowSum : '';
+    totalAllRows += rowSum;
+  });
+
+  for (let t = 1; t <= 10; t++) {
+    const sumEl = document.getElementById(`s9_c_sum_t${t}`);
+    if (sumEl) sumEl.value = trinnTotals[t] > 0 ? trinnTotals[t] : '';
+  }
+
+  const totalEl = document.getElementById('s9_c_sum_total');
+  if (totalEl) totalEl.value = totalAllRows > 0 ? totalAllRows : '';
+}
+
+function restoreSide9CRows() {
+  const tbody = document.getElementById('s9-c-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  side9CRowCount = 0;
+
+  if (typeof formData === 'undefined') return;
+
+  const existingIndices = new Set();
+  Object.keys(formData).forEach(key => {
+    if (key.startsWith('s9_c_sprak_')) {
+      const idx = parseInt(key.split('_').pop(), 10);
+      if (!isNaN(idx)) existingIndices.add(idx);
+    }
+  });
+
+  const sortedIndices = Array.from(existingIndices).sort((a, b) => a - b);
+
+  sortedIndices.forEach(i => {
+    const sVal = formData[`s9_c_sprak_${i}`] || '';
+    const tVals = [];
+    for (let t = 1; t <= 10; t++) {
+      tVals.push(formData[`s9_c_t${t}_${i}`] || '');
+    }
+
+    if (sVal !== '' || tVals.some(v => v !== '')) {
+      addSide9CRowWithId(i, sVal, tVals);
+      if (i > side9CRowCount) side9CRowCount = i;
+    }
+  });
+
+  updateSide9CRowNumbers();
+  calcSide9C();
 }
 
 function calcSide12() {
   ['students', 'hours'].forEach(type => setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`))));
+}
+
+function toggleLibraryHours() {
+  const jaChecked = document.getElementById('s13_d_1_ja')?.checked;
+  const hoursBox = document.getElementById('s13-d-library-hours');
+  const hoursInput = document.getElementById('s13_d_library_hours');
+
+  if (hoursBox) {
+    if (jaChecked) {
+      hoursBox.style.display = 'flex';
+    } else {
+      hoursBox.style.display = 'none';
+      if (hoursInput) hoursInput.value = '';
+    }
+  }
 }
 
 function calcSide13() {
@@ -1434,6 +1433,8 @@ function calcSide13() {
   [1, 2].forEach(r => setNumber(`s13_g_${r}_sum`, sumIds([8, 9, 10].map(t => `s13_g_${r}_${t}`))));
   [8, 9, 10].forEach(t => setNumber(`s13_g_sum_${t}`, numberValue(`s13_g_1_${t}`) + numberValue(`s13_g_2_${t}`)));
   setNumber('s13_g_total', numberValue('s13_g_sum_8') + numberValue('s13_g_sum_9') + numberValue('s13_g_sum_10'));
+
+  toggleLibraryHours();
 }
 
 function calcSide14() {
@@ -1441,11 +1442,30 @@ function calcSide14() {
     setNumber(`s14_a_sum_${c}`, sumIds(rangeIds('s14_a_', 1, 5, `_${c}`)));
     setNumber(`s14_e_sum_${c}`, sumIds(rangeIds('s14_e_', 1, 4, `_${c}`)));
   });
-  [1, 2, 3].forEach(r => setNumber(`s14_b_${r}_sum`, numberValue(`s14_b_${r}_m`) + numberValue(`s14_b_${r}_k`)));
-  ['m', 'k', 'sum', 'year'].forEach(sfx => {
-    const key = sfx === 'sum' ? 'total' : sfx;
-    setNumber(`s14_b_sum_${key}`, sumIds([1, 2, 3].map(r => `s14_b_${r}_${sfx}`)));
+
+  [1, 2, 3].forEach(r => {
+    const m = numberValue(`s14_b${r}_m`);
+    const k = numberValue(`s14_b${r}_k`);
+    setNumber(`s14_b${r}_sum`, m + k);
   });
+
+  setNumber('s14_b4_m', sumIds([1, 2, 3].map(r => `s14_b${r}_m`)));
+  setNumber('s14_b4_k', sumIds([1, 2, 3].map(r => `s14_b${r}_k`)));
+  setNumber('s14_b4_sum', sumIds([1, 2, 3].map(r => `s14_b${r}_sum`)));
+
+  let totalArsverk = 0;
+  [1, 2, 3].forEach(r => {
+    const el = document.getElementById(`s14_b${r}_arsverk`);
+    if (el && el.value !== '') {
+      const val = parseFloat(String(el.value).replace(',', '.')) || 0;
+      totalArsverk += val;
+    }
+  });
+
+  const totalArsverkEl = document.getElementById('s14_b4_arsverk');
+  if (totalArsverkEl) {
+    totalArsverkEl.value = totalArsverk > 0 ? totalArsverk.toFixed(2).replace('.', ',') : '';
+  }
 }
 
 function calcSide16() {
@@ -1455,24 +1475,486 @@ function calcSide16() {
 }
 
 /* =========================================================
+   NULLSTILLING, EKSPORT, IMPORT OG UTSKRIFT
+   ========================================================= */
+
+function clearDynamicRows3E() {
+  try {
+    const tbody = document.getElementById('s3-e-tbody') || document.getElementById('s3_e_tbody');
+    if (tbody) tbody.innerHTML = '';
+    if (typeof side3ERowCount !== 'undefined') side3ERowCount = 0;
+    
+    const sumNo = document.getElementById('s3-e-sum-no') || document.getElementById('s3_e_sum_row_no');
+    if (sumNo) sumNo.textContent = '1';
+
+    if (typeof formData !== 'undefined') {
+      Object.keys(formData).forEach(key => {
+        if (key.startsWith('s3_e_')) delete formData[key];
+      });
+    }
+    if (typeof calcSide3E === 'function') calcSide3E();
+  } catch (err) {
+    console.warn("Feil ved tømming av Side 3E:", err);
+  }
+}
+
+function clearDynamicRows7H() {
+  try {
+    const tbody = document.getElementById('s7-h-tbody');
+    if (tbody) tbody.innerHTML = '';
+    if (typeof side7HRowCount !== 'undefined') side7HRowCount = 0;
+
+    const sumNo = document.getElementById('s7-h-sum-no');
+    if (sumNo) sumNo.textContent = '1';
+
+    if (typeof formData !== 'undefined') {
+      Object.keys(formData).forEach(key => {
+        if (key.startsWith('s7_h_')) delete formData[key];
+      });
+    }
+    if (typeof calcSide7H === 'function') calcSide7H();
+  } catch (err) {
+    console.warn("Feil ved tømming av Side 7H:", err);
+  }
+}
+
+function clearDynamicRows8C() {
+  try {
+    const tbody = document.getElementById('s8-c-tbody');
+    if (tbody) tbody.innerHTML = '';
+    if (typeof side8CRowCount !== 'undefined') side8CRowCount = 0;
+
+    const sumNo = document.getElementById('s8-c-sum-no');
+    if (sumNo) sumNo.textContent = '1';
+
+    if (typeof formData !== 'undefined') {
+      Object.keys(formData).forEach(key => {
+        if (key.startsWith('s8_c_')) delete formData[key];
+      });
+    }
+    if (typeof calcSide8C === 'function') calcSide8C();
+  } catch (err) {
+    console.warn("Feil ved tømming av Side 8C:", err);
+  }
+}
+
+function resetCurrentPageData() {
+  const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === currentPage) : null;
+  const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
+
+  if (!window.confirm(`Er du sikker på at du vil slette alle inndata på "${pageName}"?`)) return;
+
+  const pageEl = document.querySelector(`.page[data-page="${currentPage}"]`);
+  if (pageEl) {
+    const pageInputs = pageEl.querySelectorAll('input[id], select[id], textarea[id], input[name]');
+
+    pageInputs.forEach(el => {
+      if (['radio', 'checkbox'].includes(el.type)) {
+        const key = el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`;
+        delete formData[key];
+        el.checked = false;
+      } else if (el.id) {
+        delete formData[el.id];
+        el.value = '';
+      }
+    });
+  }
+
+  if (currentPage === 3) clearDynamicRows3E();
+  if (currentPage === 7) clearDynamicRows7H();
+  if (currentPage === 8) clearDynamicRows8C();
+
+  if (typeof calculateAll === 'function') calculateAll(false);
+  if (typeof saveData === 'function') saveData(false);
+  if (typeof syncDataToInputs === 'function') syncDataToInputs();
+  if (typeof showSaveMessage === 'function') showSaveMessage(`Innholdet på ${pageName} ble slettet.`);
+}
+
+function resetSchoolYearData(keepPage1And2 = true) {
+  const currentYearText = document.getElementById('year-select')?.selectedOptions[0]?.text || activeSchoolYear;
+  
+  const msg = keepPage1And2
+    ? `Er du sikker på at du vil slette registreringene for ${currentYearText}?\n\nSide 1 og 2 (Enhetsopplysninger og Om skolen) vil BLI BEVART.`
+    : `Er du sikker på at du vil slette ABSOLUTT ALT for skoleåret ${currentYearText} (inkludert side 1 og 2)?`;
+
+  if (!window.confirm(msg)) return;
+
+  if (keepPage1And2) {
+    const preservedData = {};
+    const page1and2Elements = document.querySelectorAll('.page[data-page="1"] [id], .page[data-page="2"] [id]');
+    const preservedKeys = new Set();
+    
+    page1and2Elements.forEach(el => {
+      if (['radio', 'checkbox'].includes(el.type)) {
+        preservedKeys.add(el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`);
+      } else if (el.id) {
+        preservedKeys.add(el.id);
+      }
+    });
+
+    preservedKeys.forEach(key => {
+      if (Object.prototype.hasOwnProperty.call(formData, key)) {
+        preservedData[key] = formData[key];
+      }
+    });
+
+    formData = preservedData;
+  } else {
+    formData = {};
+  }
+
+  clearDynamicRows3E();
+  clearDynamicRows7H();
+  clearDynamicRows8C();
+
+  try {
+    document.querySelectorAll('#page-9 .table-s9-c tbody tr:not(.total-row)').forEach(row => row.remove());
+  } catch (e) {
+    // Svelg feil dersom tabellen på side 9 ikke finnes
+  }
+
+  if (typeof syncDataToInputs === 'function') syncDataToInputs();
+  if (typeof calculateAll === 'function') calculateAll(false);
+  if (typeof saveData === 'function') saveData(false);
+
+  if (typeof showSaveMessage === 'function') {
+    showSaveMessage(keepPage1And2 ? `Skoleåret ${currentYearText} ble nullstilt (beholdt side 1 & 2).` : `Alt for ${currentYearText} ble slettet.`);
+  }
+}
+
+function handleResetSelect(event) {
+  const action = event.target.value;
+  if (!action) return;
+
+  if (action === 'page') {
+    resetCurrentPageData();
+  } else if (action === 'year_keep_1_2') {
+    resetSchoolYearData(true);
+  } else if (action === 'year_all') {
+    resetSchoolYearData(false);
+  }
+
+  event.target.value = '';
+}
+
+function exportJSON() {
+  syncInputsToData();
+
+  const exportPayload = {
+    schoolYear: activeSchoolYear,
+    exportedAt: new Date().toISOString(),
+    formData: formData
+  };
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
+  const downloadAnchor = document.createElement('a');
+  
+  const fileName = `GSI_data_${activeSchoolYear}.json`;
+
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", fileName);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+
+  showSaveMessage(`Data for ${activeSchoolYear} ble eksportert!`);
+}
+
+function importJSON(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      const newFormData = imported.formData || imported;
+
+      if (typeof newFormData !== 'object' || newFormData === null) {
+        throw new Error('Ugyldig filformat.');
+      }
+
+      const confirmImport = window.confirm(
+        `Vil du importere dataene fra filen "${file.name}" into skoleåret ${activeSchoolYear}?\n\nNåværende registrerte data for dette året vil bli overskrevet.`
+      );
+
+      if (!confirmImport) return;
+
+      formData = newFormData;
+      saveDataForYear(activeSchoolYear);
+
+      if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
+      if (typeof restoreSide7HRows === 'function') restoreSide7HRows();
+      if (typeof restoreSide8CRows === 'function') restoreSide8CRows();
+      if (typeof restoreSide8DRows === 'function') restoreSide8DRows();
+      if (typeof restoreSide9CRows === 'function') restoreSide9CRows();
+
+      syncDataToInputs();
+      calculateAll(false);
+
+      showSaveMessage(`Data ble importert fra ${file.name}!`);
+    } catch (err) {
+      console.error('Feil ved import:', err);
+      alert('Kunne ikke importere filen. Sjekk at det er en gyldig GSI JSON-fil.');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function copyPreviousYearPageData() {
+  const [startY, endY] = activeSchoolYear.split('-').map(Number);
+  if (!startY) {
+    alert('Ugyldig skoleår valgt.');
+    return;
+  }
+  
+  const prevSchoolYear = `${startY - 1}-${endY - 1}`;
+  const prevYearDisplay = `${startY - 1}/${endY - 1}`;
+  const prevKey = storageKeyFor(prevSchoolYear);
+
+  const prevDataRaw = localStorage.getItem(prevKey);
+  if (!prevDataRaw) {
+    alert(`Fant ingen lagrede data for forrige skoleår (${prevYearDisplay}).`);
+    return;
+  }
+
+  let prevData = {};
+  try {
+    prevData = JSON.parse(prevDataRaw) || {};
+  } catch (err) {
+    alert(`Kunne ikke lese data for skoleåret ${prevYearDisplay}.`);
+    return;
+  }
+
+  const pageObj = pages.find(p => p.id === currentPage);
+  const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
+
+  const confirmCopy = window.confirm(
+    `Vil du hente registreringene fra skoleåret ${prevYearDisplay} for "${pageName}"?\n\nNåværende tall/tekst på denne siden vil bli overskrevet.`
+  );
+
+  if (!confirmCopy) return;
+
+  const pageEl = document.querySelector(`.page[data-page="${currentPage}"]`);
+  if (!pageEl) return;
+
+  const pageInputs = pageEl.querySelectorAll('input[id], select[id], textarea[id], input[name]');
+  let copiedCount = 0;
+
+  pageInputs.forEach(el => {
+    if (el.type === 'file') return;
+
+    const isCheck = ['radio', 'checkbox'].includes(el.type);
+    const key = isCheck ? (el.id ? `${el.id}__checked` : `${el.name}_${el.value}__checked`) : el.id;
+
+    if (key && Object.prototype.hasOwnProperty.call(prevData, key)) {
+      formData[key] = prevData[key];
+      copiedCount++;
+    }
+  });
+
+  if (copiedCount === 0) {
+    alert(`Det ble ikke funnet noen lagrede data på ${pageName} for ${prevYearDisplay}.`);
+    return;
+  }
+
+  syncDataToInputs();
+  calculateAll(false);
+  saveData(false);
+
+  showSaveMessage(`Data for ${pageName} ble hentet fra ${prevYearDisplay}!`);
+}
+
+function getSchoolYearOptions() {
+  const yearSelect = document.getElementById('year-select');
+  if (yearSelect && yearSelect.options.length > 0) {
+    return Array.from(yearSelect.options).map(opt => ({
+      value: opt.value,
+      text: opt.text
+    }));
+  }
+  return [{ value: activeSchoolYear, text: activeSchoolYear }];
+}
+
+function openPrintModal() {
+  const modal = document.getElementById('print-modal');
+  const yearSelect = document.getElementById('print-year-select');
+  const pagesList = document.getElementById('print-pages-list');
+
+  if (!modal) return;
+
+  if (yearSelect) {
+    yearSelect.innerHTML = '';
+    getSchoolYearOptions().forEach(yr => {
+      const opt = document.createElement('option');
+      opt.value = yr.value;
+      opt.textContent = yr.text;
+      if (yr.value === activeSchoolYear) opt.selected = true;
+      yearSelect.appendChild(opt);
+    });
+  }
+
+  if (pagesList) {
+    pagesList.innerHTML = '';
+    pages.forEach(p => {
+      const pageEl = document.querySelector(`.page[data-page="${p.id}"]`);
+      const sections = pageEl ? Array.from(pageEl.querySelectorAll('.section-card')) : [];
+
+      const pageContainer = document.createElement('div');
+      pageContainer.className = 'print-page-group';
+
+      let sectionsHTML = '';
+      if (sections.length > 0) {
+        sectionsHTML = `<div class="print-sections-list">`;
+        sections.forEach((sec, idx) => {
+          const title = sec.querySelector('.section-header')?.textContent?.trim() || `Del ${idx + 1}`;
+          sectionsHTML += `
+            <label class="print-sub-item">
+              <input type="checkbox" class="print-section-check" data-page="${p.id}" data-section-idx="${idx}" checked>
+              <span>${title}</span>
+            </label>
+          `;
+        });
+        sectionsHTML += `</div>`;
+      }
+
+      pageContainer.innerHTML = `
+        <div class="print-page-header">
+          <label class="print-page-item">
+            <input type="checkbox" class="print-page-check" data-page="${p.id}" checked>
+            <span><strong>${p.id}.</strong> ${p.name}</span>
+          </label>
+          ${sections.length > 0 ? `<button type="button" class="toggle-sub-btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">▼ Deloppgaver</button>` : ''}
+        </div>
+        ${sectionsHTML}
+      `;
+
+      pagesList.appendChild(pageContainer);
+    });
+
+    pagesList.querySelectorAll('.print-page-check').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const pageId = e.target.getAttribute('data-page');
+        const subChecks = pagesList.querySelectorAll(`.print-section-check[data-page="${pageId}"]`);
+        subChecks.forEach(sub => sub.checked = e.target.checked);
+      });
+    });
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closePrintModal() {
+  const modal = document.getElementById('print-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleStartPrint() {
+  const selectedYear = document.getElementById('print-year-select')?.value;
+  const isDataMode = document.querySelector('input[name="print-data-mode"]:checked')?.value === 'with-data';
+  
+  const checkedPageCbs = Array.from(document.querySelectorAll('.print-page-check:checked'));
+  const checkedPageIds = checkedPageCbs.map(cb => parseInt(cb.getAttribute('data-page'), 10));
+
+  if (checkedPageIds.length === 0) {
+    alert('Vennligst velg minst én side for utskrift.');
+    return;
+  }
+
+  let printData = {};
+  if (isDataMode && selectedYear) {
+    const raw = localStorage.getItem(storageKeyFor(selectedYear));
+    if (raw) {
+      try { printData = JSON.parse(raw) || {}; } catch (e) { printData = {}; }
+    }
+  }
+
+  const backupFormData = { ...formData };
+  const backupPage = currentPage;
+
+  formData = printData;
+  syncDataToInputs();
+  calculateAll(false);
+
+  const schoolName = formData['s1_skole'] || 'Skole';
+  const muniName = formData['s1_kommunenavn'] || 'Kommune';
+  const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
+
+  document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
+
+  document.querySelectorAll('.page').forEach(pageEl => {
+    const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
+    const pageObj = pages.find(p => p.id === pageNum);
+    const pageTitle = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${pageNum}`;
+
+    pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
+
+    if (checkedPageIds.includes(pageNum)) {
+      pageEl.classList.add('print-visible');
+
+      const printHeader = document.createElement('div');
+      printHeader.className = 'print-header print-header-instance';
+      printHeader.innerHTML = `
+        <div><strong>${schoolName}</strong> — ${muniName}</div>
+        <div><strong>${pageTitle}</strong></div>
+        <div>${yearText}</div>
+      `;
+      pageEl.insertBefore(printHeader, pageEl.firstChild);
+
+      const sections = pageEl.querySelectorAll('.section-card');
+      sections.forEach((secEl, idx) => {
+        const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
+        if (subCb && !subCb.checked) {
+          secEl.classList.add('print-section-hidden');
+        }
+      });
+
+    } else {
+      pageEl.classList.remove('print-visible');
+    }
+  });
+
+  closePrintModal();
+
+  setTimeout(() => {
+    window.print();
+
+    formData = backupFormData;
+    syncDataToInputs();
+    calculateAll(false);
+
+    document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
+    document.querySelectorAll('.page').forEach(pageEl => {
+      pageEl.classList.remove('print-visible');
+      pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
+    });
+
+    if (typeof selectPage === 'function') selectPage(backupPage);
+  }, 150);
+}
+
+/* =========================================================
    HENDELSER OG OPPSTART
    ========================================================= */
 
 function bindEvents() {
   const on = (id, event, fn) => document.getElementById(id)?.addEventListener(event, fn);
 
-  // Skoleår og verktøy
   on('year-select', 'change', handleYearChange);
-  on('validate-btn', 'click', () => runValidation(true));
+  on('validate-btn', 'click', () => { if (typeof runValidation === 'function') runValidation(true); });
   on('export-btn', 'click', typeof exportJSON === 'function' ? exportJSON : null);
   on('import-file', 'change', typeof importJSON === 'function' ? importJSON : null);
   on('reset-select', 'change', handleResetSelect);
 
-  // Knapper for å legge til rad i kommunetabellene
   on('add-s3-e-row-btn', 'click', () => { if (typeof addSide3ERow === 'function') addSide3ERow(); });
   on('add-s7-h-row-btn', 'click', () => { if (typeof addSide7HRow === 'function') addSide7HRow(); });
+  on('add-s8-c-row-btn', 'click', () => { if (typeof addSide8CRow === 'function') addSide8CRow(); });
+  on('add-s8-d-row-btn', 'click', () => { if (typeof addSide8DRow === 'function') addSide8DRow(); });
+  on('add-s9-c-row-btn', 'click', () => { if (typeof addSide9CRow === 'function') addSide9CRow(); });
 
-  // Hamburgermeny
   const toolsBtn = document.getElementById('tools-menu-btn');
   const toolsDropdown = document.getElementById('tools-dropdown');
 
@@ -1504,13 +1986,16 @@ function bindEvents() {
     });
   }
 
-  // Side 7 Kalkulator
   on('open-calc-s7-modal-btn', 'click', openCalcSide7Modal);
   on('close-calc-s7-modal', 'click', closeCalcSide7Modal);
   on('cancel-calc-s7-btn', 'click', closeCalcSide7Modal);
   on('apply-calc-s7-btn', 'click', applyCalcSide7Data);
 
-  // Utskrift-modal
+  on('open-calc-s8-modal-btn', 'click', openCalcSide8Modal);
+  on('close-calc-s8-modal', 'click', closeCalcSide8Modal);
+  on('cancel-calc-s8-btn', 'click', closeCalcSide8Modal);
+  on('apply-calc-s8-btn', 'click', applyCalcSide8Data);
+
   on('print-modal-btn', 'click', openPrintModal);
   on('close-print-modal', 'click', closePrintModal);
   on('cancel-print', 'click', closePrintModal);
@@ -1523,12 +2008,10 @@ function bindEvents() {
     document.querySelectorAll('.print-page-check').forEach(cb => cb.checked = false);
   });
 
-  // Navigasjon og manuell lagring
   document.querySelectorAll('[data-nav="prev"]').forEach(b => b.addEventListener('click', () => navigatePage(-1)));
   document.querySelectorAll('[data-nav="next"]').forEach(b => b.addEventListener('click', () => navigatePage(1)));
   document.querySelectorAll('[data-save],#save-1').forEach(b => b.addEventListener('click', () => saveData(true)));
 
-  // Automatisk lagring ved skriving i felter
   allFormElements().forEach(el => {
     const evt = ['radio', 'checkbox'].includes(el.type) || el.tagName === 'SELECT' ? 'change' : 'input';
     el.addEventListener(evt, () => {
@@ -1544,8 +2027,4 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSchoolYears();
   bindEvents();
   loadDataForYear();
-
-  // Gjenopprett dynamiske rader for BÅDE Side 3E og Side 7H
-  if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
-  if (typeof restoreSide7HRows === 'function') restoreSide7HRows();
 });
