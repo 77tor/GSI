@@ -380,13 +380,6 @@
 <!-- SIDE 4 -->
 <section class="page" id="page-4" data-page="4">
 
-  <!-- Knapp for å åpne kalkulatoren (plassert øverst inne på side 4) -->
-  <div style="margin-bottom: 12px;">
-    <button class="mini-btn btn-fetch-prev" id="open-calc-modal-btn" type="button">
-      🧮 Åpne time-kalkulator (fra Excel)
-    </button>
-  </div>
-
   <!-- A. Årstimer til undervisning totalt -->
   <section class="section-card">
     <div class="section-header">A. Årstimer til undervisning totalt</div>
@@ -706,6 +699,13 @@
 
 <!-- SIDE 7 -->
 <section class="page" id="page-7" data-page="7">
+
+  <!-- Knapp for time-kalkulator -->
+  <div style="margin-bottom: 12px;">
+    <button class="mini-btn btn-fetch-prev" id="open-calc-s7-modal-btn" type="button">
+      🧮 Åpne kalkulator for Side 7 (fra Excel)
+    </button>
+  </div>
 
   <div class="info-box">
     I denne delen registreres elever som har fått vedtak om individuelt tilrettelagt opplæring og/eller personlig assistanse og/eller fysisk tilrettelegging og tekniske hjelpemidler jf. opplæringsloven § 11-6, § 11-4, § 11-5 og privatskoleloven § 3-6. Videreføring av vedtak om spesialundervisning etter den gamle opplæringsloven § 5-1, føres også her. Alle elever som går på skolen skal registreres, selv om eleven er folkeregistrert i annen kommune. Elever som er midlertidig ved en enhet, skal kun føres på den skolen hvor eleven er tatt inn jf. opplæringsloven § 2-6.
@@ -1621,99 +1621,71 @@
   </div>
 </div>
 
-<!-- MODAL FOR TIME-KALKULATOR -->
-<div class="modal-backdrop" id="calc-modal" style="display:none;">
+<!-- MODAL FOR SIDE 7 KALKULATOR -->
+<div class="modal-backdrop" id="calc-s7-modal" style="display:none;">
   <div class="modal-content" style="max-width: 850px;">
     <div class="modal-header">
-      <h3>🧮 Hjelpeverktøy: Beregn årstimer fra Excel-data</h3>
-      <button class="close-btn" id="close-calc-modal" type="button">&times;</button>
+      <h3>🧮 Hjjelpeverktøy: Beregn Side 7 fra Excel-data</h3>
+      <button class="close-btn" id="close-calc-s7-modal" type="button">&times;</button>
     </div>
     <div class="modal-body">
-      <p style="font-size: 0.9rem; color: #475569; margin-top:0;">
-        Fyll inn samlede årstimer fra Excel-oversikten oppdelt på trinn. Når du trykker «Overfør til Side 4», vil alle tallene plasseres i de riktige feltene i 4A, 4B og 4E.
+      <p style="font-size: 0.88rem; color: #475569; margin-top:0;">
+        Fyll inn samlede tall fra Excel-skjemaet ditt (oppdelt på Gutter og Jenter / Trinn). Trykk «Overfør til Side 7» for å fylle ut tabellene A, B, E, F og G automatisk.
       </p>
 
       <table class="gsi-table" style="width:100%;">
         <thead>
           <tr>
-            <th>Kategori / Hjemmel</th>
-            <th style="width:18%;">1.-4. trinn</th>
-            <th style="width:18%;">5.-7. trinn</th>
-            <th style="width:18%;">8.-10. trinn</th>
+            <th>Kategori / Paragraf</th>
+            <th style="width:20%;">Gutter (G)</th>
+            <th style="width:20%;">Jenter (J)</th>
           </tr>
         </thead>
         <tbody>
-          <tr style="background:#f8fafc;"><td colspan="4"><strong>4A. Undervisningspersonale (Totale undervisningstimer)</strong></td></tr>
+          <tr style="background:#f8fafc;"><td colspan="3"><strong>7B. Vedtak om Personlig assistanse & Tilrettelegging</strong></td></tr>
           <tr>
-            <td>Kompetent undervisningspersonale (4A1)</td>
-            <td><input id="modal_a1_1" type="number"></td>
-            <td><input id="modal_a1_2" type="number"></td>
-            <td><input id="modal_a1_3" type="number"></td>
+            <td>§ 11-4 Personlig assistanse (med ITO)</td>
+            <td><input id="m7_b1_ito_g" type="number"></td>
+            <td><input id="m7_b1_ito_j" type="number"></td>
           </tr>
           <tr>
-            <td>Ikke-kompetent undervisningspersonale (4A2)</td>
-            <td><input id="modal_a2_1" type="number"></td>
-            <td><input id="modal_a2_2" type="number"></td>
-            <td><input id="modal_a2_3" type="number"></td>
-          </tr>
-
-          <tr style="background:#f8fafc;"><td colspan="4"><strong>4B. Tilrettelagt opplæring / §11.4 / §11.5 / Særskilt språk</strong></td></tr>
-          <tr>
-            <td>Individuelt tilrettelagt opplæring (4B1)</td>
-            <td><input id="modal_b1_1" type="number"></td>
-            <td><input id="modal_b1_2" type="number"></td>
-            <td><input id="modal_b1_3" type="number"></td>
+            <td>§ 11-4 Personlig assistanse (uten ITO)</td>
+            <td><input id="m7_b1_uten_g" type="number"></td>
+            <td><input id="m7_b1_uten_j" type="number"></td>
           </tr>
           <tr>
-            <td>Forsterket opplæring i norsk (4B2)</td>
-            <td><input id="modal_b2_1" type="number"></td>
-            <td><input id="modal_b2_2" type="number"></td>
-            <td><input id="modal_b2_3" type="number"></td>
-          </tr>
-          <tr>
-            <td>Morsmålsopplæring (4B3)</td>
-            <td><input id="modal_b3_1" type="number"></td>
-            <td><input id="modal_b3_2" type="number"></td>
-            <td><input id="modal_b3_3" type="number"></td>
-          </tr>
-          <tr>
-            <td>Audiopedagog / Horselshemmede (§11.5 e.l.) (4B5/Annet)</td>
-            <td><input id="modal_b5_1" type="number"></td>
-            <td><input id="modal_b5_2" type="number"></td>
-            <td><input id="modal_b5_3" type="number"></td>
+            <td>§ 11-5 Fysisk tilrettelegging / Hjelpemidler / Audiopedagogo</td>
+            <td><input id="m7_b2_ito_g" type="number"></td>
+            <td><input id="m7_b2_ito_j" type="number"></td>
           </tr>
 
-          <tr style="background:#f8fafc;"><td colspan="4"><strong>4E. Assistenter og Annet Personale</strong></td></tr>
+          <tr style="background:#f8fafc;"><td colspan="3"><strong>7E. Organisering av opplæringen</strong></td></tr>
           <tr>
-            <td>Barne- og ungdomsarbeidere / Fagarbeidere (4E1)</td>
-            <td><input id="modal_e1_1" type="number"></td>
-            <td><input id="modal_e1_2" type="number"></td>
-            <td><input id="modal_e1_3" type="number"></td>
+            <td>Hovedsakelig i ordinær klasse</td>
+            <td><input id="m7_e1_g" type="number"></td>
+            <td><input id="m7_e1_j" type="number"></td>
           </tr>
           <tr>
-            <td>Vernepleier / Barnevern / Sosionom (4E2)</td>
-            <td><input id="modal_e2_1" type="number"></td>
-            <td><input id="modal_e2_2" type="number"></td>
-            <td><input id="modal_e2_3" type="number"></td>
+            <td>Hovedsakelig i gruppe på 6 eller flere</td>
+            <td><input id="m7_e2_g" type="number"></td>
+            <td><input id="m7_e2_j" type="number"></td>
           </tr>
           <tr>
-            <td>Assistenttimer totalt (Annen bakgrunn) (4E4)</td>
-            <td><input id="modal_e4_1" type="number"></td>
-            <td><input id="modal_e4_2" type="number"></td>
-            <td><input id="modal_e4_3" type="number"></td>
+            <td>Hovedsakelig i gruppe på 2 til 5</td>
+            <td><input id="m7_e3_g" type="number"></td>
+            <td><input id="m7_e3_j" type="number"></td>
           </tr>
           <tr>
-            <td>Hvorav vedtak om personlig assistanse (4E6)</td>
-            <td><input id="modal_e6_1" type="number"></td>
-            <td><input id="modal_e6_2" type="number"></td>
-            <td><input id="modal_e6_3" type="number"></td>
+            <td>Hovedsakelig alene</td>
+            <td><input id="m7_e4_g" type="number"></td>
+            <td><input id="m7_e4_j" type="number"></td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-white" id="cancel-calc-btn" type="button">Avbryt</button>
-      <button class="btn" id="apply-calc-btn" type="button" style="background:#2563eb; color:white;">Overfør til Side 4</button>
+      <button class="btn btn-white" id="cancel-calc-s7-btn" type="button">Avbryt</button>
+      <button class="btn" id="apply-calc-s7-btn" type="button" style="background:#2563eb; color:white;">Overfør til Side 7</button>
     </div>
   </div>
 </div>

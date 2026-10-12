@@ -944,67 +944,6 @@ function calcSide4() {
 }
 
 
-/* =========================================================
-   KALKULATOR FOR EXCEL-DATA PÅ SIDE 4
-   ========================================================= */
-
-function openCalcModal() {
-  const modal = document.getElementById('calc-modal');
-  if (!modal) return;
-
-  // Hent eksisterende verdier fra side 4 og fyll inn i modalen
-  const fields = [
-    'a1_1', 'a1_2', 'a1_3', 'a2_1', 'a2_2', 'a2_3',
-    'b1_1', 'b1_1', 'b1_3', 'b2_1', 'b2_2', 'b2_3', 'b3_1', 'b3_2', 'b3_3', 'b5_1', 'b5_2', 'b5_3',
-    'e1_1', 'e1_2', 'e1_3', 'e2_1', 'e2_2', 'e2_3', 'e4_1', 'e4_2', 'e4_3', 'e6_1', 'e6_2', 'e6_3'
-  ];
-
-  fields.forEach(f => {
-    const mainEl = document.getElementById(`s4_${f}`);
-    const modalEl = document.getElementById(`modal_${f}`);
-    if (mainEl && modalEl) {
-      modalEl.value = mainEl.value || '';
-    }
-  });
-
-  modal.style.display = 'flex';
-}
-
-function closeCalcModal() {
-  const modal = document.getElementById('calc-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-function applyCalcData() {
-  const mappings = [
-    { from: 'modal_a1_1', to: 's4_a1_1' }, { from: 'modal_a1_2', to: 's4_a1_2' }, { from: 'modal_a1_3', to: 's4_a1_3' },
-    { from: 'modal_a2_1', to: 's4_a2_1' }, { from: 'modal_a2_2', to: 's4_a2_2' }, { from: 'modal_a2_3', to: 's4_a2_3' },
-    { from: 'modal_b1_1', to: 's4_b1_1' }, { from: 'modal_b1_2', to: 's4_b1_2' }, { from: 'modal_b1_3', to: 's4_b1_3' },
-    { from: 'modal_b2_1', to: 's4_b2_1' }, { from: 'modal_b2_2', to: 's4_b2_2' }, { from: 'modal_b2_3', to: 's4_b2_3' },
-    { from: 'modal_b3_1', to: 's4_b3_1' }, { from: 'modal_b3_2', to: 's4_b3_2' }, { from: 'modal_b3_3', to: 's4_b3_3' },
-    { from: 'modal_b5_1', to: 's4_b5_1' }, { from: 'modal_b5_2', to: 's4_b5_2' }, { from: 'modal_b5_3', to: 's4_b5_3' },
-    { from: 'modal_e1_1', to: 's4_e1_1' }, { from: 'modal_e1_2', to: 's4_e1_2' }, { from: 'modal_e1_3', to: 's4_e1_3' },
-    { from: 'modal_e2_1', to: 's4_e2_1' }, { from: 'modal_e2_2', to: 's4_e2_2' }, { from: 'modal_e2_3', to: 's4_e2_3' },
-    { from: 'modal_e4_1', to: 's4_e4_1' }, { from: 'modal_e4_2', to: 's4_e4_2' }, { from: 'modal_e4_3', to: 's4_e4_3' },
-    { from: 'modal_e6_1', to: 's4_e6_1' }, { from: 'modal_e6_2', to: 's4_e6_2' }, { from: 'modal_e6_3', to: 's4_e6_3' }
-  ];
-
-  mappings.forEach(m => {
-    const modalInput = document.getElementById(m.from);
-    const targetInput = document.getElementById(m.to);
-    if (modalInput && targetInput) {
-      targetInput.value = modalInput.value;
-    }
-  });
-
-  // Re-beregn alle summer for Side 4 og lagre
-  calculateAll(false);
-  saveData(false);
-
-  closeCalcModal();
-  showSaveMessage('Tall fra kalkulatoren ble lagt inn i Side 4!');
-}
-
 function calcSide5() {
   ['a1', 'a2'].forEach(row => {
     const trinn = numberValue(`s5_${row}_14`) + numberValue(`s5_${row}_57`) + numberValue(`s5_${row}_810`);
@@ -1058,6 +997,58 @@ function calcSide7() {
   setNumber('s7_g5_g', sumIds([1, 2, 3, 4].map(r => `s7_g${r}_g`)));
   setNumber('s7_g5_j', sumIds([1, 2, 3, 4].map(r => `s7_g${r}_j`)));
   sumGJ('s7_g5');
+}
+
+/* =========================================================
+   SIDE 7 KALKULATOR OG OVERFØRING
+   ========================================================= */
+
+function openCalcSide7Modal() {
+  const modal = document.getElementById('calc-s7-modal');
+  if (!modal) return;
+
+  // Synkroniser eksisterende verdi fra skjema til modal
+  const ids = [
+    'b1_ito_g', 'b1_ito_j', 'b1_uten_g', 'b1_uten_j', 'b2_ito_g', 'b2_ito_j',
+    'e1_g', 'e1_j', 'e2_g', 'e2_j', 'e3_g', 'e3_j', 'e4_g', 'e4_j'
+  ];
+
+  ids.forEach(id => {
+    const mainEl = document.getElementById(`s7_${id}`);
+    const modalEl = document.getElementById(`m7_${id}`);
+    if (mainEl && modalEl) modalEl.value = mainEl.value || '';
+  });
+
+  modal.style.display = 'flex';
+}
+
+function closeCalcSide7Modal() {
+  const modal = document.getElementById('calc-s7-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function applyCalcSide7Data() {
+  const ids = [
+    { m: 'm7_b1_ito_g', target: 's7_b1_ito_g' }, { m: 'm7_b1_ito_j', target: 's7_b1_ito_j' },
+    { m: 'm7_b1_uten_g', target: 's7_b1_uten_g' }, { m: 'm7_b1_uten_j', target: 's7_b1_uten_j' },
+    { m: 'm7_b2_ito_g', target: 's7_b2_ito_g' }, { m: 'm7_b2_ito_j', target: 's7_b2_ito_j' },
+    { m: 'm7_e1_g', target: 's7_e1_g' }, { m: 'm7_e1_j', target: 's7_e1_j' },
+    { m: 'm7_e2_g', target: 's7_e2_g' }, { m: 'm7_e2_j', target: 's7_e2_j' },
+    { m: 'm7_e3_g', target: 's7_e3_g' }, { m: 'm7_e3_j', target: 's7_e3_j' },
+    { m: 'm7_e4_g', target: 's7_e4_g' }, { m: 'm7_e4_j', target: 's7_e4_j' }
+  ];
+
+  ids.forEach(item => {
+    const mEl = document.getElementById(item.m);
+    const tEl = document.getElementById(item.target);
+    if (mEl && tEl) tEl.value = mEl.value;
+  });
+
+  calculateAll(false);
+  saveData(false);
+
+  closeCalcSide7Modal();
+  showSaveMessage('Tallene ble lagt inn på Side 7!');
 }
 
 function calcSide8() {
@@ -1179,11 +1170,11 @@ function bindEvents() {
     });
   }
 
-// Kalkulator-modal
-  on('open-calc-modal-btn', 'click', openCalcModal);
-  on('close-calc-modal', 'click', closeCalcModal);
-  on('cancel-calc-btn', 'click', closeCalcModal);
-  on('apply-calc-btn', 'click', applyCalcData);
+// Side 7 Kalkulator
+  on('open-calc-s7-modal-btn', 'click', openCalcSide7Modal);
+  on('close-calc-s7-modal', 'click', closeCalcSide7Modal);
+  on('cancel-calc-s7-btn', 'click', closeCalcSide7Modal);
+  on('apply-calc-s7-btn', 'click', applyCalcSide7Data);
 
   // Utskrift-modal
   on('print-modal-btn', 'click', openPrintModal);
