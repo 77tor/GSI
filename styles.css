@@ -1069,13 +1069,36 @@ body{min-height:100vh}
 .gsi-table{min-width:700px}
 }
 
-/* Skjul opp/ned-piler (spinners) på tall-input i alle nettlesere */
+/* =========================================================
+   SKJUL PILER PÅ TALL-INPUT (SPINNERS)
+   ========================================================= */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* =========================================================
+   CELLE-OPPFØRSEL (PEK, HOVER OG KLIKK/FOKUS)
+   ========================================================= */
+
+/* Lyseblå bakgrunn når musen føres over (hover) - kun for felt som kan redigeres */
+main input:not([readonly]):not([disabled]):hover,
+main select:not([readonly]):not([disabled]):hover,
+main textarea:not([readonly]):not([disabled]):hover {
+  background-color: #dbeafe !important;
+  cursor: pointer;
+}
+
+/* Tydelig ramme og hvit bakgrunn når felte klikkes i (focus) */
+main input:not([readonly]):not([disabled]):focus,
+main select:not([readonly]):not([disabled]):focus,
+main textarea:not([readonly]):not([disabled]):focus {
+  background-color: #ffffff !important;
+  border: 2px solid #1e3a8a !important;
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px #1e3a8a !important;
 }
