@@ -1621,74 +1621,81 @@
   </div>
 </div>
 
-<!-- MODAL FOR SIDE 7 KALKULATOR -->
+
+<!-- MODAL FOR SIDE 7 EXCEL-IMPORT / PASTE -->
 <div class="modal-backdrop" id="calc-s7-modal" style="display:none;">
   <div class="modal-content" style="max-width: 850px;">
     <div class="modal-header">
-      <h3>🧮 Hjjelpeverktøy: Beregn Side 7 fra Excel-data</h3>
+      <h3>📋 Lim inn elevdata direkte fra Excel (Side 7)</h3>
       <button class="close-btn" id="close-calc-s7-modal" type="button">&times;</button>
     </div>
     <div class="modal-body">
       <p style="font-size: 0.88rem; color: #475569; margin-top:0;">
-        Fyll inn samlede tall fra Excel-skjemaet ditt (oppdelt på Gutter og Jenter / Trinn). Trykk «Overfør til Side 7» for å fylle ut tabellene A, B, E, F og G automatisk.
+        Kopier linjene fra Excel og lim dem inn i feltet under. Sørg for at kolonnene i Excel ligger i denne rekkefølgen:
       </p>
 
-      <table class="gsi-table" style="width:100%;">
-        <thead>
-          <tr>
-            <th>Kategori / Paragraf</th>
-            <th style="width:20%;">Gutter (G)</th>
-            <th style="width:20%;">Jenter (J)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="background:#f8fafc;"><td colspan="3"><strong>7B. Vedtak om Personlig assistanse & Tilrettelegging</strong></td></tr>
-          <tr>
-            <td>§ 11-4 Personlig assistanse (med ITO)</td>
-            <td><input id="m7_b1_ito_g" type="number"></td>
-            <td><input id="m7_b1_ito_j" type="number"></td>
-          </tr>
-          <tr>
-            <td>§ 11-4 Personlig assistanse (uten ITO)</td>
-            <td><input id="m7_b1_uten_g" type="number"></td>
-            <td><input id="m7_b1_uten_j" type="number"></td>
-          </tr>
-          <tr>
-            <td>§ 11-5 Fysisk tilrettelegging / Hjelpemidler / Audiopedagogo</td>
-            <td><input id="m7_b2_ito_g" type="number"></td>
-            <td><input id="m7_b2_ito_j" type="number"></td>
-          </tr>
+      <!-- VISUELL KOLONNE-GUIDE -->
+      <div style="overflow-x: auto; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+        <table class="gsi-table" style="width:100%; font-size: 0.82rem; text-align: center; white-space: nowrap;">
+          <thead>
+            <tr style="background:#e2e8f0; color:#1e293b;">
+              <th>Col 1</th>
+              <th>Col 2</th>
+              <th>Col 3</th>
+              <th>Col 4</th>
+              <th>Col 5</th>
+              <th>Col 6</th>
+              <th>Col 7</th>
+              <th>Col 8</th>
+              <th>Col 9</th>
+              <th>Col 10</th>
+            </tr>
+            <tr style="background:#f1f5f9; font-weight: bold;">
+              <td>Trinn</td>
+              <td>Kjønn</td>
+              <td>ITO</td>
+              <td>§11-4</td>
+              <td>§11-5</td>
+              <td>Audioped.</td>
+              <td>I klasse</td>
+              <td>Gruppe 6+</td>
+              <td>Gruppe 2-5</td>
+              <td>Alene</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="color: #64748b; font-style: italic;">
+              <td>1-10</td>
+              <td>g / j</td>
+              <td>timer</td>
+              <td>timer</td>
+              <td>ja / x</td>
+              <td>timer</td>
+              <td>x / ja</td>
+              <td>x / ja</td>
+              <td>x / ja</td>
+              <td>x / ja</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-          <tr style="background:#f8fafc;"><td colspan="3"><strong>7E. Organisering av opplæringen</strong></td></tr>
-          <tr>
-            <td>Hovedsakelig i ordinær klasse</td>
-            <td><input id="m7_e1_g" type="number"></td>
-            <td><input id="m7_e1_j" type="number"></td>
-          </tr>
-          <tr>
-            <td>Hovedsakelig i gruppe på 6 eller flere</td>
-            <td><input id="m7_e2_g" type="number"></td>
-            <td><input id="m7_e2_j" type="number"></td>
-          </tr>
-          <tr>
-            <td>Hovedsakelig i gruppe på 2 til 5</td>
-            <td><input id="m7_e3_g" type="number"></td>
-            <td><input id="m7_e3_j" type="number"></td>
-          </tr>
-          <tr>
-            <td>Hovedsakelig alene</td>
-            <td><input id="m7_e4_g" type="number"></td>
-            <td><input id="m7_e4_j" type="number"></td>
-          </tr>
-        </tbody>
-      </table>
+      <div style="margin-bottom: 10px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 4px;">
+          Lim inn rader fra Excel her:
+        </label>
+        <textarea id="excel-paste-input" rows="8" placeholder="Eksempel:&#10;1	g	142.5	0	0	0	x	0	0	0&#10;3	j	0	76	0	0	0	0	x	0" style="width:100%; font-family: monospace; font-size: 0.85rem; padding: 8px; border: 1px solid #94a3b8; border-radius: 4px;"></textarea>
+      </div>
+
+      <div id="excel-parse-summary" style="font-size: 0.85rem; color: #1e293b; background: #f1f5f9; padding: 10px; border-radius: 4px; display: none;"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-white" id="cancel-calc-s7-btn" type="button">Avbryt</button>
-      <button class="btn" id="apply-calc-s7-btn" type="button" style="background:#2563eb; color:white;">Overfør til Side 7</button>
+      <button class="btn" id="apply-calc-s7-btn" type="button" style="background:#2563eb; color:white;">Beregne og Overfør til Side 7</button>
     </div>
   </div>
 </div>
+
 
 <script src="app.js"></script>
 </body>

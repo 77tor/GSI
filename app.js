@@ -999,25 +999,20 @@ function calcSide7() {
   sumGJ('s7_g5');
 }
 
+
 /* =========================================================
-   SIDE 7 KALKULATOR OG OVERFØRING
+   SIDE 7 EXCEL PASTE / TOLKING
    ========================================================= */
 
 function openCalcSide7Modal() {
   const modal = document.getElementById('calc-s7-modal');
   if (!modal) return;
+  
+  const txtArea = document.getElementById('excel-paste-input');
+  if (txtArea) txtArea.value = '';
 
-  // Synkroniser eksisterende verdi fra skjema til modal
-  const ids = [
-    'b1_ito_g', 'b1_ito_j', 'b1_uten_g', 'b1_uten_j', 'b2_ito_g', 'b2_ito_j',
-    'e1_g', 'e1_j', 'e2_g', 'e2_j', 'e3_g', 'e3_j', 'e4_g', 'e4_j'
-  ];
-
-  ids.forEach(id => {
-    const mainEl = document.getElementById(`s7_${id}`);
-    const modalEl = document.getElementById(`m7_${id}`);
-    if (mainEl && modalEl) modalEl.value = mainEl.value || '';
-  });
+  const summary = document.getElementById('excel-parse-summary');
+  if (summary) summary.style.display = 'none';
 
   modal.style.display = 'flex';
 }
@@ -1027,28 +1022,137 @@ function closeCalcSide7Modal() {
   if (modal) modal.style.display = 'none';
 }
 
-function applyCalcSide7Data() {
-  const ids = [
-    { m: 'm7_b1_ito_g', target: 's7_b1_ito_g' }, { m: 'm7_b1_ito_j', target: 's7_b1_ito_j' },
-    { m: 'm7_b1_uten_g', target: 's7_b1_uten_g' }, { m: 'm7_b1_uten_j', target: 's7_b1_uten_j' },
-    { m: 'm7_b2_ito_g', target: 's7_b2_ito_g' }, { m: 'm7_b2_ito_j', target: 's7_b2_ito_j' },
-    { m: 'm7_e1_g', target: 's7_e1_g' }, { m: 'm7_e1_j', target: 's7_e1_j' },
-    { m: 'm7_e2_g', target: 's7_e2_g' }, { m: 'm7_e2_j', target: 's7_e2_j' },
-    { m: 'm7_e3_g', target: 's7_e3_g' }, { m: 'm7_e3_j', target: 's7_e3_j' },
-    { m: 'm7_e4_g', target: 's7_e4_g' }, { m: 'm7_e4_j', target: 's7_e4_j' }
-  ];
+function getHourIntervalCategory(hours) {
+  const h = parseNum(hours);
+  if (h <= 0) return null;
+  if (h >= 1 && h <= 75) return 1;
+  if (h >= 76 && h <= 190) return 2;
+  if (h >= 191 && h <= 270) return 3;
+  if (h >= 271) return 4;
+  return null;
+}
 
-  ids.forEach(item => {
-    const mEl = document.getElementById(item.m);
-    const tEl = document.getElementById(item.target);
-    if (mEl && tEl) tEl.value = mEl.value;
+function applyCalcSide7Data() {
+  const rawText = document.getElementById('excel-paste-input')?.value?.trim();
+  if (!rawText) {
+    alert('Vennligst lim inn rader fra Excel først.');
+    return;
+  }
+
+  // Tellesummer for Side 7
+  let counts = {
+    // 7A: Per trinn (1-10) og kjønn
+    a: Array.from({ length: 11 }, () => ({ g: 0, j: 0 })),
+    // 7B: Vedtak
+    b1_ito_g: 0, b1_ito_j: 0,
+    b2_ito_g: 0, b2_ito_j: 0,
+    // 7E: Organisering
+    e1: { g: 0, j: 0 }, // Ordinær klasse
+    e2: { g: 0, j: 0 }, // Gruppe >= 6
+    e3: { g: 0, j: 0 }, // Gruppe 2-5
+    e4: { g: 0, j: 0 }, // Alene
+    // 7F: ITO timer per elev (1-75, 76-190, 191-270, 271+)
+    f: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } },
+    // 7G: Assistent-timer per elev
+    g_tab: { 1: { g: 0, j: 0 }, 2: { g: 0, j: 0 }, 3: { g: 0, j: 0 }, 4: { g: 0, j: 0 } }
+  };
+
+  const lines = rawText.split('\n');
+
+  lines.forEach(line => {
+    // Del opp linjen basert på tabulatorer fra Excel
+    const cols = line.split('\t').map(c => c.trim().replace(',', '.'));
+    if (cols.length < 2) return;
+
+    // Hopp over overskrifter
+    const lineLower = line.toLowerCase();
+    if (lineLower.includes('kjønn') || lineLower.includes('kjonn') || lineLower.includes('trinn')) return;
+
+    // Kolonne 0: Trinn (1-10)
+    const trinn = parseInt(cols[0], 10);
+    
+    // Kolonne 1: Kjønn (g / j)
+    const kjonnStr = cols[1]?.toLowerCase() || '';
+    const kjonn = kjonnStr.startsWith('g') ? 'g' : (kjonnStr.startsWith('j') ? 'j' : null);
+    
+    if (!kjonn) return;
+
+    // Øvrige kolonner
+    const itoHours = parseNum(cols[2]);      // Kolonne 2: ITO timer
+    const p11_4Hours = parseNum(cols[3]);    // Kolonne 3: § 11-4 (Assistent-timer)
+    const p11_5Has = cols[4] && cols[4].toLowerCase() === 'ja'; // Kolonne 4: § 11-5
+    const audiopedHours = parseNum(cols[5]); // Kolonne 5: Audiopedagog
+
+    // Organisering (sjekker 'x', 'ja' eller '1' i kolonnene 6-9 hvis de finnes)
+    const isOrdKlasse = cols[6] && ['x', 'ja', '1'].includes(cols[6].toLowerCase());
+    const isGrp6Plus  = cols[7] && ['x', 'ja', '1'].includes(cols[7].toLowerCase());
+    const isGrp2Til5  = cols[8] && ['x', 'ja', '1'].includes(cols[8].toLowerCase());
+    const isAlene     = cols[9] && ['x', 'ja', '1'].includes(cols[9].toLowerCase());
+
+    // 1. Tell 7A (Elever per trinn) og 7F (Timer undervisningspersonale)
+    if (itoHours > 0) {
+      if (!isNaN(trinn) && trinn >= 1 && trinn <= 10) {
+        counts.a[trinn][kjonn]++;
+      }
+      const cat = getHourIntervalCategory(itoHours);
+      if (cat) counts.f[cat][kjonn]++;
+    }
+
+    // 2. Tell 7B1 og 7G (Personlig assistanse / §11-4)
+    if (p11_4Hours > 0) {
+      counts[`b1_ito_${kjonn}`]++;
+      const cat = getHourIntervalCategory(p11_4Hours);
+      if (cat) counts.g_tab[cat][kjonn]++;
+    }
+
+    // 3. Tell 7B2 (§11-5 / Audiopedagog)
+    if (p11_5Has || audiopedHours > 0) {
+      counts[`b2_ito_${kjonn}`]++;
+    }
+
+    // 4. Tell 7E (Organisering)
+    if (isOrdKlasse) counts.e1[kjonn]++;
+    if (isGrp6Plus)  counts.e2[kjonn]++;
+    if (isGrp2Til5)  counts.e3[kjonn]++;
+    if (isAlene)     counts.e4[kjonn]++;
   });
 
+  // --- SETT INN I 7A (Elever per trinn) ---
+  for (let t = 1; t <= 10; t++) {
+    setNumber(`s7_a${t}_g`, counts.a[t].g);
+    setNumber(`s7_a${t}_j`, counts.a[t].j);
+  }
+
+  // --- SETT INN I 7B ---
+  setNumber('s7_b1_ito_g', counts.b1_ito_g);
+  setNumber('s7_b1_ito_j', counts.b1_ito_j);
+  setNumber('s7_b2_ito_g', counts.b2_ito_g);
+  setNumber('s7_b2_ito_j', counts.b2_ito_j);
+
+  // --- SETT INN I 7E (Organisering) ---
+  setNumber('s7_e1_g', counts.e1.g); setNumber('s7_e1_j', counts.e1.j);
+  setNumber('s7_e2_g', counts.e2.g); setNumber('s7_e2_j', counts.e2.j);
+  setNumber('s7_e3_g', counts.e3.g); setNumber('s7_e3_j', counts.e3.j);
+  setNumber('s7_e4_g', counts.e4.g); setNumber('s7_e4_j', counts.e4.j);
+
+  // --- SETT INN I 7F (Undervisningstimer per elev) ---
+  [1, 2, 3, 4].forEach(cat => {
+    setNumber(`s7_f${cat}_g`, counts.f[cat].g);
+    setNumber(`s7_f${cat}_j`, counts.f[cat].j);
+  });
+
+  // --- SETT INN I 7G (Assistenttimer per elev) ---
+  [1, 2, 3, 4].forEach(cat => {
+    setNumber(`s7_g${cat}_g`, counts.g_tab[cat].g);
+    setNumber(`s7_g${cat}_j`, counts.g_tab[cat].j);
+  });
+
+  // Beregn alle summer loddrett/vannrett og lagre
   calculateAll(false);
   saveData(false);
 
   closeCalcSide7Modal();
-  showSaveMessage('Tallene ble lagt inn på Side 7!');
+  showSaveMessage('Excel-data ble overført til Side 7 (7A, 7B, 7E, 7F og 7G)!');
 }
 
 function calcSide8() {
