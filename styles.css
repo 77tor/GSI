@@ -1068,3 +1068,14 @@ body{min-height:100vh}
 .table-wrap{overflow-x:auto}
 .gsi-table{min-width:700px}
 }
+
+/* Skjul opp/ned-piler (spinners) på tall-input i alle nettlesere */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

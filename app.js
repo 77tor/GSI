@@ -24,7 +24,11 @@ const parseNum = val => (Number.isFinite(Number.parseFloat(val)) ? Number.parseF
 const numberValue = id => parseNum(document.getElementById(id)?.value);
 
 function setNumber(id, value) {
-  const n = parseNum(value);
+  let n = parseNum(value);
+
+  // Avrund til maks 2 desimaler for å unngå flyttallsfeil (f.eks. 6.0799999999999 -> 6.08)
+  n = Math.round((n + Number.EPSILON) * 100) / 100;
+
   formData[id] = n;
   const el = document.getElementById(id);
   if (el) el.value = n;
