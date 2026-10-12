@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GSI - Grunnskolens innrapportering</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">GSI - Grunnskolens innrapportering</div>
+  <div class="year-control">
+    <label for="year-select">Skoleår</label>
+    <select id="year-select"></select>
+    <button class="mini-btn" id="export-btn" type="button">Eksporter</button>
+    <label class="mini-btn file-btn">Importer<input id="import-file" type="file" accept=".json"></label>
+    <button class="mini-btn" id="print-modal-btn" type="button">Skriv ut...</button>
+    
+    <!-- Nullstill-meny -->
+    <select id="reset-select" class="mini-btn btn-danger-select">
+      <option value="" disabled selected>Nullstill...</option>
+      <option value="page">Slett denne siden</option>
+      <option value="year_keep_1_2">Slett skoleår (behold side 1 & 2)</option>
+      <option value="year_all">Slett alt for skoleåret</option>
+    </select>
+  </div>
+  <div class="userbox">
+    <div>
+      <strong id="topbar-school">Heståsen skole</strong>
+      <small id="topbar-municipality">Kristiansand</small>
+    </div>
+    <div class="user">
+      <span class="user-icon">♙</span>
+      <div>
+        <strong id="topbar-user-name">Tor Pettersen Skarprud</strong>
+        <small id="topbar-user-role">Skoleleder</small>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <nav id="sidebar-menu"></nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <h1 id="page-heading">1. Enhetsopplysninger</h1>
+    </div>
+
+    <div id="pages">
+
+      <!-- SIDE 1 -->
+      <section class="page active" id="page-1" data-page="1">
+  <section class="section-card">
+    <div class="section-header">A. Enhet</div>
+    <div class="section-body">
+      <div class="form-group"><label for="s1_skole">Skole:</label><input id="s1_skole" type="text"></div>
+
+      <div class="address-grid">
+        <div class="address-box">
+          <h4>Besøksadresse</h4>
+          <div class="form-group"><label for="s1_besok_adresse">Adresse:</label><input id="s1_besok_adresse" type="text"></div>
+          <div class="form-group"><label for="s1_besok_poststed">Postnr/sted:</label><input id="s1_besok_poststed" type="text"></div>
+        </div>
+
+        <div class="address-box">
+          <h4>Postadresse</h4>
+          <div class="form-group"><label for="s1_post_adresse">Adresse:</label><input id="s1_post_adresse" type="text"></div>
+          <div class="form-group"><label for="s1_post_poststed">Postnr/sted:</label><input id="s1_post_poststed" type="text"></div>
+        </div>
+      </div>
+
+      <div class="form-group"><label for="s1_orgnr_skole">Org.nr. skole:</label><input id="s1_orgnr_skole" type="text"></div>
+      <div class="form-group"><label for="s1_orgnr_skoleeier">Org.nr. skoleeier:</label><input id="s1_orgnr_skoleeier" type="text"></div>
+      <div class="form-group"><label for="s1_driftsansvar">Driftsansvar:</label><input id="s1_driftsansvar" type="text"></div>
+      <div class="form-group"><label for="s1_telefon">Telefon:</label><input id="s1_telefon" type="tel"></div>
+      <div class="form-group"><label for="s1_epost">E-post:</label><input id="s1_epost" type="email"></div>
+      <div class="form-group"><label for="s1_kommunenummer">Kommunenummer:</label><input id="s1_kommunenummer" type="text"></div>
+      <div class="form-group"><label for="s1_kommunenavn">Kommunenavn:</label><input id="s1_kommunenavn" type="text"></div>
+      <div class="form-group"><label for="s1_fylkesnummer">Fylkesnummer:</label><input id="s1_fylkesnummer" type="text"></div>
+      <div class="form-group"><label for="s1_fylke">Fylke:</label><input id="s1_fylke" type="text"></div>
+    </div>
+  </section>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" id="save-1">Lagre</button>
+  </div>
+</section>
+
+<!-- SIDE 2 -->
+<section class="page" id="page-2" data-page="2">
+
+  <!-- A. Skolens målform -->
+  <section class="section-card">
+    <div class="section-header">A. Skolens målform <span class="help-icon">?</span></div>
+    <div class="section-body">
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="s2_maalform" id="s2_maalform_bokmaal" value="Bokmål"> <span>Bokmål</span></label>
+        <label class="radio-option"><input type="radio" name="s2_maalform" id="s2_maalform_nynorsk" value="Nynorsk"> <span>Nynorsk</span></label>
+        <label class="radio-option"><input type="radio" name="s2_maalform" id="s2_maalform_samisk" value="Samisk"> <span>Samisk</span></label>
+        <label class="radio-option"><input type="radio" name="s2_maalform" id="s2_maalform_annet" value="Annet"> <span>Annet</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. Laveste trinn -->
+  <section class="section-card">
+    <div class="section-header">B. Hva er normalt laveste trinn ved skolen? <span class="help-icon">?</span></div>
+    <div class="section-body">
+      <div class="form-group">
+        <select id="s2_laveste_trinn">
+          <option value="1">1. trinn</option>
+          <option value="2">2. trinn</option>
+          <option value="3">3. trinn</option>
+          <option value="4">4. trinn</option>
+          <option value="5">5. trinn</option>
+          <option value="6">6. trinn</option>
+          <option value="7">7. trinn</option>
+          <option value="8">8. trinn</option>
+          <option value="9">9. trinn</option>
+          <option value="10">10. trinn</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Høyeste trinn -->
+  <section class="section-card">
+    <div class="section-header">C. Hva er normalt høyeste trinn ved skolen? <span class="help-icon">?</span></div>
+    <div class="section-body">
+      <div class="form-group">
+        <select id="s2_hoyeste_trinn">
+          <option value="1">1. trinn</option>
+          <option value="2">2. trinn</option>
+          <option value="3">3. trinn</option>
+          <option value="4">4. trinn</option>
+          <option value="5">5. trinn</option>
+          <option value="6">6. trinn</option>
+          <option value="7">7. trinn</option>
+          <option value="8">8. trinn</option>
+          <option value="9">9. trinn</option>
+          <option value="10">10. trinn</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. SFO -->
+  <section class="section-card">
+    <div class="section-header">D. Har skolen tilbud om SFO? <span class="help-icon">?</span></div>
+    <div class="section-body">
+      <div class="radio-inline">
+        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_ja" value="Ja"> <span>Ja</span></label>
+        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_nei" value="Nei"> <span>Nei</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigasjon -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 3 -->
+<section class="page page-3" id="page-3" data-page="3">
+
+  <!-- A. ELEVER PER TRINN -->
+  <section class="section-card">
+    <div class="section-header">A. Elever per trinn</div>
+    <div class="section-body">
+      <div class="info-box">
+        Alle elever som går på skolen, skal registreres, selv om eleven er folkeregistrert i en annen kommune.
+        Elever som er midlertidig ved en skole/enhet, skal kun føres på den skolen hvor eleven er tatt inn.
+        Dersom det er planlagt at eleven skal gå på annen skole ut skoleåret eller lenger, skal eleven føres
+        på den skolen vedkommende faktisk skal gå på det skoleåret.
+      </div>
+
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-a">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"><col class="number-col"><col class="sum-col"></colgroup>
+          <thead>
+            <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>1. trinn</td><td><input id="s3_a_1_gutter" type="number" min="0"></td><td><input id="s3_a_1_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_1_sum" type="number" readonly></td></tr>
+            <tr><td>2</td><td>2. trinn</td><td><input id="s3_a_2_gutter" type="number" min="0"></td><td><input id="s3_a_2_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_2_sum" type="number" readonly></td></tr>
+            <tr><td>3</td><td>3. trinn</td><td><input id="s3_a_3_gutter" type="number" min="0"></td><td><input id="s3_a_3_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_3_sum" type="number" readonly></td></tr>
+            <tr><td>4</td><td>4. trinn</td><td><input id="s3_a_4_gutter" type="number" min="0"></td><td><input id="s3_a_4_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_4_sum" type="number" readonly></td></tr>
+            <tr><td>5</td><td>5. trinn</td><td><input id="s3_a_5_gutter" type="number" min="0"></td><td><input id="s3_a_5_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_5_sum" type="number" readonly></td></tr>
+            <tr><td>6</td><td>6. trinn</td><td><input id="s3_a_6_gutter" type="number" min="0"></td><td><input id="s3_a_6_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_6_sum" type="number" readonly></td></tr>
+            <tr><td>7</td><td>7. trinn</td><td><input id="s3_a_7_gutter" type="number" min="0"></td><td><input id="s3_a_7_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_7_sum" type="number" readonly></td></tr>
+            <tr class="total-row"><td>8</td><td>Sum 1.-7. trinn</td><td><input id="s3_a_sum17_gutter" type="number" readonly></td><td><input id="s3_a_sum17_jenter" type="number" readonly></td><td><input id="s3_a_sum17" type="number" readonly></td></tr>
+            <tr><td>9</td><td>8. trinn</td><td><input id="s3_a_8_gutter" type="number" min="0"></td><td><input id="s3_a_8_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_8_sum" type="number" readonly></td></tr>
+            <tr><td>10</td><td>9. trinn</td><td><input id="s3_a_9_gutter" type="number" min="0"></td><td><input id="s3_a_9_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_9_sum" type="number" readonly></td></tr>
+            <tr><td>11</td><td>10. trinn</td><td><input id="s3_a_10_gutter" type="number" min="0"></td><td><input id="s3_a_10_jenter" type="number" min="0"></td><td class="auto"><input id="s3_a_10_sum" type="number" readonly></td></tr>
+            <tr class="total-row"><td>12</td><td>Sum 8.-10. trinn</td><td><input id="s3_a_sum810_gutter" type="number" readonly></td><td><input id="s3_a_sum810_jenter" type="number" readonly></td><td><input id="s3_a_sum810" type="number" readonly></td></tr>
+            <tr class="total-row"><td>13</td><td>Sum elever ved skolen</td><td><input id="s3_a_total_gutter" type="number" readonly></td><td><input id="s3_a_total_jenter" type="number" readonly></td><td><input id="s3_a_total" type="number" readonly></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. UNDERVISNINGSTIMER -->
+  <section class="section-card">
+    <div class="section-header">B. Undervisningstimer</div>
+    <div class="section-body">
+      <div class="info-box">Timer til fysisk aktivitet og leksehjelp skal ikke føres her, men i del 12.</div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-b">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+          <thead><tr><th></th><th></th><th>Timetallsfordeling</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1. trinn</td><td><input id="s3_b_1" type="number" min="0"></td></tr>
+            <tr><td>2</td><td>2. trinn</td><td><input id="s3_b_2" type="number" min="0"></td></tr>
+            <tr><td>3</td><td>3. trinn</td><td><input id="s3_b_3" type="number" min="0"></td></tr>
+            <tr><td>4</td><td>4. trinn</td><td><input id="s3_b_4" type="number" min="0"></td></tr>
+            <tr><td>5</td><td>5. trinn</td><td><input id="s3_b_5" type="number" min="0"></td></tr>
+            <tr><td>6</td><td>6. trinn</td><td><input id="s3_b_6" type="number" min="0"></td></tr>
+            <tr><td>7</td><td>7. trinn</td><td><input id="s3_b_7" type="number" min="0"></td></tr>
+            <tr class="total-row"><td>8</td><td>Sum 1.-7. trinn</td><td><input id="s3_b_sum17" type="number" readonly></td></tr>
+            <tr><td>9</td><td>8. trinn</td><td><input id="s3_b_8" type="number" min="0"></td></tr>
+            <tr><td>10</td><td>9. trinn</td><td><input id="s3_b_9" type="number" min="0"></td></tr>
+            <tr><td>11</td><td>10. trinn</td><td><input id="s3_b_10" type="number" min="0"></td></tr>
+            <tr class="total-row"><td>12</td><td>Sum 8.-10. trinn</td><td><input id="s3_b_sum810" type="number" readonly></td></tr>
+            <tr class="total-row"><td>13</td><td>Sum 1.-10. trinn</td><td><input id="s3_b_total" type="number" readonly></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. ASYLSØKERE -->
+  <section class="section-card">
+    <div class="section-header">C. Asylsøkere</div>
+    <div class="section-body">
+      <div class="info-box">Foreldre fra Ukraina, som har kollektiv beskyttelse, skal ikke registreres som asylsøkere her.</div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-c">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+          <thead><tr><th></th><th></th><th>Antall asylsøkere</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1. trinn</td><td><input id="s3_c_1" type="number" min="0"></td></tr>
+            <tr><td>2</td><td>2. trinn</td><td><input id="s3_c_2" type="number" min="0"></td></tr>
+            <tr><td>3</td><td>3. trinn</td><td><input id="s3_c_3" type="number" min="0"></td></tr>
+            <tr><td>4</td><td>4. trinn</td><td><input id="s3_c_4" type="number" min="0"></td></tr>
+            <tr><td>5</td><td>5. trinn</td><td><input id="s3_c_5" type="number" min="0"></td></tr>
+            <tr><td>6</td><td>6. trinn</td><td><input id="s3_c_6" type="number" min="0"></td></tr>
+            <tr><td>7</td><td>7. trinn</td><td><input id="s3_c_7" type="number" min="0"></td></tr>
+            <tr><td>8</td><td>8. trinn</td><td><input id="s3_c_8" type="number" min="0"></td></tr>
+            <tr><td>9</td><td>9. trinn</td><td><input id="s3_c_9" type="number" min="0"></td></tr>
+            <tr><td>10</td><td>10. trinn</td><td><input id="s3_c_10" type="number" min="0"></td></tr>
+            <tr class="total-row"><td>11</td><td>Sum</td><td><input id="s3_c_sum" type="number" readonly></td></tr>
+            <tr><td>12</td><td>Jenter</td><td><input id="s3_c_jenter" type="number" min="0"></td></tr>
+            <tr><td>13</td><td>Gutter</td><td><input id="s3_c_gutter" type="number" min="0"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. TEGNSPRÅK OG PUNKTSKRIFT -->
+  <section class="section-card">
+    <div class="section-header">D. Elever med tegnspråk og punktskriftopplæring</div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-d">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+          <thead><tr><th></th><th></th><th>Elever</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Antall elever med vedtak om opplæring både i og på tegnspråk</td><td><input id="s3_d_1" type="number" min="0"></td></tr>
+            <tr><td>2</td><td>Antall elever med vedtak om opplæring kun i tegnspråk</td><td><input id="s3_d_2" type="number" min="0"></td></tr>
+            <tr><td>3</td><td>Antall elever med vedtak om punktskriftopplæring</td><td><input id="s3_d_3" type="number" min="0"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+<!-- E. FINANSIERT AV ANNEN KOMMUNE -->
+<section class="section-card">
+  <div class="section-header">E. Hvor mange av elevene oppgitt i 3A blir finansiert av en annen kommune?</div>
+  <div class="section-body">
+    <div class="table-wrap">
+      <table class="gsi-table table-s3-e" id="s3_e_table">
+        <colgroup>
+          <col class="row-no">
+          <col class="desc-wide">
+          <col class="number-col">
+          <col style="width: 40px;">
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Kommune</th>
+            <th style="text-align:center;">Elever</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="s3_e_tbody">
+          <!-- Dynamiske rader genereres her via JS -->
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td id="s3_e_sum_row_no">1</td>
+            <td><strong>Sum elever fra andre kommuner</strong></td>
+            <td><input id="s3_e_total" type="number" readonly class="read-only-input"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="table-add-row" style="margin-top: 10px;">
+      <button class="btn" type="button" id="s3_e_add_row">Legg til rad</button>
+    </div>
+  </div>
+</section>
+
+  <!-- F. HJEMMEUNDERVISNING -->
+  <section class="section-card">
+    <div class="section-header">F. Hjemmeundervisning</div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-f">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+          <thead><tr><th></th><th></th><th>Elever</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Antall elever som får hjemmeundervisning av foresatte</td><td><input id="s3_f_1" type="number" min="0"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- G. IKKE MØTT VED SKOLESTART -->
+  <section class="section-card">
+    <div class="section-header">G. Elever som ikke har møtt ved skolestart</div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table class="gsi-table table-s3-g">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+          <thead><tr><th></th><th></th><th>Elever</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Antall elever som ikke har møtt opp til pliktig grunnskoleopplæring ved skolestart og som fortsatt er utenfor opplæring per 1. oktober</td><td><input id="s3_g_1" type="number" min="0"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 4 -->
+<section class="page" id="page-4" data-page="4">
+
+  <!-- A. Årstimer til undervisning totalt -->
+  <section class="section-card">
+    <div class="section-header">A. Årstimer til undervisning totalt</div>
+    <div class="section-body table-wrap">
+      <div class="table-note">Timer til fysisk aktivitet og leksehjelp skal føres i del 12. Dersom årstimer gis samtidig til elever fra flere årstrinn, skal årstimer føres på det høyeste årstrinnet.</div>
+      <table class="gsi-table table-s4-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="calc-col"><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>1.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Sum<br>1.-10.<br>trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Undervisningspersonale som oppfyller kompetansekravene for tilsetting</td><td><input id="s4_a1_1" type="number"></td><td><input id="s4_a1_2" type="number"></td><td class="auto"><input id="s4_a1_17" type="number" readonly></td><td><input id="s4_a1_3" type="number"></td><td class="auto"><input id="s4_a1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Undervisningspersonale som ikke oppfyller kompetansekravene for tilsetting</td><td><input id="s4_a2_1" type="number"></td><td><input id="s4_a2_2" type="number"></td><td class="auto"><input id="s4_a2_17" type="number" readonly></td><td><input id="s4_a2_3" type="number"></td><td class="auto"><input id="s4_a2_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>3</td><td>Sum årstimer som gis til undervisning ved skolen inneværende skoleår</td><td class="auto"><input id="s4_a3_1" type="number" readonly></td><td class="auto"><input id="s4_a3_2" type="number" readonly></td><td class="auto"><input id="s4_a3_17" type="number" readonly></td><td class="auto"><input id="s4_a3_3" type="number" readonly></td><td class="auto"><input id="s4_a3_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- B. Individuelt tilrettelagt opplæring -->
+  <section class="section-card">
+    <div class="section-header">B. Årstimer til individuelt tilrettelagt opplæring, særskilt språkopplæring og andre ressurser</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s4-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="calc-col"><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>1.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Sum<br>1.-10.<br>trinn</th></tr>
+          <tr class="table-subheader"><th colspan="7">Hvor mange av årstimene som er oppgitt ovenfor går til</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Individuelt tilrettelagt opplæring (eller videreføring av vedtak om spesialundervisning)</td><td><input id="s4_b1_1" type="number"></td><td><input id="s4_b1_2" type="number"></td><td class="auto"><input id="s4_b1_17" type="number" readonly></td><td><input id="s4_b1_3" type="number"></td><td class="auto"><input id="s4_b1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Forsterket opplæring i norsk</td><td><input id="s4_b2_1" type="number"></td><td><input id="s4_b2_2" type="number"></td><td class="auto"><input id="s4_b2_17" type="number" readonly></td><td><input id="s4_b2_3" type="number"></td><td class="auto"><input id="s4_b2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Morsmålsopplæring</td><td><input id="s4_b3_1" type="number"></td><td><input id="s4_b3_2" type="number"></td><td class="auto"><input id="s4_b3_17" type="number" readonly></td><td><input id="s4_b3_3" type="number"></td><td class="auto"><input id="s4_b3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Tospråklig opplæring i fag</td><td><input id="s4_b4_1" type="number"></td><td><input id="s4_b4_2" type="number"></td><td class="auto"><input id="s4_b4_17" type="number" readonly></td><td><input id="s4_b4_3" type="number"></td><td class="auto"><input id="s4_b4_sum" type="number" readonly></td></tr>
+          <tr><td>5</td><td>Annen tilrettelagt opplæring når kommunen ikke kan tilby morsmålsopplæring eller tospråklig opplæring i fag</td><td><input id="s4_b5_1" type="number"></td><td><input id="s4_b5_2" type="number"></td><td class="auto"><input id="s4_b5_17" type="number" readonly></td><td><input id="s4_b5_3" type="number"></td><td class="auto"><input id="s4_b5_sum" type="number" readonly></td></tr>
+          <tr><td>6</td><td>Elever med rett til opplæring i samisk språk der dette fører til ekstra ressurser til undervisning</td><td><input id="s4_b6_1" type="number"></td><td><input id="s4_b6_2" type="number"></td><td class="auto"><input id="s4_b6_17" type="number" readonly></td><td><input id="s4_b6_3" type="number"></td><td class="auto"><input id="s4_b6_sum" type="number" readonly></td></tr>
+          <tr><td>7</td><td>Elever med rett til opplæring på samisk der dette fører til ekstra ressurser til undervisning for en elev/elevgruppe</td><td><input id="s4_b7_1" type="number"></td><td><input id="s4_b7_2" type="number"></td><td class="auto"><input id="s4_b7_17" type="number" readonly></td><td><input id="s4_b7_3" type="number"></td><td class="auto"><input id="s4_b7_sum" type="number" readonly></td></tr>
+          <tr><td>8</td><td>Elever med rett til annen målform enn kommunens hovedmål og der dette fører til ekstra ressurser til undervisning for en elev/elevgruppe</td><td><input id="s4_b8_1" type="number"></td><td><input id="s4_b8_2" type="number"></td><td class="auto"><input id="s4_b8_17" type="number" readonly></td><td><input id="s4_b8_3" type="number"></td><td class="auto"><input id="s4_b8_sum" type="number" readonly></td></tr>
+          <tr><td>9</td><td>Kvensk som andrespråk</td><td><input id="s4_b9_1" type="number"></td><td><input id="s4_b9_2" type="number"></td><td class="auto"><input id="s4_b9_17" type="number" readonly></td><td><input id="s4_b9_3" type="number"></td><td class="auto"><input id="s4_b9_sum" type="number" readonly></td></tr>
+          <tr><td>10</td><td>Finsk som andrespråk</td><td><input id="s4_b10_1" type="number"></td><td><input id="s4_b10_2" type="number"></td><td class="auto"><input id="s4_b10_17" type="number" readonly></td><td><input id="s4_b10_3" type="number"></td><td class="auto"><input id="s4_b10_sum" type="number" readonly></td></tr>
+          <tr><td>11</td><td>Tegnspråk</td><td><input id="s4_b11_1" type="number"></td><td><input id="s4_b11_2" type="number"></td><td class="auto"><input id="s4_b11_17" type="number" readonly></td><td><input id="s4_b11_3" type="number"></td><td class="auto"><input id="s4_b11_sum" type="number" readonly></td></tr>
+          <tr><td>12</td><td>Punktskrift</td><td><input id="s4_b12_1" type="number"></td><td><input id="s4_b12_2" type="number"></td><td class="auto"><input id="s4_b12_17" type="number" readonly></td><td><input id="s4_b12_3" type="number"></td><td class="auto"><input id="s4_b12_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>13</td><td>Sum årstimer til individuelt tilrettelagt opplæring og andre ressurser</td><td class="auto"><input id="s4_b13_1" type="number" readonly></td><td class="auto"><input id="s4_b13_2" type="number" readonly></td><td class="auto"><input id="s4_b13_17" type="number" readonly></td><td class="auto"><input id="s4_b13_3" type="number" readonly></td><td class="auto"><input id="s4_b13_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. Ordinær undervisning -->
+  <section class="section-card">
+    <div class="section-header">C. Årstimer til ordinær undervisning</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s4-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="calc-col"><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>1.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>1.-10.<br>trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>1</td><td>Sum årstimer</td><td class="auto"><input id="s4_c_1" type="number" readonly></td><td class="auto"><input id="s4_c_2" type="number" readonly></td><td class="auto"><input id="s4_c_17" type="number" readonly></td><td class="auto"><input id="s4_c_3" type="number" readonly></td><td class="auto"><input id="s4_c_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- D. Andre oppgaver -->
+  <section class="section-card">
+    <div class="section-header">D. Årstimer til andre oppgaver utført av undervisningspersonale</div>
+    <div class="section-body table-wrap">
+      <div class="table-note">Her føres timer til oppgaver som går fratrekk i undervisningsplikten. Eksempler på oppgaver er kontaktlærerfunksjon, tidsressurspott, seniortiltak og pedagogisk veiledning. For øvrige eksempler se veiledningen.</div>
+      <table class="gsi-table table-s4-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Andre årstimer utført av undervisningspersonale</td><td><input id="s4_d_17" type="number"></td><td><input id="s4_d_3" type="number"></td><td class="auto"><input id="s4_d_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- E. Elevrettet arbeid -->
+  <section class="section-card">
+    <div class="section-header">E. Årstimer til elevrettet arbeid utført av assistenter og annet personale (ikke undervisningspersonale)</div>
+    <div class="section-body table-wrap">
+      <div class="table-note">Her føres årstimer utført av assistenter og annet elevrettet arbeid. Det er 1687,5 årstimer i et årsverk.</div>
+      <table class="gsi-table table-s4-e">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Sum<br>1.-10.<br>trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Barne- og ungdomsarbeidere (eller annen relevant fagarbeiderutdanning)</td><td><input id="s4_e1_1" type="number"></td><td><input id="s4_e1_2" type="number"></td><td><input id="s4_e1_3" type="number"></td><td class="auto"><input id="s4_e1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Vernepleier, barnevernspedagoger, sosionomer</td><td><input id="s4_e2_1" type="number"></td><td><input id="s4_e2_2" type="number"></td><td><input id="s4_e2_3" type="number"></td><td class="auto"><input id="s4_e2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Annen høyskole/universitetsutdanning</td><td><input id="s4_e3_1" type="number"></td><td><input id="s4_e3_2" type="number"></td><td><input id="s4_e3_3" type="number"></td><td class="auto"><input id="s4_e3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Annen bakgrunn</td><td><input id="s4_e4_1" type="number"></td><td><input id="s4_e4_2" type="number"></td><td><input id="s4_e4_3" type="number"></td><td class="auto"><input id="s4_e4_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>5</td><td>Totalt antall årstimer til assistent (assistenttimer) og annet elevrettet arbeid i skolen</td><td class="auto"><input id="s4_e5_1" type="number" readonly></td><td class="auto"><input id="s4_e5_2" type="number" readonly></td><td class="auto"><input id="s4_e5_3" type="number" readonly></td><td class="auto"><input id="s4_e5_sum" type="number" readonly></td></tr>
+          <tr><td>6</td><td>Hvor mange av årstimene i E5 er i henhold til vedtak om personlig assistanse (eller videreføring av vedtak om spesialundervisning)</td><td><input id="s4_e6_1" type="number"></td><td><input id="s4_e6_2" type="number"></td><td><input id="s4_e6_3" type="number"></td><td class="auto"><input id="s4_e6_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 5 -->
+<section class="page" id="page-5" data-page="5">
+
+  <!-- A. ANTALL LÆRERE -->
+  <section class="section-card">
+    <div class="section-header">A. Antall lærere</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Læreren registreres på høyeste trinn hen underviser på.</p>
+      <table class="gsi-table table-s5-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th colspan="6">Lærere</th></tr>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Menn</th><th>Kvinner</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall lærere totalt</td><td><input id="s5_a1_14" type="number"></td><td><input id="s5_a1_57" type="number"></td><td><input id="s5_a1_810" type="number"></td><td><input id="s5_a1_m" type="number"></td><td><input id="s5_a1_k" type="number"></td><td class="auto"><input id="s5_a1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Herav kontaktlærere</td><td><input id="s5_a2_14" type="number"></td><td><input id="s5_a2_57" type="number"></td><td><input id="s5_a2_810" type="number"></td><td><input id="s5_a2_m" type="number"></td><td><input id="s5_a2_k" type="number"></td><td class="auto"><input id="s5_a2_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- B. ANNET PERSONALE -->
+  <section class="section-card">
+    <div class="section-header">B. Annet personale i elevrettet arbeid</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s5-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Menn</th><th>Kvinner</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall utdannings- og yrkesrådgivere</td><td><input id="s5_b1_m" type="number"></td><td><input id="s5_b1_k" type="number"></td><td class="auto"><input id="s5_b1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall sosialpedagogiske rådgivere</td><td><input id="s5_b2_m" type="number"></td><td><input id="s5_b2_k" type="number"></td><td class="auto"><input id="s5_b2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Antall assistenter (og øvrige personale i elevrettet arbeid) i skolen</td><td><input id="s5_b3_m" type="number"></td><td><input id="s5_b3_k" type="number"></td><td class="auto"><input id="s5_b3_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. KOMPETANSEKRAV -->
+  <section class="section-card">
+    <div class="section-header">C. Antall lærere som oppfyller kompetansekravene</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">En lærer skal bare registreres en gang. Dersom læreren underviser både på 1.-7. trinn og 8.-10. trinn skal læreren kun føres på det trinnet hen underviser mest.</p>
+      <table class="gsi-table table-s5-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-7. trinn</th><th>8.-10. trinn</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall lærere som oppfyller kompetansekravene for tilsetting</td><td><input id="s5_c1_17" type="number"></td><td><input id="s5_c1_810" type="number"></td><td class="auto"><input id="s5_c1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall lærere som ikke oppfyller kompetansekravene for tilsetting</td><td><input id="s5_c2_17" type="number"></td><td><input id="s5_c2_810" type="number"></td><td class="auto"><input id="s5_c2_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- D. KOMPETANSEKRAV FOR UNDERVISNING -->
+  <section class="section-card">
+    <div class="section-header">D. Kompetansekrav for undervisning</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Lærere fordelt på antall studiepoeng de har i fagene de underviser i.</p>
+      <table class="gsi-table table-s5-d">
+        <colgroup><col class="row-no"><col class="subject-col"><col><col><col class="calc-col"><col><col><col><col class="calc-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th colspan="3">1.-7. trinn</th><th colspan="4">8.-10. trinn</th></tr>
+          <tr><th></th><th></th><th>Minst 30<br>studiepoeng<br>i faget</th><th>0-29<br>studiepoeng<br>i faget</th><th>Sum 1.-7.<br>trinn</th><th>Minst 60<br>studiepoeng<br>i faget</th><th>30-59<br>studiepoeng<br>i faget</th><th>0-29<br>studiepoeng<br>i faget</th><th>Sum 8.-10.<br>trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Norsk</td><td><input id="s5_d1_1730" type="number"></td><td><input id="s5_d1_170" type="number"></td><td class="auto"><input id="s5_d1_17sum" type="number" readonly></td><td><input id="s5_d1_81060" type="number"></td><td><input id="s5_d1_8103059" type="number"></td><td><input id="s5_d1_810029" type="number"></td><td class="auto"><input id="s5_d1_810sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Matematikk</td><td><input id="s5_d2_1730" type="number"></td><td><input id="s5_d2_170" type="number"></td><td class="auto"><input id="s5_d2_17sum" type="number" readonly></td><td><input id="s5_d2_81060" type="number"></td><td><input id="s5_d2_8103059" type="number"></td><td><input id="s5_d2_810029" type="number"></td><td class="auto"><input id="s5_d2_810sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Engelsk</td><td><input id="s5_d3_1730" type="number"></td><td><input id="s5_d3_170" type="number"></td><td class="auto"><input id="s5_d3_17sum" type="number" readonly></td><td><input id="s5_d3_81060" type="number"></td><td><input id="s5_d3_8103059" type="number"></td><td><input id="s5_d3_810029" type="number"></td><td class="auto"><input id="s5_d3_810sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Samisk</td><td><input id="s5_d4_1730" type="number"></td><td><input id="s5_d4_170" type="number"></td><td class="auto"><input id="s5_d4_17sum" type="number" readonly></td><td><input id="s5_d4_81060" type="number"></td><td><input id="s5_d4_8103059" type="number"></td><td><input id="s5_d4_810029" type="number"></td><td class="auto"><input id="s5_d4_810sum" type="number" readonly></td></tr>
+          <tr><td>5</td><td>Norsk tegnspråk</td><td><input id="s5_d5_1730" type="number"></td><td><input id="s5_d5_170" type="number"></td><td class="auto"><input id="s5_d5_17sum" type="number" readonly></td><td><input id="s5_d5_81060" type="number"></td><td><input id="s5_d5_8103059" type="number"></td><td><input id="s5_d5_810029" type="number"></td><td class="auto"><input id="s5_d5_810sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- E. INDIVIDUELT TILRETTELAGT OPPLÆRING -->
+  <section class="section-card">
+    <div class="section-header">E. Antall ansatte som gir individuelt tilrettelagt opplæring</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s5-e">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Antall ansatte</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall som oppfyller kompetansekravene for å bli tilsatt i lærerstilling</td><td><input id="s5_e1" type="number"></td></tr>
+          <tr><td>2</td><td>Antall med en universitets- eller høyskoleutdanning som gjør de særlig egna til å ivareta elevens behov, jf. opplæringsloven § 11-9 andre ledd</td><td><input id="s5_e2" type="number"></td></tr>
+          <tr><td>3</td><td>Antall med en annen bakgrunn</td><td><input id="s5_e3" type="number"></td></tr>
+          <tr class="total-row"><td>4</td><td>Sum</td><td class="auto"><input id="s5_e_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- F. SPESIALPEDAGOGISK KOMPETANSE -->
+  <section class="section-card">
+    <div class="section-header">F. Antall ansatte med spesialpedagogisk kompetanse</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Her registreres ansatte som har minimum 30 studiepoeng i spesialpedagogikk. Både spesialpedagoger, lærere med studiepoeng i spesialpedagogikk og andre ansatte med denne kompetansen skal registreres her. Ansatte skal registreres uavhengig av om de jobber direkte med barn med ITO eller ikke.</p>
+      <table class="gsi-table table-s5-f">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Menn</th><th>Kvinner</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall ansatte med spesialpedagogisk kompetanse</td><td><input id="s5_f_m" type="number"></td><td><input id="s5_f_k" type="number"></td><td class="auto"><input id="s5_f_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 6 -->
+<section class="page" id="page-6" data-page="6">
+
+  <!-- A. ÅRSVERK TIL LEDEROPPGAVER -->
+  <section class="section-card">
+    <div class="section-header">A. Årsverk til lederoppgaver - 50 prosent stilling = 0,5</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s6-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Årsverk</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Rektor/assisterende rektor</td><td><input id="s6_a1" type="number" step="0.01"></td></tr>
+          <tr><td>2</td><td>Undervisningsinspektør/avdelingsleder</td><td><input id="s6_a2" type="number" step="0.01"></td></tr>
+          <tr class="total-row"><td>3</td><td>Sum årsverk personale med administrative og pedagogiske lederoppgaver</td><td class="auto"><input id="s6_a_sum" type="number" step="0.01" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- B. ÅRSRAMME FOR UNDERVISNING -->
+  <section class="section-card">
+    <div class="section-header">B. Årsramme for undervisning (forhåndsutfylt)</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s6-b">
+        <colgroup><col class="desc-wide"><col><col></colgroup>
+        <thead>
+          <tr><th>Forhåndsutfylt. Endres kun hvis skoleeier har vedtatt en annen årsramme for undervisning.</th><th>1.-7. trinn</th><th>8.-10. trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Lesetall</td><td><input id="s6_b_17" type="number" value="741"></td><td><input id="s6_b_810" type="number" value="656"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. SUM BEREGNEDE ÅRSVERK TIL UNDERVISNING -->
+  <section class="section-card">
+    <div class="section-header">C. Sum beregnede årsverk til undervisning</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s6-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4. trinn</th><th>5.-7. trinn</th><th>8.-10. trinn</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>1</td><td>Beregnede årsverk til undervisning</td><td class="auto"><input id="s6_c_14" type="number" step="0.01" readonly></td><td class="auto"><input id="s6_c_57" type="number" step="0.01" readonly></td><td class="auto"><input id="s6_c_810" type="number" step="0.01" readonly></td><td class="auto"><input id="s6_c_sum" type="number" step="0.01" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- D. ÅRSVERK TIL ANNET PERSONALE -->
+  <section class="section-card">
+    <div class="section-header">D. Årsverk til annet personale</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s6-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Årsverk (50 prosent<br>stilling er 0,5)</th></tr>
+          <tr><th></th><th></th><th>Sum 1.-10. trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Skolebibliotekarer</td><td><input id="s6_d1" type="number" step="0.01"></td></tr>
+          <tr><td>2</td><td>Kontorteknisk personale</td><td><input id="s6_d2" type="number" step="0.01"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 7 -->
+<section class="page" id="page-7" data-page="7">
+
+  <div class="info-box">
+    I denne delen registreres elever som har fått vedtak om individuelt tilrettelagt opplæring og/eller personlig assistanse og/eller fysisk tilrettelegging og tekniske hjelpemidler jf. opplæringsloven § 11-6, § 11-4, § 11-5 og privatskoleloven § 3-6. Videreføring av vedtak om spesialundervisning etter den gamle opplæringsloven § 5-1, føres også her. Alle elever som går på skolen skal registreres, selv om eleven er folkeregistrert i annen kommune. Elever som er midlertidig ved en enhet, skal kun føres på den skolen hvor eleven er tatt inn jf. opplæringsloven § 2-6.
+  </div>
+
+  <!-- A. ELEVER SOM FÅR INDIVIDUELT TILRETTELAGT OPPLÆRING -->
+  <section class="section-card">
+    <div class="section-header">A. Elever som får individuelt tilrettelagt opplæring inkludert videreføring av vedtak om spesialundervisning</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s7_a1_g" type="number" min="0"></td><td><input id="s7_a1_j" type="number" min="0"></td><td class="auto"><input id="s7_a1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s7_a2_g" type="number" min="0"></td><td><input id="s7_a2_j" type="number" min="0"></td><td class="auto"><input id="s7_a2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s7_a3_g" type="number" min="0"></td><td><input id="s7_a3_j" type="number" min="0"></td><td class="auto"><input id="s7_a3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s7_a4_g" type="number" min="0"></td><td><input id="s7_a4_j" type="number" min="0"></td><td class="auto"><input id="s7_a4_sum" type="number" readonly></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s7_a5_g" type="number" min="0"></td><td><input id="s7_a5_j" type="number" min="0"></td><td class="auto"><input id="s7_a5_sum" type="number" readonly></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s7_a6_g" type="number" min="0"></td><td><input id="s7_a6_j" type="number" min="0"></td><td class="auto"><input id="s7_a6_sum" type="number" readonly></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s7_a7_g" type="number" min="0"></td><td><input id="s7_a7_j" type="number" min="0"></td><td class="auto"><input id="s7_a7_sum" type="number" readonly></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s7_a8_g" type="number" min="0"></td><td><input id="s7_a8_j" type="number" min="0"></td><td class="auto"><input id="s7_a8_sum" type="number" readonly></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s7_a9_g" type="number" min="0"></td><td><input id="s7_a9_j" type="number" min="0"></td><td class="auto"><input id="s7_a9_sum" type="number" readonly></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s7_a10_g" type="number" min="0"></td><td><input id="s7_a10_j" type="number" min="0"></td><td class="auto"><input id="s7_a10_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td></td><td>Sum elever som får individuelt tilrettelagt opplæring</td><td class="auto"><input id="s7_a_gsum" type="number" readonly></td><td class="auto"><input id="s7_a_jsum" type="number" readonly></td><td class="auto"><input id="s7_a_tot" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- B. PERSONLIG ASSISTANSE -->
+  <section class="section-card">
+    <div class="section-header">B. Personlig assistanse, fysisk tilrettelegging og tekniske hjelpemidler</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th colspan="3">Med individuelt<br>tilrettelagt opplæring</th><th colspan="3">Uten individuelt<br>tilrettelagt opplæring</th><th>Totalt</th></tr>
+          <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th><th>Gutter</th><th>Jenter</th><th>Sum</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever med vedtak om personlig assistanse etter opplæringsloven § 11-4</td><td><input id="s7_b1_ito_g" type="number" min="0"></td><td><input id="s7_b1_ito_j" type="number" min="0"></td><td class="auto"><input id="s7_b1_ito_sum" type="number" readonly></td><td><input id="s7_b1_uten_g" type="number" min="0"></td><td><input id="s7_b1_uten_j" type="number" min="0"></td><td class="auto"><input id="s7_b1_uten_sum" type="number" readonly></td><td class="auto"><input id="s7_b1_tot" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall elever med vedtak om fysisk tilrettelegging og tekniske hjelpemidler eller opplæring i mobilitet, etter opplæringsloven § 11-5</td><td><input id="s7_b2_ito_g" type="number" min="0"></td><td><input id="s7_b2_ito_j" type="number" min="0"></td><td class="auto"><input id="s7_b2_ito_sum" type="number" readonly></td><td><input id="s7_b2_uten_g" type="number" min="0"></td><td><input id="s7_b2_uten_j" type="number" min="0"></td><td class="auto"><input id="s7_b2_uten_sum" type="number" readonly></td><td class="auto"><input id="s7_b2_tot" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. FASTE AVDELINGER -->
+  <section class="section-card">
+    <div class="section-header">C. Faste avdelinger for individuelt tilrettelagt opplæring</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Elever med fast tilhørighet i avdeling for individuelt tilrettelagt opplæring/videreførte vedtak om spesialundervisning skal føres her. Dette gjelder både egne skoler for individuelt tilrettelagt opplæring og skoler der elever har fast tilhørighet til "forsterket" avdeling for individuelt tilrettelagt opplæring. Tilfeldige elevgrupper med individuelt tilrettelagt opplæring som oppstår i en ordinær skole, skal ikke telles her.</p>
+      <table class="gsi-table table-s7-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-7. trinn</th><th>8.-10. trinn</th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever med fast tilhørighet i avdeling for individuelt tilrettelagt opplæring</td><td><input id="s7_c_17" type="number" min="0"></td><td><input id="s7_c_810" type="number" min="0"></td><td><input id="s7_c_g" type="number" min="0"></td><td><input id="s7_c_j" type="number" min="0"></td><td class="auto"><input id="s7_c_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- D. ALTERNATIV OPPLÆRINGSARENA -->
+  <section class="section-card">
+    <div class="section-header">D. Alternativ opplæringsarena</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-7. trinn</th><th>8.-10. trinn</th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som er utplassert på en alternativ opplæringsarena én eller flere dager i uken</td><td><input id="s7_d_17" type="number" min="0"></td><td><input id="s7_d_810" type="number" min="0"></td><td><input id="s7_d_g" type="number" min="0"></td><td><input id="s7_d_j" type="number" min="0"></td><td class="auto"><input id="s7_d_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- E. ORGANISERING -->
+  <section class="section-card">
+    <div class="section-header">E. Organisering av individuelt tilrettelagt opplæring</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-e">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som får spesialundervisning hovedsakelig i den ordinære klassen</td><td><input id="s7_e1_g" type="number" min="0"></td><td><input id="s7_e1_j" type="number" min="0"></td><td class="auto"><input id="s7_e1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall elever som får spesialundervisning hovedsakelig i grupper på 6 elever eller flere</td><td><input id="s7_e2_g" type="number" min="0"></td><td><input id="s7_e2_j" type="number" min="0"></td><td class="auto"><input id="s7_e2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Antall elever som får spesialundervisning hovedsakelig i grupper på 2 til 5</td><td><input id="s7_e3_g" type="number" min="0"></td><td><input id="s7_e3_j" type="number" min="0"></td><td class="auto"><input id="s7_e3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Antall elever som får spesialundervisning hovedsakelig alene</td><td><input id="s7_e4_g" type="number" min="0"></td><td><input id="s7_e4_j" type="number" min="0"></td><td class="auto"><input id="s7_e4_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- F. TILDELTE TIMER -->
+  <section class="section-card">
+    <div class="section-header">F. Tildelte timer til individuelt tilrettelagt opplæring med undervisningspersonale</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-f">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4. trinn</th><th>5.-7. trinn</th><th>8.-10. trinn</th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som får 1-75 timer per år</td><td><input id="s7_f1_14" type="number" min="0"></td><td><input id="s7_f1_57" type="number" min="0"></td><td><input id="s7_f1_810" type="number" min="0"></td><td><input id="s7_f1_g" type="number" min="0"></td><td><input id="s7_f1_j" type="number" min="0"></td><td class="auto"><input id="s7_f1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall elever som får 76-190 timer per år</td><td><input id="s7_f2_14" type="number" min="0"></td><td><input id="s7_f2_57" type="number" min="0"></td><td><input id="s7_f2_810" type="number" min="0"></td><td><input id="s7_f2_g" type="number" min="0"></td><td><input id="s7_f2_j" type="number" min="0"></td><td class="auto"><input id="s7_f2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Antall elever som får 191-270 timer per år</td><td><input id="s7_f3_14" type="number" min="0"></td><td><input id="s7_f3_57" type="number" min="0"></td><td><input id="s7_f3_810" type="number" min="0"></td><td><input id="s7_f3_g" type="number" min="0"></td><td><input id="s7_f3_j" type="number" min="0"></td><td class="auto"><input id="s7_f3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Antall elever som får 271 timer eller mer per år</td><td><input id="s7_f4_14" type="number" min="0"></td><td><input id="s7_f4_57" type="number" min="0"></td><td><input id="s7_f4_810" type="number" min="0"></td><td><input id="s7_f4_g" type="number" min="0"></td><td><input id="s7_f4_j" type="number" min="0"></td><td class="auto"><input id="s7_f4_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>5</td><td>Sum elever som får timer med undervisningspersonale</td><td class="auto"><input id="s7_f5_14" type="number" readonly></td><td class="auto"><input id="s7_f5_57" type="number" readonly></td><td class="auto"><input id="s7_f5_810" type="number" readonly></td><td class="auto"><input id="s7_f5_g" type="number" readonly></td><td class="auto"><input id="s7_f5_j" type="number" readonly></td><td class="auto"><input id="s7_f5_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- G. PERSONLIG ASSISTANSE / ASSISTENT -->
+  <section class="section-card">
+    <div class="section-header">G. Antall elever som har vedtak om personlig assistanse eller timer med assistent i videreført vedtak om spesialundervisning</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s7-g">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som får 1-75 timer per år?</td><td><input id="s7_g1_g" type="number" min="0"></td><td><input id="s7_g1_j" type="number" min="0"></td><td class="auto"><input id="s7_g1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall elever som får 76-190 timer per år?</td><td><input id="s7_g2_g" type="number" min="0"></td><td><input id="s7_g2_j" type="number" min="0"></td><td class="auto"><input id="s7_g2_sum" type="number" readonly></td></tr>
+          <tr><td>3</td><td>Antall elever som får 191-270 timer per år?</td><td><input id="s7_g3_g" type="number" min="0"></td><td><input id="s7_g3_j" type="number" min="0"></td><td class="auto"><input id="s7_g3_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>Antall elever som får 271 timer eller mer per år?</td><td><input id="s7_g4_g" type="number" min="0"></td><td><input id="s7_g4_j" type="number" min="0"></td><td class="auto"><input id="s7_g4_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>5</td><td>Sum elever som får timer med assistenter</td><td class="auto"><input id="s7_g5_g" type="number" readonly></td><td class="auto"><input id="s7_g5_j" type="number" readonly></td><td class="auto"><input id="s7_g5_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- H. ELEVER FRA ANDRE KOMMUNER -->
+  <section class="section-card">
+    <div class="section-header">H. Elever med individuelt tilrettelagt opplæring fra andre kommuner</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Kommunale skoler skal registrere antall elever fra andre kommuner som får individuelt tilrettelagt opplæring. Privatskoler og private skoler (godkjent etter opplæringsloven § 22-1) skal opplyse om hvilke kommuner skolen registrerer elever med individuelt tilrettelagt opplæring fra alle kommuner, også den kommunen som skolen er geografisk plassert i.</p>
+      <table class="gsi-table table-s7-h">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th>Kommune</th><th>Elever</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Sum elever fra andre kommuner</td><td><input id="s7_h1_elever" type="number" min="0"></td></tr>
+        </tbody>
+      </table>
+      <div class="table-add-row"><button type="button" class="btn">Legg til rad</button></div>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 8 -->
+<section class="page" id="page-8" data-page="8">
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Forsterket opplæring i norsk</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s8-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
+        <thead>
+          <tr><th></th><th>Trinn</th><th>Antall elever som får forsterket opplæring i norsk</th><th>Antall elever med forsterket opplæring i norsk som følger læreplanen i grunnleggende norsk for språklige minoriteter</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s8_a1_norsk" type="number" min="0"></td><td><input id="s8_a1_gno" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s8_a2_norsk" type="number" min="0"></td><td><input id="s8_a2_gno" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s8_a3_norsk" type="number" min="0"></td><td><input id="s8_a3_gno" type="number" min="0"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s8_a4_norsk" type="number" min="0"></td><td><input id="s8_a4_gno" type="number" min="0"></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s8_a5_norsk" type="number" min="0"></td><td><input id="s8_a5_gno" type="number" min="0"></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s8_a6_norsk" type="number" min="0"></td><td><input id="s8_a6_gno" type="number" min="0"></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s8_a7_norsk" type="number" min="0"></td><td><input id="s8_a7_gno" type="number" min="0"></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s8_a8_norsk" type="number" min="0"></td><td><input id="s8_a8_gno" type="number" min="0"></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s8_a9_norsk" type="number" min="0"></td><td><input id="s8_a9_gno" type="number" min="0"></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s8_a10_norsk" type="number" min="0"></td><td><input id="s8_a10_gno" type="number" min="0"></td></tr>
+          <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s8_a_norsk_sum" type="number" readonly></td><td class="auto"><input id="s8_a_gno_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Elever i egne undervisningsgrupper for språklige minoriteter</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s8-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Gutter</th><th>Jenter</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som hovedsakelig får undervisning i egne undervisningsgrupper for språklige minoriteter</td><td><input id="s8_b1_g" type="number" min="0"></td><td><input id="s8_b1_j" type="number" min="0"></td><td class="auto"><input id="s8_b1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Hvor mange av elevene på raden over er asylsøkere</td><td><input id="s8_b2_g" type="number" min="0"></td><td><input id="s8_b2_j" type="number" min="0"></td><td class="auto"><input id="s8_b2_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Antall elever som får morsmålsopplæring, tospråklig opplæring i fag eller annen tilrettelagt opplæring</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s8-c">
+        <colgroup><col class="row-no"><col><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th>Morsmål</th><th>Elever med bare morsmålsopplæring</th><th>Elever med bare tospråklig opplæring i fag</th><th>Elever med både morsmålsopplæring og tospråklig opplæring i fag</th><th>Elever med annen tilrettelagt opplæring</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Sum elever</td><td><input id="s8_c1_morsmal" type="number" min="0"></td><td><input id="s8_c1_tosprak" type="number" min="0"></td><td><input id="s8_c1_begge" type="number" min="0"></td><td><input id="s8_c1_annen" type="number" min="0"></td><td class="auto"><input id="s8_c1_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+      <div class="table-add-row"><button class="btn" type="button">Legg til rad</button></div>
+    </div>
+  </section>
+
+  <!-- DEL D -->
+  <section class="section-card">
+    <div class="section-header">D. Elever med forsterket opplæring fra andre kommuner</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Kommunale skoler skal registrere antall elever fra andre kommuner som får forsterket opplæring i norsk. Private skoler (godkjent etter opplæringsloven § 22-1), statlige og fylkeskommunale skoler skal registrere alle elever med forsterket opplæring i norsk fra alle kommuner, også den kommunen som skolen er geografisk plassert i.</p>
+      <table class="gsi-table table-s8-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th>Kommune</th><th>Elever</th></tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>1</td><td>Sum elever fra andre kommuner</td><td class="auto"><input id="s8_d_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+      <div class="table-add-row"><button class="btn" type="button">Legg til rad</button></div>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 9 -->
+<section class="page" id="page-9" data-page="9">
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Opplæringsspråk</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s9-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="language-col"><col class="language-col"><col class="language-col"><col class="language-col"><col class="sum-col"><col class="student-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th colspan="5">Antall elever fordelt etter hovedmål eller opplæringsspråk</th><th>Elevtall (hentet fra 3A)</th></tr>
+          <tr><th colspan="2"></th><th>Bokmål</th><th>Nynorsk</th><th>Samisk</th><th>Andre</th><th>Sum</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s9_a1_bokmal" type="number" min="0"></td><td><input id="s9_a1_nynorsk" type="number" min="0"></td><td><input id="s9_a1_samisk" type="number" min="0"></td><td><input id="s9_a1_andre" type="number" min="0"></td><td class="auto"><input id="s9_a1_sum" type="number" readonly></td><td class="auto"><input id="s9_a1_elevtall" type="number" readonly></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s9_a2_bokmal" type="number" min="0"></td><td><input id="s9_a2_nynorsk" type="number" min="0"></td><td><input id="s9_a2_samisk" type="number" min="0"></td><td><input id="s9_a2_andre" type="number" min="0"></td><td class="auto"><input id="s9_a2_sum" type="number" readonly></td><td class="auto"><input id="s9_a2_elevtall" type="number" readonly></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s9_a3_bokmal" type="number" min="0"></td><td><input id="s9_a3_nynorsk" type="number" min="0"></td><td><input id="s9_a3_samisk" type="number" min="0"></td><td><input id="s9_a3_andre" type="number" min="0"></td><td class="auto"><input id="s9_a3_sum" type="number" readonly></td><td class="auto"><input id="s9_a3_elevtall" type="number" readonly></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s9_a4_bokmal" type="number" min="0"></td><td><input id="s9_a4_nynorsk" type="number" min="0"></td><td><input id="s9_a4_samisk" type="number" min="0"></td><td><input id="s9_a4_andre" type="number" min="0"></td><td class="auto"><input id="s9_a4_sum" type="number" readonly></td><td class="auto"><input id="s9_a4_elevtall" type="number" readonly></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s9_a5_bokmal" type="number" min="0"></td><td><input id="s9_a5_nynorsk" type="number" min="0"></td><td><input id="s9_a5_samisk" type="number" min="0"></td><td><input id="s9_a5_andre" type="number" min="0"></td><td class="auto"><input id="s9_a5_sum" type="number" readonly></td><td class="auto"><input id="s9_a5_elevtall" type="number" readonly></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s9_a6_bokmal" type="number" min="0"></td><td><input id="s9_a6_nynorsk" type="number" min="0"></td><td><input id="s9_a6_samisk" type="number" min="0"></td><td><input id="s9_a6_andre" type="number" min="0"></td><td class="auto"><input id="s9_a6_sum" type="number" readonly></td><td class="auto"><input id="s9_a6_elevtall" type="number" readonly></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s9_a7_bokmal" type="number" min="0"></td><td><input id="s9_a7_nynorsk" type="number" min="0"></td><td><input id="s9_a7_samisk" type="number" min="0"></td><td><input id="s9_a7_andre" type="number" min="0"></td><td class="auto"><input id="s9_a7_sum" type="number" readonly></td><td class="auto"><input id="s9_a7_elevtall" type="number" readonly></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s9_a8_bokmal" type="number" min="0"></td><td><input id="s9_a8_nynorsk" type="number" min="0"></td><td><input id="s9_a8_samisk" type="number" min="0"></td><td><input id="s9_a8_andre" type="number" min="0"></td><td class="auto"><input id="s9_a8_sum" type="number" readonly></td><td class="auto"><input id="s9_a8_elevtall" type="number" readonly></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s9_a9_bokmal" type="number" min="0"></td><td><input id="s9_a9_nynorsk" type="number" min="0"></td><td><input id="s9_a9_samisk" type="number" min="0"></td><td><input id="s9_a9_andre" type="number" min="0"></td><td class="auto"><input id="s9_a9_sum" type="number" readonly></td><td class="auto"><input id="s9_a9_elevtall" type="number" readonly></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s9_a10_bokmal" type="number" min="0"></td><td><input id="s9_a10_nynorsk" type="number" min="0"></td><td><input id="s9_a10_samisk" type="number" min="0"></td><td><input id="s9_a10_andre" type="number" min="0"></td><td class="auto"><input id="s9_a10_sum" type="number" readonly></td><td class="auto"><input id="s9_a10_elevtall" type="number" readonly></td></tr>
+          <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s9_a_sum_bokmal" type="number" readonly></td><td class="auto"><input id="s9_a_sum_nynorsk" type="number" readonly></td><td class="auto"><input id="s9_a_sum_samisk" type="number" readonly></td><td class="auto"><input id="s9_a_sum_andre" type="number" readonly></td><td class="auto"><input id="s9_a_sum" type="number" readonly></td><td class="auto"><input id="s9_a_elevtall_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Elevgrupper</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s9-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>Elevgrupper</th><th>Elever</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elevgrupper og antall elever som har undervisning på en annen norsk målform enn kommunen har vedtatt</td><td><input id="s9_b1_grupper" type="number" min="0"></td><td><input id="s9_b1_elever" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>Antall elevgrupper og antall elever som får undervisning på samisk utenfor samiske distrikt</td><td><input id="s9_b2_grupper" type="number" min="0"></td><td><input id="s9_b2_elever" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>Hvor mange av gruppene i 9B1 og 9B2 kommer i tillegg til det antall grupper skolen ville ha hatt uten egne grupper?</td><td><input id="s9_b3_grupper" type="number" min="0"></td><td><input id="s9_b3_elever" type="number" min="0"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Samiske språk, kvensk og finsk</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s9-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col><col><col><col><col><col><col class="sum-col"><col class="delete-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th colspan="12">Elever fordelt på trinn</th></tr>
+          <tr><th colspan="2">Språk</th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th>Sum</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>1</td><td>Sum</td><td><input id="s9_c_1" type="number" readonly></td><td><input id="s9_c_2" type="number" readonly></td><td><input id="s9_c_3" type="number" readonly></td><td><input id="s9_c_4" type="number" readonly></td><td><input id="s9_c_5" type="number" readonly></td><td><input id="s9_c_6" type="number" readonly></td><td><input id="s9_c_7" type="number" readonly></td><td><input id="s9_c_8" type="number" readonly></td><td><input id="s9_c_9" type="number" readonly></td><td><input id="s9_c_10" type="number" readonly></td><td class="auto"><input id="s9_c_sum" type="number" readonly></td><td class="delete-cell"></td></tr>
+        </tbody>
+      </table>
+      <div class="table-add-row"><button class="btn" type="button" id="s9-c-add">Legg til rad</button></div>
+    </div>
+  </section>
+
+  <!-- DEL D -->
+  <section class="section-card">
+    <div class="section-header">D. Fjernundervisning</div>
+    <div class="section-body table-wrap">
+      <p class="table-note">Elever med fjernundervisning i samisk skal registreres både i 9C og 9D</p>
+      <table class="gsi-table table-s9-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th></th><th></th><th>1.-4.<br>trinn</th><th>5.-7.<br>trinn</th><th>8.-10.<br>trinn</th><th>Sum 1.-10.<br>trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever med fjernundervisning i samisk som førstespråk (samisk 1)</td><td><input id="s9_d1_14" type="number" min="0"></td><td><input id="s9_d1_57" type="number" min="0"></td><td><input id="s9_d1_810" type="number" min="0"></td><td class="auto"><input id="s9_d1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Antall elever med fjernundervisning i samisk som andrespråk (Samisk 2 eller 3)</td><td><input id="s9_d2_14" type="number" min="0"></td><td><input id="s9_d2_57" type="number" min="0"></td><td><input id="s9_d2_810" type="number" min="0"></td><td class="auto"><input id="s9_d2_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>3</td><td>Sum elever med fjernundervisning i samisk</td><td class="auto"><input id="s9_d3_14" type="number" readonly></td><td class="auto"><input id="s9_d3_57" type="number" readonly></td><td class="auto"><input id="s9_d3_810" type="number" readonly></td><td class="auto"><input id="s9_d3_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 10 -->
+<section class="page" id="page-10" data-page="10">
+  <section class="section-card">
+    <div class="section-header">A. Fremmedspråk, språklig fordypning og arbeidslivsfag</div>
+    <div class="section-body">
+      <div class="school-level-notice"><strong>Gjelder for ungdomsskole, ikke barneskole</strong></div>
+    </div>
+  </section>
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+</section>
+
+<!-- SIDE 11 -->
+<section class="page" id="page-11" data-page="11">
+  <section class="section-card">
+    <div class="section-header">A. Elever på ungdomstrinnet</div>
+    <div class="section-body">
+      <div class="school-level-notice"><strong>Gjelder for ungdomsskole, ikke barneskole</strong></div>
+    </div>
+  </section>
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+</section>
+
+<!-- SIDE 12 -->
+<section class="page" id="page-12" data-page="12">
+
+  <div class="page-head">
+    <h1>12. Fysisk aktivitet og leksehjelp</h1>
+  </div>
+
+  <section class="section-card">
+    <div class="section-header">C. Leksehjelp på 1.-10. trinn</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s12-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="students-col"><col class="hours-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Antall elever som deltar i ordningen med leksehjelp</th><th>Antall timer leksehjelp elevene får tilbud om per uke</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s12_c_1_students" type="number" min="0"></td><td><input id="s12_c_1_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s12_c_2_students" type="number" min="0"></td><td><input id="s12_c_2_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s12_c_3_students" type="number" min="0"></td><td><input id="s12_c_3_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s12_c_4_students" type="number" min="0"></td><td><input id="s12_c_4_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s12_c_5_students" type="number" min="0"></td><td><input id="s12_c_5_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s12_c_6_students" type="number" min="0"></td><td><input id="s12_c_6_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s12_c_7_students" type="number" min="0"></td><td><input id="s12_c_7_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s12_c_8_students" type="number" min="0"></td><td><input id="s12_c_8_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s12_c_9_students" type="number" min="0"></td><td><input id="s12_c_9_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s12_c_10_students" type="number" min="0"></td><td><input id="s12_c_10_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s12_c_students_sum" type="number" readonly></td><td class="auto"><input id="s12_c_hours_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 13 -->
+<section class="page" id="page-13" data-page="13">
+
+  <div class="page-head">
+    <h1>13. Andre opplysninger</h1>
+  </div>
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Skoleskyss</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s13-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>1. trinn</th><th>2.-10. trinn</th><th>Sum</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall elever som får skoleskyss</td><td><input id="s13_a_1" type="number" min="0"></td><td><input id="s13_a_2" type="number" min="0"></td><td class="auto"><input id="s13_a_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Omdisponering av timetall (25 %-regelen)</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s13-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Elever</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Hvor mange elever på 1.-7. årstrinn får omdisponert timer (25 %-regelen)?</td><td><input id="s13_b_1" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>Hvor mange elever på 8.-10. årstrinn får omdisponert timer (25 %-regelen)?</td><td><input id="s13_b_2" type="number" min="0"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Leirskoleopphold / andre skoleturer med overnatting</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s13-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Antall elever som var/skal på leirskole eller andre skoleturer med overnatting høsten 2026</th><th>Antall elever som skal på leirskole eller andre skoleturer med overnatting våren 2027</th><th>Antall elever som var på leirskole eller andre skoleturer med overnatting våren 2026</th><th>Antall overnattinger</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s13_c_1_1" type="number" min="0"></td><td><input id="s13_c_1_2" type="number" min="0"></td><td><input id="s13_c_1_3" type="number" min="0"></td><td><input id="s13_c_1_4" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s13_c_2_1" type="number" min="0"></td><td><input id="s13_c_2_2" type="number" min="0"></td><td><input id="s13_c_2_3" type="number" min="0"></td><td><input id="s13_c_2_4" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s13_c_3_1" type="number" min="0"></td><td><input id="s13_c_3_2" type="number" min="0"></td><td><input id="s13_c_3_3" type="number" min="0"></td><td><input id="s13_c_3_4" type="number" min="0"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s13_c_4_1" type="number" min="0"></td><td><input id="s13_c_4_2" type="number" min="0"></td><td><input id="s13_c_4_3" type="number" min="0"></td><td><input id="s13_c_4_4" type="number" min="0"></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s13_c_5_1" type="number" min="0"></td><td><input id="s13_c_5_2" type="number" min="0"></td><td><input id="s13_c_5_3" type="number" min="0"></td><td><input id="s13_c_5_4" type="number" min="0"></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s13_c_6_1" type="number" min="0"></td><td><input id="s13_c_6_2" type="number" min="0"></td><td><input id="s13_c_6_3" type="number" min="0"></td><td><input id="s13_c_6_4" type="number" min="0"></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s13_c_7_1" type="number" min="0"></td><td><input id="s13_c_7_2" type="number" min="0"></td><td><input id="s13_c_7_3" type="number" min="0"></td><td><input id="s13_c_7_4" type="number" min="0"></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s13_c_8_1" type="number" min="0"></td><td><input id="s13_c_8_2" type="number" min="0"></td><td><input id="s13_c_8_3" type="number" min="0"></td><td><input id="s13_c_8_4" type="number" min="0"></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s13_c_9_1" type="number" min="0"></td><td><input id="s13_c_9_2" type="number" min="0"></td><td><input id="s13_c_9_3" type="number" min="0"></td><td><input id="s13_c_9_4" type="number" min="0"></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s13_c_10_1" type="number" min="0"></td><td><input id="s13_c_10_2" type="number" min="0"></td><td><input id="s13_c_10_3" type="number" min="0"></td><td><input id="s13_c_10_4" type="number" min="0"></td></tr>
+          <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s13_c_sum_1" type="number" readonly></td><td class="auto"><input id="s13_c_sum_2" type="number" readonly></td><td class="auto"><input id="s13_c_sum_3" type="number" readonly></td><td class="auto"><input id="s13_c_sum_4" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL D -->
+  <section class="section-card">
+    <div class="section-header">D. Tilgang til skolebibliotek</div>
+    <div class="section-body radio-section">
+      <div class="radio-row"><span>Egne lokaler til skolebibliotek</span><label><input type="radio" name="s13_d_1" id="s13_d_1_ja" value="ja"> Ja</label><label><input type="radio" name="s13_d_1" id="s13_d_1_nei" value="nei"> Nei</label></div>
+      <div class="radio-row"><span>Samarbeid med folkebibliotek</span><label><input type="radio" name="s13_d_2" id="s13_d_2_ja" value="ja"> Ja</label><label><input type="radio" name="s13_d_2" id="s13_d_2_nei" value="nei"> Nei</label></div>
+      <div class="radio-row"><span>Annet tilbud</span><label><input type="radio" name="s13_d_3" id="s13_d_3_ja" value="ja"> Ja</label><label><input type="radio" name="s13_d_3" id="s13_d_3_nei" value="nei"> Nei</label></div>
+      <div class="radio-row"><span>Ikke tilbud</span><label><input type="radio" name="s13_d_4" id="s13_d_4_ja" value="ja"> Ja</label><label><input type="radio" name="s13_d_4" id="s13_d_4_nei" value="nei"> Nei</label></div>
+
+      <div class="library-hours" id="s13-d-library-hours">
+        <div class="library-hours-label">Antall timer<br>skolebiblioteket er<br>åpent i uken</div>
+        <div class="library-hours-input"><input id="s13_d_library_hours" type="number" min="0" step="0.5"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEL E -->
+  <section class="section-card">
+    <div class="section-header">E. Antall elever med tilgang til egen digital enhet (en-til-en dekning)</div>
+    <div class="section-body">
+      <div class="info-box">En elev registreres kun en gang, ved flere typer velg den som er mest i bruk. Tilgang til private digitale enheter hjemme skal ikke registreres.</div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s13-e">
+          <colgroup><col class="row-no"><col class="device-col"><col><col><col><col><col><col><col><col><col><col><col class="sum-col"></colgroup>
+          <thead>
+            <tr><th colspan="2"></th><th colspan="10">Elever fordelt på trinn</th><th>Sum</th></tr>
+            <tr><th colspan="2"></th><th>1.</th><th>2.</th><th>3.</th><th>4.</th><th>5.</th><th>6.</th><th>7.</th><th>8.</th><th>9.</th><th>10.</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Bærbar PC eller Mac</td><td><input id="s13_e_1_1" type="number" min="0"></td><td><input id="s13_e_1_2" type="number" min="0"></td><td><input id="s13_e_1_3" type="number" min="0"></td><td><input id="s13_e_1_4" type="number" min="0"></td><td><input id="s13_e_1_5" type="number" min="0"></td><td><input id="s13_e_1_6" type="number" min="0"></td><td><input id="s13_e_1_7" type="number" min="0"></td><td><input id="s13_e_1_8" type="number" min="0"></td><td><input id="s13_e_1_9" type="number" min="0"></td><td><input id="s13_e_1_10" type="number" min="0"></td><td class="auto"><input id="s13_e_1_sum" type="number" readonly></td></tr>
+            <tr><td>2</td><td>Chromebook</td><td><input id="s13_e_2_1" type="number" min="0"></td><td><input id="s13_e_2_2" type="number" min="0"></td><td><input id="s13_e_2_3" type="number" min="0"></td><td><input id="s13_e_2_4" type="number" min="0"></td><td><input id="s13_e_2_5" type="number" min="0"></td><td><input id="s13_e_2_6" type="number" min="0"></td><td><input id="s13_e_2_7" type="number" min="0"></td><td><input id="s13_e_2_8" type="number" min="0"></td><td><input id="s13_e_2_9" type="number" min="0"></td><td><input id="s13_e_2_10" type="number" min="0"></td><td class="auto"><input id="s13_e_2_sum" type="number" readonly></td></tr>
+            <tr><td>3</td><td>Nettbrett (iPad eller andre)</td><td><input id="s13_e_3_1" type="number" min="0"></td><td><input id="s13_e_3_2" type="number" min="0"></td><td><input id="s13_e_3_3" type="number" min="0"></td><td><input id="s13_e_3_4" type="number" min="0"></td><td><input id="s13_e_3_5" type="number" min="0"></td><td><input id="s13_e_3_6" type="number" min="0"></td><td><input id="s13_e_3_7" type="number" min="0"></td><td><input id="s13_e_3_8" type="number" min="0"></td><td><input id="s13_e_3_9" type="number" min="0"></td><td><input id="s13_e_3_10" type="number" min="0"></td><td class="auto"><input id="s13_e_3_sum" type="number" readonly></td></tr>
+            <tr><td>4</td><td>Andre digitale enheter</td><td><input id="s13_e_4_1" type="number" min="0"></td><td><input id="s13_e_4_2" type="number" min="0"></td><td><input id="s13_e_4_3" type="number" min="0"></td><td><input id="s13_e_4_4" type="number" min="0"></td><td><input id="s13_e_4_5" type="number" min="0"></td><td><input id="s13_e_4_6" type="number" min="0"></td><td><input id="s13_e_4_7" type="number" min="0"></td><td><input id="s13_e_4_8" type="number" min="0"></td><td><input id="s13_e_4_9" type="number" min="0"></td><td><input id="s13_e_4_10" type="number" min="0"></td><td class="auto"><input id="s13_e_4_sum" type="number" readonly></td></tr>
+            <tr><td>5</td><td>Ikke tilgang på egen digital enhet</td><td><input id="s13_e_5_1" type="number" min="0"></td><td><input id="s13_e_5_2" type="number" min="0"></td><td><input id="s13_e_5_3" type="number" min="0"></td><td><input id="s13_e_5_4" type="number" min="0"></td><td><input id="s13_e_5_5" type="number" min="0"></td><td><input id="s13_e_5_6" type="number" min="0"></td><td><input id="s13_e_5_7" type="number" min="0"></td><td><input id="s13_e_5_8" type="number" min="0"></td><td><input id="s13_e_5_9" type="number" min="0"></td><td><input id="s13_e_5_10" type="number" min="0"></td><td class="auto"><input id="s13_e_5_sum" type="number" readonly></td></tr>
+            <tr class="total-row"><td>6</td><td>Sum</td><td class="auto"><input id="s13_e_total_1" type="number" readonly></td><td class="auto"><input id="s13_e_total_2" type="number" readonly></td><td class="auto"><input id="s13_e_total_3" type="number" readonly></td><td class="auto"><input id="s13_e_total_4" type="number" readonly></td><td class="auto"><input id="s13_e_total_5" type="number" readonly></td><td class="auto"><input id="s13_e_total_6" type="number" readonly></td><td class="auto"><input id="s13_e_total_7" type="number" readonly></td><td class="auto"><input id="s13_e_total_8" type="number" readonly></td><td class="auto"><input id="s13_e_total_9" type="number" readonly></td><td class="auto"><input id="s13_e_total_10" type="number" readonly></td><td class="auto"><input id="s13_e_total_sum" type="number" readonly></td></tr>
+            <tr class="reference-row"><td>7</td><td>Elevtall (hentes fra 3A)</td><td><input id="s13_e_students_1" type="number" readonly></td><td><input id="s13_e_students_2" type="number" readonly></td><td><input id="s13_e_students_3" type="number" readonly></td><td><input id="s13_e_students_4" type="number" readonly></td><td><input id="s13_e_students_5" type="number" readonly></td><td><input id="s13_e_students_6" type="number" readonly></td><td><input id="s13_e_students_7" type="number" readonly></td><td><input id="s13_e_students_8" type="number" readonly></td><td><input id="s13_e_students_9" type="number" readonly></td><td><input id="s13_e_students_10" type="number" readonly></td><td class="auto"><input id="s13_e_students_sum" type="number" readonly></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEL F -->
+  <section class="section-card">
+    <div class="section-header">F. Beredskap</div>
+    <div class="section-body radio-section">
+      <div class="question-row"><div>Har skolen beredskapsplaner for å dekke alvorlige hendelser?</div><div class="question-options"><label><input type="radio" name="s13_f_1" id="s13_f_1_ja" value="ja"> Ja</label><label><input type="radio" name="s13_f_1" id="s13_f_1_nei" value="nei"> Nei</label></div></div>
+      <div class="question-row"><div>Dekker beredskapsplanen også alvorlige tilsiktede hendelser (eksempelvis: skyteepisoder, gisselsituasjoner og bombeangrep)?</div><div class="question-options"><label><input type="radio" name="s13_f_2" id="s13_f_2_ja" value="ja"> Ja</label><label><input type="radio" name="s13_f_2" id="s13_f_2_nei" value="nei"> Nei</label></div></div>
+      <div class="question-row"><div>Har skolen gjennomført beredskapsøvelser i løpet av året?</div><div class="question-options"><label><input type="radio" name="s13_f_3" id="s13_f_3_ja" value="ja"> Ja</label><label><input type="radio" name="s13_f_3" id="s13_f_3_nei" value="nei"> Nei</label></div></div>
+    </div>
+  </section>
+
+  <!-- DEL G -->
+  <section class="section-card">
+    <div class="section-header">G. Elever på ungdomstrinnet som tar fag fra videregående opplæring</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s13-g">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>8. trinn</th><th>9. trinn</th><th>10. trinn</th><th>Sum 8.-10. trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Elever som tar fag fra videregående i stedet for valgfag</td><td><input id="s13_g_1_8" type="number" min="0"></td><td><input id="s13_g_1_9" type="number" min="0"></td><td><input id="s13_g_1_10" type="number" min="0"></td><td class="auto"><input id="s13_g_1_sum" type="number" readonly></td></tr>
+          <tr><td>2</td><td>Elever som tar fag fra videregående opplæring, men følger ordinær opplæring i valgfag (elever fra 11B skal ikke registreres her)</td><td><input id="s13_g_2_8" type="number" min="0"></td><td><input id="s13_g_2_9" type="number" min="0"></td><td><input id="s13_g_2_10" type="number" min="0"></td><td class="auto"><input id="s13_g_2_sum" type="number" readonly></td></tr>
+          <tr class="total-row"><td>3</td><td>Sum</td><td class="auto"><input id="s13_g_sum_8" type="number" readonly></td><td class="auto"><input id="s13_g_sum_9" type="number" readonly></td><td class="auto"><input id="s13_g_sum_10" type="number" readonly></td><td class="auto"><input id="s13_g_total" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 14 -->
+<section class="page" id="page-14" data-page="14">
+
+  <div class="page-head">
+    <h1>14. Skolefritidsordningen (SFO)</h1>
+  </div>
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Antall barn med plass i SFO</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s14-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Antall barn i SFO</th><th>Av disse, antall med heltidsplass</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s14_a_1_1" type="number" min="0"></td><td><input id="s14_a_1_2" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s14_a_2_1" type="number" min="0"></td><td><input id="s14_a_2_2" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s14_a_3_1" type="number" min="0"></td><td><input id="s14_a_3_2" type="number" min="0"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s14_a_4_1" type="number" min="0"></td><td><input id="s14_a_4_2" type="number" min="0"></td></tr>
+          <tr><td>5</td><td>5.-7. trinn</td><td><input id="s14_a_5_1" type="number" min="0"></td><td><input id="s14_a_5_2" type="number" min="0"></td></tr>
+          <tr class="total-row"><td>6</td><td>Sum</td><td class="auto"><input id="s14_a_sum_1" type="number" readonly></td><td class="auto"><input id="s14_a_sum_2" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Ansattes utdanning</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s14-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="gender-col"><col class="gender-col"><col class="sum-col"><col class="year-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Menn</th><th>Kvinner</th><th>Sum</th><th>Årsverk (50 prosent stilling = 0,5)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Ansatte med relevant pedagogisk utdanning, minimum 3 år</td><td><input id="s14_b_1_m" type="number" min="0"></td><td><input id="s14_b_1_k" type="number" min="0"></td><td class="auto"><input id="s14_b_1_sum" type="number" readonly></td><td><input id="s14_b_1_year" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>2</td><td>Ansatte i SFO med fagbrev i barne- og ungdomsarbeiderfaget</td><td><input id="s14_b_2_m" type="number" min="0"></td><td><input id="s14_b_2_k" type="number" min="0"></td><td class="auto"><input id="s14_b_2_sum" type="number" readonly></td><td><input id="s14_b_2_year" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>3</td><td>Ansatte i SFO med annen kompetanse</td><td><input id="s14_b_3_m" type="number" min="0"></td><td><input id="s14_b_3_k" type="number" min="0"></td><td class="auto"><input id="s14_b_3_sum" type="number" readonly></td><td><input id="s14_b_3_year" type="number" min="0" step="0.1"></td></tr>
+          <tr class="total-row"><td>4</td><td>Sum bemanning og årsverk</td><td class="auto"><input id="s14_b_sum_m" type="number" readonly></td><td class="auto"><input id="s14_b_sum_k" type="number" readonly></td><td class="auto"><input id="s14_b_sum_total" type="number" readonly></td><td class="auto"><input id="s14_b_sum_year" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Foreldrebetaling</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s14-c">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="amount-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Beløp</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Hva er månedlig foreldrebetaling for en heltidsplass i SFO for 1.-3. trinn?</td><td><input id="s14_c_1" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>Hva er månedlig foreldrebetaling for en heltidsplass i SFO for 4. trinn?</td><td><input id="s14_c_2" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>Hva er månedlig foreldrebetaling for en deltidsplass i SFO for 4. trinn?</td><td><input id="s14_c_3" type="number" min="0"></td></tr>
+          <tr class="subheader-row"><td colspan="3">Timer</td></tr>
+          <tr><td>4</td><td>Hvor mange timer i uken regnes en heltidsplass?</td><td><input id="s14_c_4" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>5</td><td>Hvor mange timer i uken regnes en deltidsplass?</td><td><input id="s14_c_5" type="number" min="0" step="0.1"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL D -->
+  <section class="section-card">
+    <div class="section-header">D. Rabattordninger</div>
+    <div class="section-body radio-section">
+      <div class="radio-row"><span>Har ordningen lokale inntektsgraderte satser?</span><label><input type="radio" name="s14_d_1" id="s14_d_1_ja" value="ja"> Ja</label><label><input type="radio" name="s14_d_1" id="s14_d_1_nei" value="nei"> Nei</label></div>
+      <div class="radio-row"><span>Har ordningen lokale friplasser?</span><label><input type="radio" name="s14_d_2" id="s14_d_2_ja" value="ja"> Ja</label><label><input type="radio" name="s14_d_2" id="s14_d_2_nei" value="nei"> Nei</label></div>
+      <div class="radio-row"><span>Har ordningen søskenmoderasjon?</span><label><input type="radio" name="s14_d_3" id="s14_d_3_ja" value="ja"> Ja</label><label><input type="radio" name="s14_d_3" id="s14_d_3_nei" value="nei"> Nei</label></div>
+    </div>
+  </section>
+
+  <!-- DEL E -->
+  <section class="section-card">
+    <div class="section-header">E. Hvor mange elever deltar i en ordning med inntektsgraderte satser?</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s14-e">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Lokale ordninger</th><th>Forskriftsfestede/nasjonale ordninger</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s14_e_1_1" type="number" min="0"></td><td><input id="s14_e_1_2" type="number" min="0"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s14_e_2_1" type="number" min="0"></td><td><input id="s14_e_2_2" type="number" min="0"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s14_e_3_1" type="number" min="0"></td><td><input id="s14_e_3_2" type="number" min="0"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s14_e_4_1" type="number" min="0"></td><td><input id="s14_e_4_2" type="number" min="0"></td></tr>
+          <tr class="total-row"><td>5</td><td>Sum</td><td class="auto"><input id="s14_e_sum_1" type="number" readonly></td><td class="auto"><input id="s14_e_sum_2" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 15 -->
+<section class="page" id="page-15" data-page="15">
+  <section class="section-card">
+    <div class="section-header">A. Pedagogisk-psykologisk tjeneste (PPT)</div>
+    <div class="section-body">
+      <div class="ppt-notice">
+        <strong>Denne siden fylles ut av PPT.</strong>
+        <p>Skolen skal ikke fylle ut opplysninger på denne siden.</p>
+      </div>
+    </div>
+  </section>
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+</section>
+
+<!-- SIDE 16 -->
+<section class="page" id="page-16" data-page="16">
+
+  <div class="page-head">
+    <h1>16. Fordrevne ukrainske elever</h1>
+  </div>
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Fordrevne ukrainske elever</div>
+    <div class="section-body">
+      <div class="info-box">
+        Fordrevne fra Ukraina skal føres både i del 8 og i del 16. Skolene registrerer elever som får et fullverdig eller delvis tilbud ved skolen. Kommunen sørger for at de som ikke blir rapportert ved skolene, legges inn på kommunen sentralt. Med et fullverdig opplæringstilbud menes et tilbud i tråd med opplæringsloven. Både de som får et opplæringstilbud som ikke er fullverdig og de som ikke får et opplæringstilbud i det hele tatt, skal registreres i kolonnen 2.
+      </div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s16-a">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="offer-col"><col class="offer-col"><col class="sum-col"></colgroup>
+          <thead>
+            <tr>
+              <th colspan="2"></th>
+              <th>Hvor mange ukrainske fordrevne i skolepliktig alder mottar et fullverdig opplæringstilbud?</th>
+              <th>Hvor mange ukrainske fordrevne i skolepliktig alder, som har oppholdt seg i Norge i 3 måneder eller mer, mottar ikke et fullverdig opplæringstilbud?</th>
+              <th>Sum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>1. trinn</td><td><input id="s16_a_1_1" type="number" min="0"></td><td><input id="s16_a_1_2" type="number" min="0"></td><td class="auto"><input id="s16_a_1_sum" type="number" readonly></td></tr>
+            <tr><td>2</td><td>2. trinn</td><td><input id="s16_a_2_1" type="number" min="0"></td><td><input id="s16_a_2_2" type="number" min="0"></td><td class="auto"><input id="s16_a_2_sum" type="number" readonly></td></tr>
+            <tr><td>3</td><td>3. trinn</td><td><input id="s16_a_3_1" type="number" min="0"></td><td><input id="s16_a_3_2" type="number" min="0"></td><td class="auto"><input id="s16_a_3_sum" type="number" readonly></td></tr>
+            <tr><td>4</td><td>4. trinn</td><td><input id="s16_a_4_1" type="number" min="0"></td><td><input id="s16_a_4_2" type="number" min="0"></td><td class="auto"><input id="s16_a_4_sum" type="number" readonly></td></tr>
+            <tr><td>5</td><td>5. trinn</td><td><input id="s16_a_5_1" type="number" min="0"></td><td><input id="s16_a_5_2" type="number" min="0"></td><td class="auto"><input id="s16_a_5_sum" type="number" readonly></td></tr>
+            <tr><td>6</td><td>6. trinn</td><td><input id="s16_a_6_1" type="number" min="0"></td><td><input id="s16_a_6_2" type="number" min="0"></td><td class="auto"><input id="s16_a_6_sum" type="number" readonly></td></tr>
+            <tr><td>7</td><td>7. trinn</td><td><input id="s16_a_7_1" type="number" min="0"></td><td><input id="s16_a_7_2" type="number" min="0"></td><td class="auto"><input id="s16_a_7_sum" type="number" readonly></td></tr>
+            <tr><td>8</td><td>8. trinn</td><td><input id="s16_a_8_1" type="number" min="0"></td><td><input id="s16_a_8_2" type="number" min="0"></td><td class="auto"><input id="s16_a_8_sum" type="number" readonly></td></tr>
+            <tr><td>9</td><td>9. trinn</td><td><input id="s16_a_9_1" type="number" min="0"></td><td><input id="s16_a_9_2" type="number" min="0"></td><td class="auto"><input id="s16_a_9_sum" type="number" readonly></td></tr>
+            <tr><td>10</td><td>10. trinn</td><td><input id="s16_a_10_1" type="number" min="0"></td><td><input id="s16_a_10_2" type="number" min="0"></td><td class="auto"><input id="s16_a_10_sum" type="number" readonly></td></tr>
+            <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s16_a_total_1" type="number" readonly></td><td class="auto"><input id="s16_a_total_2" type="number" readonly></td><td class="auto"><input id="s16_a_total_sum" type="number" readonly></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Forsterket opplæring i norsk</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s16-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Elever</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall fordrevne ukrainske elever med vedtak om forsterket opplæring i norsk</td><td><input id="s16_b_1" type="number" min="0"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Egne undervisningsgrupper</div>
+    <div class="section-body">
+      <div class="info-box">
+        Her registreres ukrainske fordrevne elever som går i egne undervisningsgrupper for minoritetsspråklige elever. Gruppene kan ha elever fra andre steder enn Ukraina. I så fall føres kun fordrevne fra Ukraina her, mens alle elevene i gruppa føres i del 8.
+      </div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s16-c">
+          <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
+          <thead>
+            <tr><th colspan="2"></th><th>Elever</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Antall fordrevne fra Ukraina som hovedsakelig får undervisning i egne undervisningsgrupper for nyankomne minoritetsspråklige elever (innføringsgrupper/klasser og lignende)</td><td><input id="s16_c_1" type="number" min="0"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEL D -->
+  <section class="section-card">
+    <div class="section-header">D. Morsmålsopplæring og/eller tospråklig opplæring i fag</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s16-d">
+        <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col class="sum-col"></colgroup>
+        <thead>
+          <tr>
+            <th colspan="2">En elev skal her kun føres i én av kolonnene.</th>
+            <th>Bare morsmålsopplæring</th>
+            <th>Både morsmålsopplæring og tospråklig opplæring i fag</th>
+            <th>Tospråklig opplæring i fag</th>
+            <th>Annen tilrettelagt opplæring</th>
+            <th>Sum</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Antall fordrevne ukrainske elever som i tillegg til forsterket opplæring i norsk får morsmålsopplæring og/eller tospråklig opplæring i fag</td><td><input id="s16_d_1" type="number" min="0"></td><td><input id="s16_d_2" type="number" min="0"></td><td><input id="s16_d_3" type="number" min="0"></td><td><input id="s16_d_4" type="number" min="0"></td><td class="auto"><input id="s16_d_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NAVIGASJON -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 17 -->
+<section class="page" id="page-17" data-page="17">
+
+  <div class="validation-intro">
+    <p>Når du har trykket på knappen «Kontroller skjema» vil du få opp advarsler og feilmeldinger nedenfor. Når disse er behandlet kan skjemaet leveres.</p>
+    <p class="validation-explanation"><span class="validation-icon warning-icon">!</span> Advarsler er merket med gul sirkel. Disse må kommenteres ut i tekstboksen før man kan levere skjemaet.</p>
+    <p class="validation-explanation"><span class="validation-icon error-icon">▲</span> Feilmeldinger er merket med rød trekant. Disse feilene må rettes i skjemaet <em>før</em> man kan levere skjemaet.</p>
+  </div>
+
+  <div class="validation-toolbar">
+    <button class="btn" id="validate-btn" type="button">Kontroller skjema</button>
+    <span class="validation-count">Antall: <span id="validation-count">0</span></span>
+  </div>
+
+  <div class="validation-panel">
+    <div id="validation-results" class="validation-results"></div>
+  </div>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
+
+<!-- SIDE 18 -->
+<section class="page" id="page-18" data-page="18">
+
+  <!-- DEL A -->
+  <section class="section-card">
+    <div class="section-header">A. Skjemaet er fylt ut av:</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s18-a">
+        <colgroup><col class="name-col"><col class="email-col"><col class="role-col"></colgroup>
+        <thead>
+          <tr><th>Navn</th><th>Epost</th><th>Rolle</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input id="s18_navn" type="text" placeholder="Navn"></td>
+            <td><input id="s18_epost" type="text" placeholder="E-post"></td>
+            <td><input id="s18_rolle" type="text" placeholder="Rolle"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEL B -->
+  <section class="section-card">
+    <div class="section-header">B. Merknader fra skolen:</div>
+    <div class="section-body">
+      <textarea id="s18_merknad_skole" placeholder="Eventuelle merknader..."></textarea>
+    </div>
+  </section>
+
+  <!-- DEL C -->
+  <section class="section-card">
+    <div class="section-header">C. Merknader fra kommunen:</div>
+    <div class="section-body">
+      <textarea id="s18_merknad_kommune" placeholder="Eventuelle merknader..."></textarea>
+    </div>
+  </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- UTSKRIFT-MODAL (Plasseres helt nederst for korrekt visning over alt innhold) -->
+<div id="print-modal" class="modal-backdrop" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Skriv ut GSI-skjema</h3>
+      <button type="button" class="close-btn" id="close-print-modal">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- 1. Velg skoleår -->
+      <div class="modal-group">
+        <label for="print-year-select"><strong>Velg skoleår:</strong></label>
+        <select id="print-year-select" class="form-control"></select>
+      </div>
+
+      <!-- 2. Velg datamodus -->
+      <div class="modal-group">
+        <strong>Utskriftstype:</strong>
+        <div class="radio-group">
+          <label><input type="radio" name="print-data-mode" value="with-data" checked> Med utfylte data</label>
+          <label><input type="radio" name="print-data-mode" value="empty"> Tomt skjema (uten data)</label>
+        </div>
+      </div>
+
+      <!-- 3. Velg sider -->
+      <div class="modal-group">
+        <div class="pages-select-header">
+          <strong>Velg sider som skal skrives ut:</strong>
+          <div>
+            <button type="button" class="link-btn" id="print-select-all">Velg alle</button> | 
+            <button type="button" class="link-btn" id="print-deselect-all">Fjern alle</button>
+          </div>
+        </div>
+        <div id="print-pages-list" class="print-pages-grid"></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="cancel-print">Avbryt</button>
+      <button type="button" class="btn btn-primary" id="start-print-btn">🖨️ Skriv ut</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

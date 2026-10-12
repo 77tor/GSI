@@ -1,0 +1,1056 @@
+/* =========================================================
+   1. GRUNNINNSTILLINGER
+   ========================================================= */
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff;font-size:14px}
+body{min-height:100vh}
+
+/* =========================================================
+   2. TOPPFELT
+   ========================================================= */
+.topbar{height:72px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;background:#fff;position:sticky;top:0;z-index:20}
+.brand{font-size:24px;padding:0 26px;white-space:nowrap}
+.year-control{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:6px}
+.year-control label{font-weight:500}
+#year-select{font-weight:bold;background-color:#fff;color:#1a365d;border:2px solid #2b6cb0;border-radius:4px;padding:3px 8px;cursor:pointer}
+.mini-btn{padding:5px 10px;background:#57749b;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:13px}
+.file-btn input[type=file]{display:none}
+.userbox{display:flex;align-items:stretch;background:#f4ead9;min-width:390px;height:100%}
+.userbox>div:first-child{padding:12px 20px;border-left:1px solid #c9bda9;min-width:200px}
+.user{display:flex;align-items:center;gap:12px;padding:10px 18px;border-left:1px solid #c9bda9}
+.user-icon{font-size:25px;color:#263b64}
+.userbox strong,.userbox small{display:block}
+.userbox small{font-size:11px;margin-top:4px}
+
+/* Merke for skoleår og layout i overskriften */
+.page-head h1{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#page-heading{display:flex;align-items:center;width:100%}
+.heading-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.school-year-badge{font-size:0.55em;font-weight:600;padding:4px 14px;border-radius:16px;letter-spacing:0.5px;transition:all 0.25s ease-in-out}
+
+/* 6 Fargetemaer for skoleår */
+.school-year-badge.year-theme-1{background-color:#e3f2fd;color:#0d47a1;border:1px solid #90caf9}
+.school-year-badge.year-theme-2{background-color:#fff3e0;color:#e65100;border:1px solid #ffcc80}
+.school-year-badge.year-theme-3{background-color:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
+.school-year-badge.year-theme-4{background-color:#f3e5f5;color:#4a148c;border:1px solid #ce93d8}
+.school-year-badge.year-theme-5{background-color:#e0f2f1;color:#004d40;border:1px solid #80cbc4}
+.school-year-badge.year-theme-6{background-color:#fce4ec;color:#880e4f;border:1px solid #f48fb1}
+
+/* Styling for "Hent fra forrige år"-knappen */
+.btn-fetch-prev{background-color:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;padding:4px 10px;font-size:0.8rem;font-weight:500;border-radius:6px;cursor:pointer;transition:all 0.2s ease;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
+.btn-fetch-prev:hover{background-color:#e2e8f0;border-color:#94a3b8;color:#0f172a}
+
+/* =========================================================
+   3. VENSTREMENY OG LAYOUT
+   ========================================================= */
+.app{display:flex;min-height:calc(100vh - 72px);align-items:flex-start}
+.sidebar{width:205px;flex:0 0 205px;border-right:1px solid #ddd;background:#fff;padding:9px 10px 30px;position:sticky;top:72px;max-height:calc(100vh - 72px);overflow-y:auto}
+.sidebar nav{display:flex;flex-direction:column;gap:0}
+.nav-item{display:flex;align-items:center;gap:8px;min-height:38px;padding:5px 7px;border-bottom:1px solid #6cc9a7;color:#111;text-decoration:none;cursor:pointer;line-height:1.05}
+.nav-item:hover{background:#f1f7f4}
+.nav-item.active{font-weight:700}
+.nav-number{width:26px;height:26px;border:1px solid #cbd2d9;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 26px}
+.nav-item.active .nav-number{background:#222;color:#fff;border-color:#222}
+.nav-item.disabled{opacity:.45;cursor:default}
+
+/* =========================================================
+   4. HOVEDINNHOLD
+   ========================================================= */
+
+.main{flex:1;min-width:0;padding:0 22px 40px 20px}
+.page-head{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.page-head h1{font-size:22px;margin:0;font-weight:500}
+.page{display:none;max-width:750px}
+.page.active{display:block}
+
+/* Skjul utskriftstopptekst på vanlige skjermer */
+.print-header{display:none}
+
+/* Modal styling (enkeltlinje per selektor) */
+.modal-backdrop{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal-content{background:#fff;border-radius:8px;width:90%;max-width:620px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 25px rgba(0,0,0,0.2)}
+.modal-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;font-size:1.2rem;color:#0f172a}
+.close-btn{background:none;border:none;font-size:1.6rem;cursor:pointer;color:#64748b}
+.modal-body{padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+.modal-group{display:flex;flex-direction:column;gap:8px}
+.radio-group{display:flex;gap:20px}
+.pages-select-header{display:flex;justify-content:space-between;align-items:center}
+.link-btn{background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:0.85rem;text-decoration:underline}
+.print-pages-grid{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;border:1px solid #e2e8f0;padding:10px;border-radius:6px;background:#f8fafc}
+.print-page-group{border-bottom:1px solid #e2e8f0;padding:6px 0}
+.print-page-header{display:flex;justify-content:space-between;align-items:center}
+.print-page-item{display:flex;align-items:center;gap:8px;font-size:0.9rem;cursor:pointer;padding:2px 4px;border-radius:4px}
+.print-page-item:hover{background:#e2e8f0}
+.toggle-sub-btn{background:none;border:none;color:#2563eb;font-size:0.75rem;cursor:pointer;font-weight:500}
+.print-sections-list{display:none;flex-direction:column;gap:4px;padding-left:24px;margin-top:6px}
+.print-sections-list.show{display:flex}
+.print-sub-item{font-size:0.82rem;color:#475569;display:flex;align-items:center;gap:6px;cursor:pointer}
+.modal-footer{padding:16px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:12px}
+
+/* =========================================================
+   UTSKRIFT (KONSISTENT 100% BREDDE PÅ ALLE SIDER)
+   ========================================================= */
+@page{size:landscape;margin:8mm 10mm}
+@media print{body{zoom:83%;transform-origin:top left}.topbar,.sidebar,.button-bar,.modal-backdrop,.btn-fetch-prev,#save-1,.page-head{display:none!important}html,body,.app,.main-container,.main,.main-content,#pages,.page,.section-card,.address-grid,table,.table-s9-c,.print-header{width:100%!important;min-width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important}.page{display:none!important}.page.print-visible{display:block!important;page-break-after:always;break-after:page;margin-bottom:0!important}.print-header{display:flex!important;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:12px;font-size:0.8rem;color:#000}.section-card.print-section-hidden{display:none!important}.section-card{padding:10px!important;margin-bottom:10px!important;break-inside:avoid!important;page-break-inside:avoid!important}th,td{padding:3px 6px!important;font-size:0.82rem!important}tr,table{break-inside:avoid!important;page-break-inside:avoid!important}input,select,textarea{border:none!important;border-bottom:1px solid #444!important;background:transparent!important;color:#000!important;padding:2px!important}}
+
+/* =========================================================
+   5. SEKSJONSKORT
+   ========================================================= */
+
+.section-card{border:4px solid #e4edf7;border-radius:7px;margin:0 0 18px;background:#fff;overflow:hidden}
+.section-header{background:#57749b;color:#fff;font-weight:700;padding:10px 12px;min-height:38px}
+.section-body{padding:9px;background:#fff}
+.info-box,.table-note{border:1px solid #9aaec5;background:#fff;padding:10px;margin:0 0 8px;line-height:1.35}
+.placeholder{min-height:130px}
+
+/* =========================================================
+   6. SKJEMA OG INPUT
+   ========================================================= */
+
+.form-group{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:center;margin:8px 0}
+.form-group label{font-weight:500}
+.form-group input,.form-group textarea,input,textarea,select{font:inherit}
+.form-group input,input[type=text],input[type=number],textarea{width:100%;min-width:0;border:1px solid #55719a;border-radius:0;background:#fff;padding:7px 8px;height:32px}
+
+/* =========================================================
+   7. SIDE 1 – ENHET
+   ========================================================= */
+
+.address-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.address-box{border:1px solid #b7c4d4;padding:10px}
+.address-box h4{margin:0 0 8px}
+.address-box .form-group{grid-template-columns:110px 1fr}
+
+/* =========================================================
+   8. SIDE 2 – OM SKOLEN
+   ========================================================= */
+
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-option{display:flex;align-items:center;gap:10px;cursor:pointer}
+.radio-option input[type=radio]{width:22px;height:22px;margin:0;flex:0 0 auto}
+.radio-option span{font-size:14px}
+.radio-inline{display:flex;align-items:center;gap:20px}
+.radio-inline .radio-option{display:flex;align-items:center}
+.page-2-select,#page-2 select{height:32px;min-width:110px;border:0;background:#f5f5f5;padding:4px 10px}
+
+
+/* =========================================================
+   SIDE 3 – ELEVER OG TIMER
+   ========================================================= */
+
+.page-3{max-width:750px}
+.page-3 .section-card{margin-bottom:18px}
+.page-3 .gsi-table input[type=number]{text-align:right}
+.page-3 .table-add-row{margin-top:8px}
+/* ---------------------------------------------------------
+   Felles for tabellene på side 3
+   --------------------------------------------------------- */
+.page-3 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+.page-3 .gsi-table .total-row td{background:#c6c6c6}
+.page-3 .gsi-table .total-row td:first-child{background:#c4e8d7}
+.page-3 .gsi-table td:nth-child(2){text-align:left}
+/* ---------------------------------------------------------
+   A. Elever per trinn
+   --------------------------------------------------------- */
+.page-3 .table-s3-a col.row-no{width:5%}
+.page-3 .table-s3-a col.desc-wide{width:58%}
+.page-3 .table-s3-a col.number-col{width:12%}
+.page-3 .table-s3-a col.sum-col{width:13%}
+/* ---------------------------------------------------------
+   B. Undervisningstimer
+   --------------------------------------------------------- */
+.page-3 .table-s3-b col.row-no{width:5%}
+.page-3 .table-s3-b col.desc-wide{width:70%}
+.page-3 .table-s3-b col.number-col{width:25%}
+/* ---------------------------------------------------------
+   C. Asylsøkere
+   --------------------------------------------------------- */
+.page-3 .table-s3-c col.row-no{width:5%}
+.page-3 .table-s3-c col.desc-wide{width:70%}
+.page-3 .table-s3-c col.number-col{width:25%}
+/* ---------------------------------------------------------
+   D. Tegnspråk og punktskrift
+   --------------------------------------------------------- */
+.page-3 .table-s3-d col.row-no{width:5%}
+.page-3 .table-s3-d col.desc-wide{width:82%}
+.page-3 .table-s3-d col.number-col{width:13%}
+/* ---------------------------------------------------------
+   E. Finansiert av annen kommune
+   --------------------------------------------------------- */
+.page-3 .table-s3-e col.row-no{width:5%}
+.page-3 .table-s3-e col.desc-wide{width:75%}
+.page-3 .table-s3-e col.number-col{width:20%}
+/* --------------------------------------------------------
+   F. Hjemmeundervisning
+   --------------------------------------------------------- */
+.page-3 .table-s3-f col.row-no{width:5%}
+.page-3 .table-s3-f col.desc-wide{width:82%}
+.page-3 .table-s3-f col.number-col{width:13%}
+/* ---------------------------------------------------------
+   G. Ikke møtt ved skolestart
+   --------------------------------------------------------- */
+.page-3 .table-s3-g col.row-no{width:5%}
+.page-3 .table-s3-g col.desc-wide{width:82%}
+.page-3 .table-s3-g col.number-col{width:13%}
+
+/* =========================================================
+   INPUTFELT
+   ========================================================= */
+
+.page-3 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right}
+.page-3 .gsi-table input[type="text"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit}
+.page-3 .gsi-table .auto input,.page-3 .gsi-table .total-row input{background:#cfcfcf}
+
+/* =========================================================
+   LEGG TIL RAD
+   ========================================================= */
+
+.page-3 .table-add-row{margin-top:8px}
+
+
+/* =========================================================
+   9. TABELLER – FELLES
+   ========================================================= */
+
+.table-wrap{padding:0}
+.gsi-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.gsi-table th,.gsi-table td{border:1px solid #4f6e98;vertical-align:middle;padding:5px 7px}
+.gsi-table th{background:#dff1e9;font-weight:500;text-align:center;line-height:1.15}
+.gsi-table td:first-child{text-align:center}
+.gsi-table td:nth-child(2){text-align:left}
+.gsi-table td input{height:30px;padding:3px 6px;text-align:right;border:0;background:transparent}
+.gsi-table .auto{background:#cfcfcf}
+.gsi-table .auto input{background:#cfcfcf}
+.gsi-table .total-row td{background:#cfcfcf}
+.gsi-table .total-row input{background:#cfcfcf}
+.gsi-table col.row-no{width:42px}
+.gsi-table col.desc-wide{width:36%}
+.gsi-table col.sum-col{width:11%}
+.gsi-table col.calc-col{width:12%}
+.gsi-table col.subject-col{width:28%}
+.gsi-table thead tr:first-child th{background:#dff1e9}
+
+/* =========================================================
+   10. SIDE 4 – ÅRSTIMER
+   ========================================================= */
+
+#page-4 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-4 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-4 .gsi-table th{background:#dff1e9;white-space:normal}
+#page-4 .gsi-table td{padding:5px 7px}
+#page-4 .gsi-table td.auto{background:#c6c6c6}
+#page-4 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-4 .gsi-table .total-row td{background:#c6c6c6}
+#page-4 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-4 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+#page-4 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-4 .gsi-table td.auto input{background:#c6c6c6}
+#page-4 .gsi-table .total-row td input{background:#c6c6c6}
+
+
+/* A. Årstimer til undervisning totalt */
+#page-4 .table-s4-a col.row-no{width:5%}
+#page-4 .table-s4-a col.desc-wide{width:47%}
+#page-4 .table-s4-a col{width:9.5%}
+#page-4 .table-s4-a col.sum-col{width:10%}
+
+/* B. Individuelt tilrettelagt opplæring */
+#page-4 .table-s4-b col.row-no{width:5%}
+#page-4 .table-s4-b col.desc-wide{width:47%}
+#page-4 .table-s4-b col{width:9.5%}
+#page-4 .table-s4-b col.sum-col{width:10%}
+
+/* C. Ordinær undervisning */
+#page-4 .table-s4-c col.row-no{width:5%}
+#page-4 .table-s4-c col.desc-wide{width:47%}
+#page-4 .table-s4-c col{width:9.5%}
+#page-4 .table-s4-c col.sum-col{width:10%}
+
+/* D. Andre oppgaver */
+#page-4 .table-s4-d col.row-no{width:5%}
+#page-4 .table-s4-d col.desc-wide{width:55%}
+#page-4 .table-s4-d col{width:15%}
+#page-4 .table-s4-d col.sum-col{width:10%}
+
+/* E. Elevrettet arbeid */
+#page-4 .table-s4-e col.row-no{width:5%}
+#page-4 .table-s4-e col.desc-wide{width:55%}
+#page-4 .table-s4-e col{width:10%}
+#page-4 .table-s4-e col.sum-col{width:10%}
+
+/* Infotekst */
+#page-4 .table-note{margin:0 0 8px;padding:8px 10px;border:1px solid #55719a;background:#fff;line-height:1.3}
+
+/* Tabell B – ekstra overskrift */
+#page-4 .table-subheader th{background:#b9dfcf;text-align:left;padding:7px}
+
+/* Lange tekstceller */
+#page-4 .table-s4-a td:nth-child(2),
+#page-4 .table-s4-b td:nth-child(2),
+#page-4 .table-s4-c td:nth-child(2),
+#page-4 .table-s4-d td:nth-child(2),
+#page-4 .table-s4-e td:nth-child(2){line-height:1.25}
+
+/* =========================================================
+   SIDE 5 – LÆRERE OG ASSISTENTER
+   ========================================================= */
+
+#page-5{max-width:750px}
+#page-5 .section-card{margin-bottom:18px}
+#page-5 .gsi-table{width:100%;table-layout:fixed}
+#page-5 .gsi-table th,#page-5 .gsi-table td{padding:5px 7px;vertical-align:middle}
+#page-5 .gsi-table th{background:#dff1e9;white-space:normal;text-align:center}
+#page-5 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-5 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-5 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-5 .gsi-table td.auto{background:#c6c6c6}
+#page-5 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-5 .gsi-table .total-row td{background:#c6c6c6}
+#page-5 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-5 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+/* ---------------------------------------------------------
+   SUM-KOLONNER
+   --------------------------------------------------------- */
+#page-5 .table-s5-a thead tr:nth-child(2) th:last-child{background:#c6c6c6}
+#page-5 .table-s5-a tbody td:last-child{background:#c6c6c6}
+#page-5 .table-s5-b th:last-child,#page-5 .table-s5-b td:last-child{background:#c6c6c6}
+#page-5 .table-s5-c th:last-child,#page-5 .table-s5-c td:last-child{background:#c6c6c6}
+#page-5 .table-s5-f th:last-child,#page-5 .table-s5-f td:last-child{background:#c6c6c6}
+#page-5 .table-s5-a td:last-child input,#page-5 .table-s5-b td:last-child input,#page-5 .table-s5-c td:last-child input,#page-5 .table-s5-f td:last-child input{background:#c6c6c6}
+/* ---------------------------------------------------------
+   DEL A – ANTALL LÆRERE
+   --------------------------------------------------------- */
+#page-5 .table-s5-a col.row-no{width:42px}
+#page-5 .table-s5-a col.desc-wide{width:25%}
+#page-5 .table-s5-a col.sum-col{width:12%}
+#page-5 .table-s5-a thead tr:first-child th:nth-child(2){text-align:left;padding-left:8px}
+/* ---------------------------------------------------------
+   DEL B – ANNET PERSONALE
+   --------------------------------------------------------- */
+#page-5 .table-s5-b col.row-no{width:42px}
+#page-5 .table-s5-b col.desc-wide{width:58%}
+#page-5 .table-s5-b col.sum-col{width:13%}
+/* ---------------------------------------------------------
+   DEL C – KOMPETANSEKRAV
+   --------------------------------------------------------- */
+#page-5 .table-s5-c col.row-no{width:42px}
+#page-5 .table-s5-c col.desc-wide{width:58%}
+#page-5 .table-s5-c col.sum-col{width:13%}
+/* ---------------------------------------------------------
+   DEL D – KOMPETANSEKRAV FOR UNDERVISNING
+   --------------------------------------------------------- */
+#page-5 .table-s5-d th,#page-5 .table-s5-d td{padding:5px 4px;font-size:12px}
+#page-5 .table-s5-d col.row-no{width:38px}
+#page-5 .table-s5-d col.subject-col{width:18%}
+#page-5 .table-s5-d th:nth-child(5),#page-5 .table-s5-d td:nth-child(5){background:#c6c6c6}
+#page-5 .table-s5-d th:nth-child(9),#page-5 .table-s5-d td:nth-child(9){background:#c6c6c6}
+#page-5 .table-s5-d td:nth-child(5) input,#page-5 .table-s5-d td:nth-child(9) input{background:#c6c6c6;border:0;box-shadow:none}
+/* ---------------------------------------------------------
+   DEL E – INDIVIDUELT TILRETTELAGT OPPLÆRING
+   --------------------------------------------------------- */
+#page-5 .table-s5-e col.row-no{width:42px}
+#page-5 .table-s5-e col.desc-wide{width:auto}
+#page-5 .table-s5-e col.sum-col{width:14%}
+/* ---------------------------------------------------------
+   DEL F – SPESIALPEDAGOGISK KOMPETANSE
+   --------------------------------------------------------- */
+#page-5 .table-s5-f col.row-no{width:42px}
+#page-5 .table-s5-f col.desc-wide{width:58%}
+#page-5 .table-s5-f col.sum-col{width:14%}
+
+
+/* =========================================================
+   SIDE 6 – ÅRSVERK OG ANSATTE
+   ========================================================= */
+#page-6{max-width:750px}
+#page-6 .section-card{margin-bottom:18px}
+#page-6 .gsi-table{width:100%;table-layout:fixed}
+#page-6 .gsi-table th,#page-6 .gsi-table td{padding:5px 7px;vertical-align:middle}
+#page-6 .gsi-table th{background:#dff1e9;white-space:normal;text-align:center}
+#page-6 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-6 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-6 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-6 .gsi-table td.auto{background:#c6c6c6}
+#page-6 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-6 .gsi-table .total-row td{background:#c6c6c6}
+#page-6 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-6 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+/* ---------------------------------------------------------
+   DEL A – ÅRSVERK TIL LEDEROPPGAVER
+   --------------------------------------------------------- */
+#page-6 .table-s6-a col.row-no{width:5%}
+#page-6 .table-s6-a col.desc-wide{width:80%}
+#page-6 .table-s6-a col.sum-col{width:15%}
+#page-6 .table-s6-a td:last-child{background:#fff}
+#page-6 .table-s6-a .total-row td:last-child{background:#c6c6c6}
+#page-6 .table-s6-a .total-row td:last-child input{background:#c6c6c6}
+/* ---------------------------------------------------------
+   DEL B – ÅRSRAMME FOR UNDERVISNING
+   --------------------------------------------------------- */
+#page-6 .table-s6-b col.desc-wide{width:75%}
+#page-6 .table-s6-b col{width:12.5%}
+#page-6 .table-s6-b th:first-child{text-align:left}
+#page-6 .table-s6-b td:first-child{background:#dff1e9}
+#page-6 .table-s6-b td:nth-child(2),#page-6 .table-s6-b td:nth-child(3){background:#fff}
+/* ---------------------------------------------------------
+   DEL C – SUM BEREGNEDE ÅRSVERK TIL UNDERVISNING
+   --------------------------------------------------------- */
+#page-6 .table-s6-c col.row-no{width:5%}
+#page-6 .table-s6-c col.desc-wide{width:43%}
+#page-6 .table-s6-c col{width:13%}
+#page-6 .table-s6-c col.sum-col{width:13%}
+#page-6 .table-s6-c td.auto{background:#c6c6c6}
+#page-6 .table-s6-c td.auto input{background:#c6c6c6}
+/* ---------------------------------------------------------
+   DEL D – ÅRSVERK TIL ANNET PERSONALE
+   --------------------------------------------------------- */
+#page-6 .table-s6-d col.row-no{width:5%}
+#page-6 .table-s6-d col.desc-wide{width:75%}
+#page-6 .table-s6-d col.sum-col{width:20%}
+#page-6 .table-s6-d th:last-child{background:#dff1e9}
+#page-6 .table-s6-d td:nth-child(2){background:#dff1e9}
+#page-6 .table-s6-d td:last-child{background:#fff}
+
+/* =========================================================
+   SIDE 7 – INDIVIDUELL TILRETTELEGGING
+   ========================================================= */
+
+#page-7{max-width:750px}
+#page-7 .section-card{margin-bottom:18px}
+#page-7 .info-box{border:4px solid #dce6f2;background:#fff;padding:14px 16px;margin:0 0 18px;line-height:1.35;font-size:13px}
+#page-7 .section-header{line-height:1.25}
+#page-7 .section-body{padding:9px}
+#page-7 .table-note{margin-bottom:8px;line-height:1.3}
+#page-7 .gsi-table{width:100%;table-layout:fixed;font-size:13px}
+#page-7 .gsi-table th{background:#dff1e9;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-7 .gsi-table td{padding:5px 7px;vertical-align:middle}
+#page-7 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-7 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-7 .gsi-table td.auto{background:#c6c6c6}
+#page-7 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-7 .gsi-table .total-row td{background:#c6c6c6}
+#page-7 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-7 .gsi-table .total-row td:nth-child(2){background:#c6c6c6}
+#page-7 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+#page-7 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-7 .gsi-table td.auto input[type="number"]{background:#c6c6c6}
+#page-7 .table-add-row{margin-top:8px}
+#page-7 .table-add-row .btn{font-size:12px;padding:6px 14px}
+/* ---------------------------------------------------------
+   DEL A – ELEVER PER TRINN
+   --------------------------------------------------------- */
+#page-7 .table-s7-a col.row-no{width:42px}
+#page-7 .table-s7-a col.desc-wide{width:58%}
+#page-7 .table-s7-a col.sum-col{width:12%}
+/* ---------------------------------------------------------
+   DEL B – PERSONLIG ASSISTANSE
+   --------------------------------------------------------- */
+#page-7 .table-s7-b{font-size:12px}
+#page-7 .table-s7-b col.row-no{width:38px}
+#page-7 .table-s7-b col.desc-wide{width:34%}
+#page-7 .table-s7-b th{padding:5px 4px}
+#page-7 .table-s7-b td{padding:5px 4px}
+#page-7 .table-s7-b input[type="number"]{padding-left:3px;padding-right:3px}
+/* ---------------------------------------------------------
+   DEL C – FASTE AVDELINGER
+   --------------------------------------------------------- */
+#page-7 .table-s7-c col.row-no{width:42px}
+#page-7 .table-s7-c col.desc-wide{width:46%}
+#page-7 .table-s7-c col.sum-col{width:10%}
+/* ---------------------------------------------------------
+   DEL D – ALTERNATIV OPPLÆRINGSARENA
+   --------------------------------------------------------- */
+#page-7 .table-s7-d col.row-no{width:42px}
+#page-7 .table-s7-d col.desc-wide{width:46%}
+#page-7 .table-s7-d col.sum-col{width:10%}
+/* ---------------------------------------------------------
+   DEL E – ORGANISERING
+   --------------------------------------------------------- */
+#page-7 .table-s7-e col.row-no{width:42px}
+#page-7 .table-s7-e col.desc-wide{width:64%}
+#page-7 .table-s7-e col.sum-col{width:12%}
+/* ---------------------------------------------------------
+   DEL F – TILDELTE TIMER
+   --------------------------------------------------------- */
+#page-7 .table-s7-f{font-size:12px}
+#page-7 .table-s7-f col.row-no{width:38px}
+#page-7 .table-s7-f col.desc-wide{width:43%}
+#page-7 .table-s7-f col.sum-col{width:9%}
+#page-7 .table-s7-f th{padding:5px 3px}
+#page-7 .table-s7-f td{padding:5px 3px}
+#page-7 .table-s7-f input[type="number"]{padding-left:2px;padding-right:2px}
+/* ---------------------------------------------------------
+   DEL G – ASSISTENT
+   --------------------------------------------------------- */
+#page-7 .table-s7-g col.row-no{width:42px}
+#page-7 .table-s7-g col.desc-wide{width:68%}
+#page-7 .table-s7-g col.sum-col{width:12%}
+/* ---------------------------------------------------------
+   DEL H – ANDRE KOMMUNER
+   --------------------------------------------------------- */
+#page-7 .table-s7-h col.row-no{width:42px}
+#page-7 .table-s7-h col.desc-wide{width:78%}
+#page-7 .table-s7-h col.sum-col{width:12%}
+/* ---------------------------------------------------------
+   RESPONSIVT
+   --------------------------------------------------------- */
+@media(max-width:760px){
+  #page-7 .gsi-table{min-width:700px}
+  #page-7 .table-wrap{overflow-x:auto}
+}
+
+/* =========================================================
+   SIDE 8 – SÆRSKILT SPRÅKOPPLÆRING
+   ========================================================= */
+#page-8{max-width:750px}
+#page-8 .section-card{margin-bottom:18px}
+#page-8 .section-header{line-height:1.25}
+#page-8 .section-body{padding:9px}
+#page-8 .table-note{margin-bottom:8px;line-height:1.35}
+#page-8 .gsi-table{width:100%;table-layout:fixed;font-size:13px}
+#page-8 .gsi-table th{background:#dff1e9;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-8 .gsi-table td{padding:5px 7px;vertical-align:middle}
+#page-8 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-8 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-8 .gsi-table td.auto{background:#c6c6c6}
+#page-8 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-8 .gsi-table .total-row td{background:#c6c6c6}
+#page-8 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-8 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+#page-8 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-8 .gsi-table td.auto input[type="number"]{background:#c6c6c6}
+#page-8 .table-add-row{margin-top:8px}
+#page-8 .table-add-row .btn{font-size:12px;padding:6px 14px}
+/* ---------------------------------------------------------
+   DEL A – FORSTERKET OPPLÆRING I NORSK
+   --------------------------------------------------------- */
+#page-8 .table-s8-a col.row-no{width:42px}
+#page-8 .table-s8-a col.desc-wide{width:16%}
+#page-8 .table-s8-a col:nth-child(3){width:38%}
+#page-8 .table-s8-a col:nth-child(4){width:46%}
+#page-8 .table-s8-a th:nth-child(3){font-size:12px}
+#page-8 .table-s8-a th:nth-child(4){font-size:12px}
+/* ---------------------------------------------------------
+   DEL B – EGNE UNDERVISNINGSGRUPPER
+   --------------------------------------------------------- */
+#page-8 .table-s8-b col.row-no{width:42px}
+#page-8 .table-s8-b col.desc-wide{width:68%}
+#page-8 .table-s8-b col:nth-child(3){width:11%}
+#page-8 .table-s8-b col:nth-child(4){width:11%}
+#page-8 .table-s8-b col.sum-col{width:10%}
+/* ---------------------------------------------------------
+   DEL C – MORSMÅL / TOSPRÅKLIG OPPLÆRING
+   --------------------------------------------------------- */
+#page-8 .table-s8-c{font-size:12px}
+#page-8 .table-s8-c col.row-no{width:38px}
+#page-8 .table-s8-c col:nth-child(2){width:15%}
+#page-8 .table-s8-c col:nth-child(3){width:17%}
+#page-8 .table-s8-c col:nth-child(4){width:17%}
+#page-8 .table-s8-c col:nth-child(5){width:18%}
+#page-8 .table-s8-c col:nth-child(6){width:14%}
+#page-8 .table-s8-c col.sum-col{width:9%}
+#page-8 .table-s8-c th{padding:5px 4px}
+#page-8 .table-s8-c td{padding:5px 4px}
+/* ---------------------------------------------------------
+   DEL D – ELEVER FRA ANDRE KOMMUNER
+   --------------------------------------------------------- */
+#page-8 .table-s8-d col.row-no{width:42px}
+#page-8 .table-s8-d col.desc-wide{width:82%}
+#page-8 .table-s8-d col.sum-col{width:16%}
+#page-8 .table-s8-d th{padding:5px 6px}
+#page-8 .table-s8-d td{padding:5px 6px}
+/* ---------------------------------------------------------
+   INFORMASJONSBOKS I DEL D
+   --------------------------------------------------------- */
+#page-8 .table-note{border:1px solid #55719a;background:#fff;padding:10px;margin:0 0 8px;line-height:1.35}
+/* ---------------------------------------------------------
+   RESPONSIVT
+   --------------------------------------------------------- */
+@media(max-width:760px){
+  #page-8 .table-wrap{overflow-x:auto}
+  #page-8 .gsi-table{min-width:700px}
+}
+
+/* =========================================================
+   SIDE 9 – OPPLÆRINGSSPRÅK
+   ========================================================= */
+
+#page-9{max-width:750px}
+#page-9 .section-card{margin-bottom:18px}
+#page-9 .section-header{line-height:1.25}
+#page-9 .section-body{padding:9px}
+#page-9 .table-note{margin-bottom:8px;line-height:1.3}
+#page-9 .gsi-table{width:100%;table-layout:fixed;font-size:13px}
+#page-9 .gsi-table th{background:#dff1e9;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-9 .gsi-table td{padding:5px 7px;vertical-align:middle}
+#page-9 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-9 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-9 .gsi-table td.auto{background:#c6c6c6}
+#page-9 .gsi-table td.auto input{background:#c6c6c6;border:0;box-shadow:none}
+#page-9 .gsi-table .total-row td{background:#c6c6c6}
+#page-9 .gsi-table .total-row td:first-child{background:#c4e8d7}
+#page-9 .gsi-table .total-row td input{background:#c6c6c6;border:0;box-shadow:none}
+#page-9 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-9 .gsi-table td.auto input[type="number"]{background:#c6c6c6}
+
+/* ---------------------------------------------------------
+   DEL A – OPPLÆRINGSSPRÅK
+   --------------------------------------------------------- */
+
+#page-9 .table-s9-a{width:100%;table-layout:fixed}
+#page-9 .table-s9-a col.row-no{width:5%}
+#page-9 .table-s9-a col.desc-wide{width:17.5%}
+#page-9 .table-s9-a col.language-col{width:11.1%}
+#page-9 .table-s9-a col.sum-col{width:11.1%}
+#page-9 .table-s9-a col.student-col{width:22%}
+#page-9 .table-s9-a th{padding:6px 5px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-9 .table-s9-a td{padding:5px 6px;vertical-align:middle}
+#page-9 .table-s9-a td:first-child{background:#c4e8d7;text-align:center}
+#page-9 .table-s9-a td:nth-child(2){background:#dff1e9;text-align:left}
+#page-9 .table-s9-a input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+/* Språk-kolonnene */
+#page-9 .table-s9-a tbody td:nth-child(3),
+#page-9 .table-s9-a tbody td:nth-child(4),
+#page-9 .table-s9-a tbody td:nth-child(5),
+#page-9 .table-s9-a tbody td:nth-child(6){background:#fff}
+/* Sum-kolonnen */
+#page-9 .table-s9-a tbody td:nth-child(7){background:#c6c6c6!important}
+#page-9 .table-s9-a tbody td:nth-child(7) input{background:#c6c6c6!important;border:0;box-shadow:none}
+/* Elevtall-kolonnen */
+#page-9 .table-s9-a tbody td:nth-child(8){background:#c6c6c6!important}
+#page-9 .table-s9-a tbody td:nth-child(8) input{background:#c6c6c6!important;border:0;box-shadow:none}
+/* Første overskriftsrad */
+#page-9 .table-s9-a thead tr:first-child th{background:#dff1e9}
+#page-9 .table-s9-a thead tr:first-child th:last-child{background:#dff1e9}
+/* Andre overskriftsrad */
+#page-9 .table-s9-a thead tr:nth-child(2) th{background:#dff1e9}
+/* Sum-overskrift */
+#page-9 .table-s9-a thead tr:nth-child(2) th:nth-last-child(2){background:#c6c6c6!important}
+/* Tom celle under Elevtall */
+#page-9 .table-s9-a thead tr:nth-child(2) th:last-child{background:#c6c6c6!important}
+/* Summeringsrad */
+#page-9 .table-s9-a .total-row td{background:#c6c6c6!important}
+#page-9 .table-s9-a .total-row td:first-child{background:#c4e8d7!important}
+#page-9 .table-s9-a .total-row td input{background:#c6c6c6!important;border:0;box-shadow:none}
+
+/* ---------------------------------------------------------
+   DEL B – Elevgrupper
+   --------------------------------------------------------- */
+#page-9 .table-s9-b col.row-no{width:42px}
+#page-9 .table-s9-b col.desc-wide{width:68%}
+#page-9 .table-s9-b col.sum-col{width:12%}
+#page-9 .table-s9-b td{padding:6px 7px}
+#page-9 .table-s9-b th{padding:6px 5px}
+
+/* ---------------------------------------------------------
+   DEL C – SAMISKE SPRÅK, KVENSK OG FINSK
+   --------------------------------------------------------- */
+
+#page-9 .table-s9-c{width:100%;table-layout:fixed}
+#page-9 .table-s9-c col.row-no{width:5%}
+#page-9 .table-s9-c col.desc-wide{width:13%}
+#page-9 .table-s9-c col.sum-col{width:7%}
+#page-9 .table-s9-c col.delete-col{width:5.5%}
+
+#page-9 .table-s9-c th{padding:6px 5px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-9 .table-s9-c td{padding:5px 6px;vertical-align:middle}
+
+#page-9 .table-s9-c thead tr:first-child th{background:#dff1e9!important}
+#page-9 .table-s9-c thead tr:nth-child(2) th:nth-child(12){background:#c6c6c6!important}
+#page-9 .table-s9-c thead tr:nth-child(2) th:last-child{background:#c6c6c6!important}
+
+#page-9 .table-s9-c td:first-child{background:#c4e8d7;text-align:center}
+#page-9 .table-s9-c td:nth-child(2){background:#dff1e9;text-align:left}
+
+#page-9 .table-s9-c input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+
+#page-9 .table-s9-c .auto{background:#c6c6c6!important}
+#page-9 .table-s9-c .auto input{background:#c6c6c6!important;border:0;box-shadow:none}
+
+#page-9 .table-s9-c .delete-cell{background:#c6c6c6!important;padding:0}
+#page-9 .table-s9-c .delete-cell button{width:100%;height:100%;border:0;background:#c6c6c6;cursor:pointer}
+
+#page-9 .table-s9-c .total-row td{background:#c6c6c6!important}
+#page-9 .table-s9-c .total-row td:first-child{background:#c4e8d7!important}
+#page-9 .table-s9-c .total-row td:nth-child(2){background:#c6c6c6!important}
+
+
+/* ---------------------------------------------------------
+   DEL D – Fjernundervisning
+   --------------------------------------------------------- */
+#page-9 .table-s9-d col.row-no{width:42px}
+#page-9 .table-s9-d col.desc-wide{width:58%}
+#page-9 .table-s9-d col.sum-col{width:13%}
+#page-9 .table-s9-d col{width:auto}
+#page-9 .table-s9-d th{padding:6px 5px}
+#page-9 .table-s9-d td{padding:6px 7px}
+/* ---------------------------------------------------------
+   KNAPPER
+   --------------------------------------------------------- */
+#page-9 .table-add-row{margin-top:8px}
+#page-9 .table-add-row .btn{font-size:12px;padding:6px 14px}
+
+
+/* =========================================================
+   SIDE 10 – GJELDER IKKE BARNESKOLE
+   ========================================================= */
+
+#page-10{max-width:750px}
+#page-10 .section-card{margin-bottom:18px}
+#page-10 .section-body{padding:18px}
+#page-10 .school-level-notice{border:1px solid #9aaec5;background:#f5f5f5;padding:18px;text-align:center;font-size:15px}
+
+/* =========================================================
+   SIDE 11 – GJELDER IKKE BARNESKOLE
+   ========================================================= */
+
+#page-11{max-width:750px}
+#page-11 .section-card{margin-bottom:18px}
+#page-11 .section-body{padding:18px}
+#page-11 .school-level-notice{border:1px solid #9aaec5;background:#f5f5f5;padding:18px;text-align:center;font-size:15px}
+
+/* =========================================================
+   SIDE 12 – FYSISK AKTIVITET OG LEKSEHJELP
+   ========================================================= */
+#page-12{max-width:800px}
+#page-12 .page-head{min-height:48px}
+#page-12 .page-head h1{font-size:22px;font-weight:500}
+#page-12 .section-card{margin-bottom:18px}
+#page-12 .section-body{padding:9px}
+#page-12 .table-s12-c{width:100%;table-layout:fixed}
+#page-12 .table-s12-c col.row-no{width:5%}
+#page-12 .table-s12-c col.desc-wide{width:16%}
+#page-12 .table-s12-c col.students-col{width:39%}
+#page-12 .table-s12-c col.hours-col{width:40%}
+#page-12 .table-s12-c th{padding:6px 8px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-12 .table-s12-c td{padding:5px 6px;vertical-align:middle}
+#page-12 .table-s12-c td:first-child{background:#c4e8d7;text-align:center}
+#page-12 .table-s12-c td:nth-child(2){background:#dff1e9;text-align:left}
+#page-12 .table-s12-c input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-12 .table-s12-c .total-row td{background:#c6c6c6!important}
+#page-12 .table-s12-c .total-row td:first-child{background:#c4e8d7!important}
+#page-12 .table-s12-c .total-row td:nth-child(2){background:#c6c6c6!important}
+#page-12 .table-s12-c .total-row td.auto{background:#c6c6c6!important}
+#page-12 .table-s12-c .total-row td.auto input{background:#c6c6c6!important;border:0;box-shadow:none}
+#page-12 .table-s12-c thead th{background:#dff1e9!important}
+
+
+/* =========================================================
+   SIDE 13 – ANDRE OPPLYSNINGER
+   ========================================================= */
+
+#page-13{max-width:800px}
+#page-13 .page-head{min-height:48px}
+#page-13 .page-head h1{font-size:22px;font-weight:500}
+#page-13 .section-card{margin-bottom:18px}
+#page-13 .section-body{padding:9px}
+#page-13 .gsi-table th{padding:6px 5px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-13 .gsi-table td{padding:5px 6px;vertical-align:middle}
+#page-13 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-13 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-13 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-13 .gsi-table .auto{background:#c6c6c6!important}
+#page-13 .gsi-table .auto input{background:#c6c6c6!important;border:0;box-shadow:none}
+#page-13 .gsi-table .total-row td{background:#c6c6c6!important}
+#page-13 .gsi-table .total-row td:first-child{background:#c4e8d7!important}
+#page-13 .gsi-table .total-row td:nth-child(2){background:#c6c6c6!important}
+#page-13 .gsi-table thead th{background:#dff1e9!important}
+#page-13 .table-s13-a col.row-no{width:5%}
+#page-13 .table-s13-a col.desc-wide{width:58%}
+#page-13 .table-s13-a col.sum-col{width:12%}
+#page-13 .table-s13-a td:nth-child(2){font-size:12px}
+#page-13 .table-s13-b col.row-no{width:5%}
+#page-13 .table-s13-b col.desc-wide{width:82%}
+#page-13 .table-s13-b col.sum-col{width:13%}
+#page-13 .table-s13-b td:nth-child(2){font-size:12px}
+#page-13 .table-s13-c col.row-no{width:5%}
+#page-13 .table-s13-c col.desc-wide{width:17%}
+#page-13 .table-s13-c col{width:20%}
+#page-13 .table-s13-c th{font-size:11px}
+#page-13 .table-s13-c td:nth-child(2){font-size:11px}
+#page-13 .table-s13-e col.row-no{width:5%}
+#page-13 .table-s13-e col.device-col{width:16%}
+#page-13 .table-s13-e col.sum-col{width:7%}
+#page-13 .table-s13-e th{font-size:11px;padding:5px 3px}
+#page-13 .table-s13-e td{padding:4px 3px}
+#page-13 .table-s13-e td:nth-child(2){font-size:11px}
+#page-13 .table-s13-e input[type="number"]{font-size:11px;padding:2px 3px}
+#page-13 .table-s13-e thead tr:first-child th{background:#dff1e9!important}
+#page-13 .table-s13-e thead tr:first-child th:last-child{background:#c6c6c6!important}
+#page-13 .table-s13-e thead tr:nth-child(2) th:last-child{background:#c6c6c6!important}
+#page-13 .table-s13-e .reference-row td{background:#c6c6c6!important}
+#page-13 .table-s13-e .reference-row td:first-child{background:#c4e8d7!important}
+#page-13 .table-s13-e .reference-row td:nth-child(2){background:#c6c6c6!important}
+#page-13 .table-s13-e .reference-row td input{background:#c6c6c6!important;border:1px solid #9a9a9a;box-shadow:none}
+#page-13 .table-s13-g col.row-no{width:5%}
+#page-13 .table-s13-g col.desc-wide{width:54%}
+#page-13 .table-s13-g col.sum-col{width:14%}
+#page-13 .table-s13-g td:nth-child(2){font-size:11px}
+#page-13 .table-s13-g th{font-size:11px}
+#page-13 .radio-section{padding:0}
+#page-13 .radio-row{display:grid;grid-template-columns:1fr 45px 45px;align-items:center;min-height:44px;padding:7px 10px;border-bottom:1px solid #d7dce3;font-size:11px}
+#page-13 .radio-row:last-child{border-bottom:0}
+#page-13 .radio-row label{display:flex;align-items:center;gap:4px;justify-content:center;white-space:nowrap}
+#page-13 .radio-row input[type="radio"]{width:16px;height:16px;margin:0}
+#page-13 .question-row{padding:10px;border-bottom:1px solid #d7dce3;font-size:11px}
+#page-13 .question-row:last-child{border-bottom:0}
+#page-13 .question-options{display:flex;gap:16px;margin-top:10px}
+#page-13 .question-options label{display:flex;align-items:center;gap:5px}
+#page-13 .question-options input[type="radio"]{width:16px;height:16px;margin:0}
+#page-13 .info-box{font-size:11px;margin-bottom:8px}
+#page-13 .button-bar{margin-top:8px}
+/* ---------------------------------------------------------
+   DEL D – ÅPENT SKOLEBIBLIOTEK
+   --------------------------------------------------------- */
+#page-13 .library-hours{display:none;min-height:76px;margin-top:4px;border-top:1px solid #d7dce3;background:#fff;align-items:center}
+#page-13 .library-hours.visible{display:flex}
+#page-13 .library-hours-label{width:52%;padding:10px 12px 10px 190px;font-size:13px;line-height:1.2}
+#page-13 .library-hours-input{width:48%;padding:10px 120px 10px 0}
+#page-13 .library-hours-input input{width:100%;height:48px;border:1px solid #55719a;border-radius:0;background:#fff;padding:8px 10px;text-align:right;font:inherit}
+
+/* ---------------------------------------------------------
+   DEL G – GRÅ FELT I RAD 1
+   --------------------------------------------------------- */
+
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(3){background:#c6c6c6!important}
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(4){background:#c6c6c6!important}
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(5){background:#c6c6c6!important}
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(3) input{background:#c6c6c6!important}
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(4) input{background:#c6c6c6!important}
+#page-13 .table-s13-g tbody tr:nth-child(1) td:nth-child(5) input{background:#c6c6c6!important}
+
+/* =========================================================
+   SIDE 14 – SKOLEFRITIDSORDNINGEN (SFO)
+   ========================================================= */
+#page-14{max-width:800px}
+#page-14 .page-head{min-height:48px}
+#page-14 .page-head h1{font-size:22px;font-weight:500}
+#page-14 .section-card{margin-bottom:18px}
+#page-14 .section-body{padding:9px}
+#page-14 .gsi-table th{padding:6px 5px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-14 .gsi-table td{padding:5px 6px;vertical-align:middle}
+#page-14 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-14 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-14 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-14 .gsi-table .auto{background:#c6c6c6!important}
+#page-14 .gsi-table .auto input{background:#c6c6c6!important;border:0;box-shadow:none}
+#page-14 .gsi-table .total-row td{background:#c6c6c6!important}
+#page-14 .gsi-table .total-row td:first-child{background:#c4e8d7!important}
+#page-14 .gsi-table .total-row td:nth-child(2){background:#c6c6c6!important}
+#page-14 .gsi-table thead th{background:#dff1e9!important}
+#page-14 .table-s14-a col.row-no{width:5%}
+#page-14 .table-s14-a col.desc-wide{width:16%}
+#page-14 .table-s14-a col{width:39.5%}
+#page-14 .table-s14-a td:nth-child(2){font-size:12px}
+#page-14 .table-s14-b col.row-no{width:5%}
+#page-14 .table-s14-b col.desc-wide{width:42%}
+#page-14 .table-s14-b col.gender-col{width:12%}
+#page-14 .table-s14-b col.sum-col{width:12%}
+#page-14 .table-s14-b col.year-col{width:19%}
+#page-14 .table-s14-b th{font-size:12px}
+#page-14 .table-s14-b td:nth-child(2){font-size:12px}
+#page-14 .table-s14-c col.row-no{width:5%}
+#page-14 .table-s14-c col.desc-wide{width:77%}
+#page-14 .table-s14-c col.amount-col{width:18%}
+#page-14 .table-s14-c td:nth-child(2){font-size:12px}
+#page-14 .table-s14-c .subheader-row td{background:#dff1e9!important;text-align:right;font-weight:500}
+#page-14 .table-s14-c .subheader-row td:first-child{background:#dff1e9!important}
+#page-14 .table-s14-e col.row-no{width:5%}
+#page-14 .table-s14-e col.desc-wide{width:16%}
+#page-14 .table-s14-e col{width:39.5%}
+#page-14 .table-s14-e td:nth-child(2){font-size:12px}
+#page-14 .radio-section{padding:0}
+#page-14 .radio-row{display:grid;grid-template-columns:1fr 45px 45px;align-items:center;min-height:44px;padding:7px 10px;border-bottom:1px solid #d7dce3;font-size:12px}
+#page-14 .radio-row:last-child{border-bottom:0}
+#page-14 .radio-row label{display:flex;align-items:center;gap:4px;justify-content:center;white-space:nowrap}
+#page-14 .radio-row input[type="radio"]{width:16px;height:16px;margin:0}
+#page-14 .button-bar{margin-top:8px}
+
+/* =========================================================
+   SIDE 15 – PPT
+   ========================================================= */
+
+#page-15{max-width:750px}
+#page-15 .section-card{margin-bottom:18px}
+#page-15 .section-body{padding:18px}
+#page-15 .ppt-notice{border:1px solid #9aaec5;background:#f5f5f5;padding:22px;text-align:center;font-size:15px;line-height:1.5}
+#page-15 .ppt-notice strong{display:block;margin-bottom:8px;font-size:16px}
+#page-15 .ppt-notice p{margin:0}
+
+
+/* =========================================================
+   SIDE 16 – FORDREVNE UKRAINSKE ELEVER
+   ========================================================= */
+#page-16{max-width:800px}
+#page-16 .page-head{min-height:48px}
+#page-16 .page-head h1{font-size:22px;font-weight:500}
+#page-16 .section-card{margin-bottom:18px}
+#page-16 .section-body{padding:9px}
+#page-16 .gsi-table th{padding:6px 5px;white-space:normal;text-align:center;vertical-align:middle;line-height:1.15}
+#page-16 .gsi-table td{padding:5px 6px;vertical-align:middle}
+#page-16 .gsi-table td:first-child{background:#c4e8d7;text-align:center}
+#page-16 .gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+#page-16 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right;box-shadow:none}
+#page-16 .gsi-table .auto{background:#c6c6c6!important}
+#page-16 .gsi-table .auto input{background:#c6c6c6!important;border:0;box-shadow:none}
+#page-16 .gsi-table .total-row td{background:#c6c6c6!important}
+#page-16 .gsi-table .total-row td:first-child{background:#c4e8d7!important}
+#page-16 .gsi-table .total-row td:nth-child(2){background:#c6c6c6!important}
+#page-16 .gsi-table thead th{background:#dff1e9!important}
+#page-16 .info-box{font-size:12px;line-height:1.35;margin-bottom:8px}
+#page-16 .table-s16-a col.row-no{width:5%}
+#page-16 .table-s16-a col.desc-wide{width:14%}
+#page-16 .table-s16-a col.offer-col{width:38%}
+#page-16 .table-s16-a col.sum-col{width:12%}
+#page-16 .table-s16-a th{font-size:12px}
+#page-16 .table-s16-a td:nth-child(2){font-size:12px}
+#page-16 .table-s16-b col.row-no{width:5%}
+#page-16 .table-s16-b col.desc-wide{width:80%}
+#page-16 .table-s16-b col.sum-col{width:15%}
+#page-16 .table-s16-b td:nth-child(2){font-size:12px}
+#page-16 .table-s16-c col.row-no{width:5%}
+#page-16 .table-s16-c col.desc-wide{width:80%}
+#page-16 .table-s16-c col.sum-col{width:15%}
+#page-16 .table-s16-c td:nth-child(2){font-size:12px}
+#page-16 .table-s16-d col.row-no{width:5%}
+#page-16 .table-s16-d col.desc-wide{width:18%}
+#page-16 .table-s16-d col{width:18%}
+#page-16 .table-s16-d col.sum-col{width:12%}
+#page-16 .table-s16-d th{font-size:11px}
+#page-16 .table-s16-d td:nth-child(2){font-size:11px}
+#page-16 .button-bar{margin-top:8px}
+
+#page-16 .table-s16-a thead th:last-child{background:#c6c6c6!important}
+#page-16 .table-s16-d thead th:last-child{background:#c6c6c6!important}
+
+
+/* =========================================================
+   SIDE 17 – KONTROLLER
+   ========================================================= */
+#page-17{max-width:965px}
+#page-17 .validation-intro{font-size:13px;line-height:1.35;margin:0 0 10px}
+#page-17 .validation-intro p{margin:0 0 7px}
+#page-17 .validation-explanation{display:flex;align-items:center;gap:6px}
+#page-17 .validation-icon{width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 17px;font-weight:700;color:#fff;font-size:12px}
+#page-17 .warning-icon{background:#f2b600;border-radius:50%}
+#page-17 .error-icon{background:#d71920;clip-path:polygon(50% 0,100% 100%,0 100%);font-size:9px;padding-top:4px}
+#page-17 .validation-toolbar{display:flex;align-items:center;justify-content:space-between;margin:12px 0 7px;padding:0 8px 0 4px}
+#page-17 .validation-toolbar .btn{font-size:12px;padding:7px 10px;min-width:auto}
+#page-17 .validation-count{font-size:13px}
+#page-17 .validation-panel{min-height:163px;background:#57749b;border:8px solid #e4edf7;border-radius:7px;padding:0}
+#page-17 .validation-results{min-height:147px;padding:8px;background:#57749b;color:#fff}
+#page-17 .button-bar{margin-top:10px}
+
+
+/* =========================================================
+   SIDE 18 – FULLFØR
+   ========================================================= */
+#page-18{max-width:800px}
+#page-18 .section-card{margin-bottom:72px}
+#page-18 .section-body{padding:9px}
+#page-18 .table-s18-a{width:100%;table-layout:fixed}
+#page-18 .table-s18-a col.name-col{width:38%}
+#page-18 .table-s18-a col.email-col{width:37%}
+#page-18 .table-s18-a col.role-col{width:25%}
+#page-18 .table-s18-a th{background:#dff1e9;text-align:left;font-size:16px;font-weight:600;padding:7px 5px}
+#page-18 .table-s18-a td{padding:0}
+#page-18 .table-s18-a td input{width:100%;height:42px;border:0;background:#fff;padding:7px 5px;font:inherit;text-align:left}
+#page-18 .section-card:nth-of-type(2) .section-body{padding:9px}
+#page-18 .section-card:nth-of-type(3) .section-body{padding:9px}
+#page-18 textarea{width:100%;height:162px;resize:vertical;border:0;background:#fff;padding:10px;font:inherit;line-height:1.4}
+#page-18 .button-bar{margin-top:-50px}
+
+/* =========================================================
+   12. AUTOMATISKE SUMMER
+   ========================================================= */
+
+.auto{background:#cfcfcf}
+.auto input{background:#cfcfcf}
+.total-row td{background:#cfcfcf}
+.total-row input{background:#cfcfcf}
+
+/* =========================================================
+   13. VALIDERING
+   ========================================================= */
+
+.validation-results{margin-top:15px}
+.status-badge{display:inline-block;padding:4px 8px;margin-right:7px;border-radius:3px;background:#eee}
+.status-warning{background:#f5e4b8}
+.status-ok{background:#d8f0e2}
+
+/* =========================================================
+   14. KNAPPER
+   ========================================================= */
+
+.button-bar{display:flex;gap:8px;margin:8px 0 24px}
+.btn{background:#000;color:#fff;border:0;padding:8px 16px;min-width:72px;cursor:pointer;font-weight:600}
+.btn-white{background:#fff;color:#111;border:1px solid #111}
+.btn-secondary{background:#57749b}
+.btn:disabled{opacity:.4;cursor:default}
+
+.mini-btn.btn-danger {
+  background-color: #d9534f;
+  color: white;
+  border: 1px solid #c9302c;
+}
+
+.mini-btn.btn-danger:hover {
+  background-color: #c9302c;
+}
+
+.mini-btn.btn-danger-select {
+  background-color: #d9534f;
+  color: white;
+  border: 1px solid #c9302c;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.mini-btn.btn-danger-select:hover {
+  background-color: #c9302c;
+}
+
+.mini-btn.btn-danger-select option {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+/* Styling for rund sletteknapp i dynamiske tabeller */
+.btn-delete-row{background:none;border:none;color:#dc2626;font-size:1.2rem;font-weight:bold;cursor:pointer;line-height:1;padding:2px 6px;border-radius:50%}
+.btn-delete-row:hover{background:#fee2e2;color:#991b1b}
+
+/* =========================================================
+   15. RESPONSIVT – TABLET
+   ========================================================= */
+
+@media(max-width:1000px){
+.sidebar{width:180px;flex-basis:180px}
+.main{padding-left:12px;padding-right:12px}
+.page{max-width:100%}
+.userbox{min-width:300px}
+.brand{font-size:20px}
+.form-group{grid-template-columns:180px 1fr}
+}
+
+/* =========================================================
+   16. RESPONSIVT – MOBIL
+   ========================================================= */
+
+@media(max-width:760px){
+.topbar{height:auto;min-height:70px}
+.brand{font-size:18px}
+.userbox{display:none}
+.app{display:block}
+.sidebar{width:100%;border-right:0;border-bottom:1px solid #ddd}
+.sidebar nav{display:grid;grid-template-columns:repeat(3,1fr)}
+.nav-item{min-height:34px}
+.page-head{align-items:flex-start;flex-direction:column;padding:10px 0}
+.year-control{flex-wrap:wrap}
+.address-grid{grid-template-columns:1fr}
+.table-wrap{overflow-x:auto}
+.gsi-table{min-width:700px}
+}
