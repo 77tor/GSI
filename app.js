@@ -280,15 +280,6 @@ function showSaveMessage(msg) {
   box._timer = setTimeout(() => box.style.display = 'none', 1800);
 }
 
-function calculateAll(saveAfter = false) {
-  [calcSide3, calcSide4, calcSide5, calcSide6, calcSide7, calcSide8, calcSide9, calcSide12, calcSide13, calcSide14, calcSide16]
-    .forEach(fn => typeof fn === 'function' && fn());
-
-  syncInputsToData();
-  updateTopbarInfo(); // <--- SIKRER AT TOPPLINJEN OPPDATERES NÅR DU SKRIVER
-  if (saveAfter) saveData(false);
-}
-
 
 /* =========================================================
    OPPDATER TOPPLINJE (USERBOX)
@@ -672,6 +663,79 @@ function handleResetSelect(event) {
 
   // Tilbakestill valgmenyen til overskriften "Nullstill..."
   event.target.value = '';
+}
+
+/* =========================================================
+   EKSPORT OG IMPORT (JSON)
+   ========================================================= */
+
+function exportJSON() {
+  syncInputsToData();
+
+  // Bygg et komplett objekt med metadata og data for gjeldende skoleår
+  const exportPayload = {
+    schoolYear: activeSchoolYear,
+    exportedAt: new Date().toISOString(),
+    formData: formData
+  };
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
+  const downloadAnchor = document.createElement('a');
+  
+  // Generer filnavn, f.eks. "GSI_data_2026-2027.json"
+  const fileName = `GSI_data_${activeSchoolYear}.json`;
+
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", fileName);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+
+  showSaveMessage(`Data for ${activeSchoolYear} ble eksportert!`);
+}
+
+function importJSON(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+
+      // Sjekk om filen har riktig struktur (enten direkte object eller med payload-wrapper)
+      const newFormData = imported.formData || imported;
+
+      if (typeof newFormData !== 'object' || newFormData === null) {
+        throw new Error('Ugyldig filformat.');
+      }
+
+      const confirmImport = window.confirm(
+        `Vil du importere dataene fra filen "${file.name}" into skoleåret ${activeSchoolYear}?\n\nNåværende registrerte data for dette året vil bli overskrevet.`
+      );
+
+      if (!confirmImport) return;
+
+      formData = newFormData;
+      
+      // Lagre de nye dataene for det aktive skoleåret
+      saveDataForYear(activeSchoolYear);
+
+      // Synkroniser til skjerm og beregn på nytt
+      syncDataToInputs();
+      calculateAll(false);
+
+      showSaveMessage(`Data ble importert fra ${file.name}!`);
+    } catch (err) {
+      console.error('Feil ved import:', err);
+      alert('Kunne ikke importere filen. Sjekk at det er en gyldig GSI JSON-fil.');
+    } finally {
+      // Tilbakestill file-input slik at samme fil kan velges på nytt om ønskelig
+      event.target.value = '';
+    }
+  };
+
+  reader.readAsText(file);
 }
 
 /* =========================================================
