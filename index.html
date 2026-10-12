@@ -297,48 +297,49 @@
     </div>
   </section>
 
+
 <!-- E. FINANSIERT AV ANNEN KOMMUNE -->
-<section class="section-card" style="border: 2px solid #526b8e; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-  <div class="section-header" style="background: #526b8e; color: #ffffff; padding: 6px 12px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+<section class="section-card">
+  <div class="section-header">
     <span>E. Hvor mange av elevene oppgitt i 3A blir finansiert av en annen kommune?</span>
-    <span style="font-size: 1.1rem; cursor: pointer;" title="Informasjon">&#9432;</span>
+    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
   </div>
-  <div class="section-body table-wrap" style="padding: 12px; background: #ffffff;">
-    <table class="gsi-table" id="table-s3-e" style="width: 100%; border-collapse: collapse; border: 1px solid #526b8e;">
+  <div class="section-body table-wrap">
+    <table class="gsi-table" id="table-s3-e">
       <colgroup>
-        <col style="width: 40px;">
-        <col style="width: auto;">
+        <col class="row-no" style="width: 40px;">
+        <col class="desc-wide" style="width: auto;">
         <col style="width: 140px;">
         <col style="width: 40px;">
       </colgroup>
       <thead>
-        <tr style="background: #d8ebe2; color: #0f172a;">
-          <th style="border: 1px solid #526b8e; background: #d8ebe2; padding: 6px;"></th>
-          <th style="border: 1px solid #526b8e; padding: 6px 12px; text-align: left; font-weight: normal;">Kommune</th>
-          <th style="border: 1px solid #526b8e; padding: 6px; text-align: center; font-weight: normal;">Elever</th>
-          <th style="border: 1px solid #526b8e; background: #d8ebe2;"></th>
+        <tr>
+          <th></th>
+          <th>Kommune</th>
+          <th style="text-align: center;">Elever</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="s3-e-tbody">
-        <!-- Rader legges inn kun når brukeren klikker "Legg til rad" -->
+        <!-- Rader legges inn dynamisk -->
       </tbody>
       <tfoot>
-        <tr style="background: #c2cad2; font-weight: bold;">
-          <td id="s3-e-sum-no" style="text-align: center; border: 1px solid #526b8e; background: #d8ebe2; padding: 6px; font-weight: bold;">1</td>
-          <td style="padding: 6px 12px; border: 1px solid #526b8e; color: #0f172a; background: #c2cad2;">Sum elever fra andre kommuner</td>
-          <td style="border: 1px solid #526b8e; padding: 2px 4px; background: #c2cad2;">
-            <input id="s3_e_total" type="text" readonly style="width: 100%; text-align: right; font-weight: bold; border: none; background: transparent; padding: 4px 6px; outline: none; font-size: 0.88rem; color: #0f172a;">
+        <tr class="total-row">
+          <td id="s3-e-sum-no">1</td>
+          <td>Sum elever fra andre kommuner</td>
+          <td class="auto">
+            <input id="s3_e_total" type="text" readonly>
           </td>
-          <td style="border: 1px solid #526b8e; background: #c2cad2;"></td>
+          <td></td>
         </tr>
       </tfoot>
     </table>
 
-<div style="margin-top: 10px;">
-  <button type="button" id="add-s3-e-row-btn" style="background: #000000; color: #ffffff; font-weight: bold; padding: 6px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">
-    Legg til rad
-  </button>
-</div>
+    <div style="margin-top: 10px;">
+      <button type="button" id="add-s3-e-row-btn" style="background: #000000; color: #ffffff; font-weight: bold; padding: 6px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">
+        Legg til rad
+      </button>
+    </div>
   </div>
 </section>
 
@@ -852,53 +853,63 @@
       </table>
     </div>
   </section>
+
 <!-- H. ELEVER FRA ANDRE KOMMUNER -->
-<section class="section-card" style="border: 2px solid #526b8e; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-  <div class="section-header" style="background: #526b8e; color: #ffffff; padding: 6px 12px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+<section class="section-card">
+  <div class="section-header">
     <span>H. Elever med individuelt tilrettelagt opplæring fra andre kommuner</span>
-    <span style="font-size: 1.1rem; cursor: pointer;" title="Informasjon">&#9432;</span>
+    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
   </div>
-  <div class="section-body table-wrap" style="padding: 12px; background: #ffffff;">
-    <p class="table-note" style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 4px; background: #ffffff; font-size: 0.83rem; color: #1e293b; margin-top: 0; margin-bottom: 12px; line-height: 1.4;">
+  <div class="section-body table-wrap">
+    <p class="table-note">
       Kommunale skoler skal registrere antall elever fra andre kommuner som får individuelt tilrettelagt opplæring. Privatskoler og private skoler (godkjent etter opplæringsloven § 22-1), statlige og fylkeskommunale skoler skal registrere alle elever med individuelt tilrettelagt opplæring fra alle kommuner, også den kommunen som skolen er geografisk plassert i.
     </p>
 
-    <table class="gsi-table" id="table-s7-h" style="width: 100%; border-collapse: collapse; border: 1px solid #526b8e;">
+    <table class="gsi-table" id="table-s7-h">
       <colgroup>
-        <col style="width: 40px;">
-        <col style="width: auto;">
+        <col class="row-no" style="width: 40px;">
+        <col class="desc-wide" style="width: auto;">
         <col style="width: 140px;">
         <col style="width: 40px;">
       </colgroup>
       <thead>
-        <tr style="background: #d8ebe2; color: #0f172a;">
-          <th style="border: 1px solid #526b8e; background: #d8ebe2; padding: 6px;"></th>
-          <th style="border: 1px solid #526b8e; padding: 6px 12px; text-align: left; font-weight: normal;">Kommune</th>
-          <th style="border: 1px solid #526b8e; padding: 6px; text-align: center; font-weight: normal;">Elever</th>
-          <th style="border: 1px solid #526b8e; background: #d8ebe2;"></th>
+        <tr>
+          <th></th>
+          <th>Kommune</th>
+          <th style="text-align: center;">Elever</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="s7-h-tbody">
-        <!-- Rader legges inn kun når brukeren klikker "Legg til rad" -->
+        <!-- Rader legges inn dynamisk -->
       </tbody>
-<tfoot>
-        <tr style="background: #c2cad2; font-weight: bold;">
-          <td id="s7-h-sum-no" style="text-align: center; border: 1px solid #526b8e; background: #d8ebe2; padding: 6px; font-weight: bold;">1</td>
-          <td style="padding: 6px 12px; border: 1px solid #526b8e; color: #0f172a; background: #c2cad2;">Sum elever fra andre kommuner</td>
-          <td style="border: 1px solid #526b8e; padding: 2px 4px; background: #c2cad2;">
-            <input id="s7_h_sum" type="text" readonly style="width: 100%; text-align: right; font-weight: bold; border: none; background: transparent; padding: 4px 6px; outline: none; font-size: 0.88rem; color: #0f172a;">
+      <tfoot>
+        <tr class="total-row">
+          <td id="s7-h-sum-no">1</td>
+          <td>Sum elever fra andre kommuner</td>
+          <td class="auto">
+            <input id="s7_h_sum" type="text" readonly>
           </td>
-          <td style="border: 1px solid #526b8e; background: #c2cad2;"></td>
+          <td></td>
         </tr>
       </tfoot>
     </table>
 
     <div style="margin-top: 10px;">
-      <button type="button" id="add-s7-h-row-btn" onclick="addSide7HRow()" style="background: #000000; color: #ffffff; font-weight: bold; padding: 6px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">
+      <button type="button" id="add-s7-h-row-btn" style="background: #000000; color: #ffffff; font-weight: bold; padding: 6px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">
         Legg til rad
       </button>
     </div>
   </div>
+</section>
+
+  <!-- NAVIGASJON FOR SIDE 7 -->
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
 </section>
 
 
