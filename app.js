@@ -2548,20 +2548,22 @@ function openFormForActiveSchool() {
 
   if (vInfo) vInfo.style.display = 'none';
   if (vStart) vStart.style.display = 'none';
-  if (vSidebar) vSidebar.style.display = 'block';
+  
+  // Fjerner inline 'display: none' slik at sidemenyen bruker CSS-ens standard visning (flex/block)
+  if (vSidebar) vSidebar.style.display = ''; 
   if (vForm) vForm.style.display = 'block';
 
   // Vis topplinje-elementene
-  toggleTopbarControls(true);
+  if (typeof toggleTopbarControls === 'function') toggleTopbarControls(true);
 
   // Last data for året
-  loadDataForYear();
+  if (typeof loadDataForYear === 'function') loadDataForYear();
 
   // Synkroniser stamdata inn over de innlastede skjemadataene
-  syncActiveSchoolStamdata();
-  saveData(false);
+  if (typeof syncActiveSchoolStamdata === 'function') syncActiveSchoolStamdata();
+  if (typeof saveData === 'function') saveData(false);
 
-  selectPage(1);
+  if (typeof selectPage === 'function') selectPage(1);
 }
 
 
