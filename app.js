@@ -998,7 +998,6 @@ function handleCalcSide8FileUpload(event) {
   }
 }
 
-
 function applyCalcSide8Data() {
   const inputEl = document.getElementById('calc-s8-input');
   const rawText = inputEl?.value || '';
@@ -1029,10 +1028,10 @@ function applyCalcSide8Data() {
 
   let startLine = 0;
 
-  // Sjekk om første rad er overskrift og juster indekser automatisk om nødvendig
+  // Sjekk overskriftsrad for dynamisk indeksering
   const firstLineCols = lines[0].split(/[\t;,]/).map(c => c.trim().toLowerCase().replace(/^"|"$/g, ''));
   if (firstLineCols.some(c => c.includes('trinn') || c.includes('kjønn') || c.includes('kjonn') || c.includes('plan'))) {
-    startLine = 1; // Hopp over overskriftsraden
+    startLine = 1;
 
     firstLineCols.forEach((colHeader, index) => {
       if (colHeader.includes('trinn')) idxTrinn = index;
@@ -1061,7 +1060,7 @@ function applyCalcSide8Data() {
     const plan = (cols[idxPlan] || '').toLowerCase();
     const egenGruppe = (cols[idxEgenGruppe] || '').toLowerCase();
     const asylsoker = (cols[idxAsyl] || '').toLowerCase();
-    const tosprakOpplRaw = cols[idxTosprak] || '';
+    const tosprakOpplRaw = (cols[idxTosprak] || '').toLowerCase();
     let sprakRaw = cols[idxSprak] || '';
 
     // Tell opp S8A Norsk / Morsmål
@@ -1088,8 +1087,12 @@ function applyCalcSide8Data() {
       if (isJente) b2J++;
     }
 
-    // Tell opp språk dersom språk er oppgitt
-    if (sprakRaw !== '' && !sprakRaw.toLowerCase().includes('norsk') && !sprakRaw.toLowerCase().includes('bokmål')) {
+    // Streng sjekk: Eleven legges BARE til i 8C dersom TOSP er fylt ut med "ja", "1" e.l.
+    const hasTosprakOppl = tosprakOpplRaw.includes('ja') || 
+                           tosprakOpplRaw === '1' || 
+                           tosprakOpplRaw.includes('tosp');
+
+    if (hasTosprakOppl && sprakRaw !== '' && !sprakRaw.toLowerCase().includes('norsk') && !sprakRaw.toLowerCase().includes('bokmål')) {
       let matchedSprak = sprakRaw;
       if (typeof GSI_SPRAK_LISTE !== 'undefined') {
         const found = GSI_SPRAK_LISTE.find(s => s.toLowerCase() === sprakRaw.toLowerCase());
@@ -1128,7 +1131,7 @@ function applyCalcSide8Data() {
   setVal('s8_b2_g', b2G);
   setVal('s8_b2_j', b2J);
 
-  // 3. Overfør til Side 8C (Språk-tabellen)
+  // 3. Overfør til Side 8C (Språk-tabellen kun for krevde språk)
   const tbody8C = document.getElementById('s8-c-tbody');
   if (tbody8C) tbody8C.innerHTML = '';
   side8CRowCount = 0;
@@ -1152,6 +1155,7 @@ function applyCalcSide8Data() {
   if (fileEl) fileEl.value = '';
   closeCalcSide8Modal();
 }
+
 
 
 let side8CRowCount = 0;
