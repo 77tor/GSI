@@ -2024,10 +2024,7 @@ function handleStartPrint() {
 
 let editingSchoolId = null; // null = ny skole, streng = redigerer eksisterende skole
 
-const defaultSchools = [
-  { id: 'skole_1', orgnr: '974598825', name: 'Brattbakken skole', fylke: 'Agder', fylkesnr: '42', kommune: 'Kristiansand', kommunenr: '4204', registrertAv: 'Tor Pettersen Skarprud', status: 'Under behandling' },
-  { id: 'skole_2', orgnr: '974598841', name: 'Heståsen skole', fylke: 'Agder', fylkesnr: '42', kommune: 'Kristiansand', kommunenr: '4204', registrertAv: 'Tor Pettersen Skarprud', status: 'Under behandling' }
-];
+const defaultSchools = [];
 
 function getSchools() {
   const saved = localStorage.getItem('gsi_schools');
@@ -2076,6 +2073,18 @@ function renderStartside() {
   if (!tbody) return;
 
   const yearText = activeSchoolYear ? activeSchoolYear.split('-')[0] : new Date().getFullYear().toString();
+
+  // Vis en hyggelig melding i tabellen når det ikke finnes noen skoler
+  if (schools.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 32px; color: #64748b;">
+          Ingen skoler er registrert ennå. Trykk på <strong>«+ Legg til ny skole»</strong> for å opprette din første skole.
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
   tbody.innerHTML = schools.map(s => `
     <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
