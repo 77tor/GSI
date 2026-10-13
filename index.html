@@ -1411,7 +1411,43 @@
 <!-- SIDE 12 -->
 <section class="page" id="page-12" data-page="12">
 
-  <section class="section-card">
+  <!-- A. ELEVTIMER TIL FYSISK AKTIVITET (Vises kun hvis elever på 5.-7. trinn) -->
+  <section class="section-card" id="s12-a-card" style="display: none;">
+    <div class="section-header">A. Antall elevtimer til fysisk aktivitet per år</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s12-a">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>Elevtimer</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>5. trinn</td><td><input id="s12_a_5" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr><td>2</td><td>6. trinn</td><td><input id="s12_a_6" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr><td>3</td><td>7. trinn</td><td><input id="s12_a_7" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr class="total-row"><td>4</td><td>Sum elevtimer</td><td class="auto"><input id="s12_a_sum" type="number" readonly></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- B. ÅRSTIMER TIL FYSISK AKTIVITET (Vises kun hvis elever på 5.-7. trinn) -->
+  <section class="section-card" id="s12-b-card" style="display: none;">
+    <div class="section-header">B. Antall årstimer til fysisk aktivitet per år</div>
+    <div class="section-body table-wrap">
+      <table class="gsi-table table-s12-b">
+        <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
+        <thead>
+          <tr><th colspan="2"></th><th>5.-7. trinn</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Årstimer</td><td><input id="s12_b_1" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- C. LEKSEHJELP (Vises alltid) -->
+  <section class="section-card" id="s12-c-card">
     <div class="section-header">C. Leksehjelp på 1.-10. trinn</div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s12-c">
@@ -1420,22 +1456,23 @@
           <tr><th colspan="2"></th><th>Antall elever som deltar i ordningen med leksehjelp</th><th>Antall timer leksehjelp elevene får tilbud om per uke</th></tr>
         </thead>
         <tbody>
-          <tr><td>1</td><td>1. trinn</td><td><input id="s12_c_1_students" type="number" min="0"></td><td><input id="s12_c_1_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>2</td><td>2. trinn</td><td><input id="s12_c_2_students" type="number" min="0"></td><td><input id="s12_c_2_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>3</td><td>3. trinn</td><td><input id="s12_c_3_students" type="number" min="0"></td><td><input id="s12_c_3_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>4</td><td>4. trinn</td><td><input id="s12_c_4_students" type="number" min="0"></td><td><input id="s12_c_4_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>5</td><td>5. trinn</td><td><input id="s12_c_5_students" type="number" min="0"></td><td><input id="s12_c_5_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>6</td><td>6. trinn</td><td><input id="s12_c_6_students" type="number" min="0"></td><td><input id="s12_c_6_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>7</td><td>7. trinn</td><td><input id="s12_c_7_students" type="number" min="0"></td><td><input id="s12_c_7_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>8</td><td>8. trinn</td><td><input id="s12_c_8_students" type="number" min="0"></td><td><input id="s12_c_8_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>9</td><td>9. trinn</td><td><input id="s12_c_9_students" type="number" min="0"></td><td><input id="s12_c_9_hours" type="number" min="0" step="0.1"></td></tr>
-          <tr><td>10</td><td>10. trinn</td><td><input id="s12_c_10_students" type="number" min="0"></td><td><input id="s12_c_10_hours" type="number" min="0" step="0.1"></td></tr>
+          <tr><td>1</td><td>1. trinn</td><td><input id="s12_c_1_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_1_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>2</td><td>2. trinn</td><td><input id="s12_c_2_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_2_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>3</td><td>3. trinn</td><td><input id="s12_c_3_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_3_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>4</td><td>4. trinn</td><td><input id="s12_c_4_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_4_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>5</td><td>5. trinn</td><td><input id="s12_c_5_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_5_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>6</td><td>6. trinn</td><td><input id="s12_c_6_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_6_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>7</td><td>7. trinn</td><td><input id="s12_c_7_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_7_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>8</td><td>8. trinn</td><td><input id="s12_c_8_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_8_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>9</td><td>9. trinn</td><td><input id="s12_c_9_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_9_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
+          <tr><td>10</td><td>10. trinn</td><td><input id="s12_c_10_students" type="number" min="0" oninput="calcSide12()"></td><td><input id="s12_c_10_hours" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
           <tr class="total-row"><td>11</td><td>Sum</td><td class="auto"><input id="s12_c_students_sum" type="number" readonly></td><td class="auto"><input id="s12_c_hours_sum" type="number" readonly></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
+  <!-- NAVIGASJON -->
   <div class="button-bar">
     <button class="btn" data-nav="prev">Forrige</button>
     <button class="btn" data-nav="next">Neste</button>

@@ -1588,22 +1588,32 @@ function restoreSide9CRows() {
 }
 
 function calcSide12() {
-  ['students', 'hours'].forEach(type => setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`))));
+  // 1. Beregn sum for 12A (Elevtimer til fysisk aktivitet)
+  const sum12A = numberValue('s12_a_5') + numberValue('s12_a_6') + numberValue('s12_a_7');
+  setNumber('s12_a_sum', sum12A);
+
+  // 2. Beregn sum for 12C (Leksehjelp)
+  ['students', 'hours'].forEach(type => {
+    setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`)));
+  });
+
+  // 3. Sjekk om det er elever på 5., 6. eller 7. trinn i Tabell 3A
+  toggleSide12Tables();
 }
 
-function toggleLibraryHours() {
-  const jaChecked = document.getElementById('s13_d_1_ja')?.checked;
-  const hoursBox = document.getElementById('s13-d-library-hours');
-  const hoursInput = document.getElementById('s13_d_library_hours');
+function toggleSide12Tables() {
+  // Hent elevtall for trinn 5, 6 og 7 fra 3A (totalt per trinn, enten fra sum-feltet eller gutter+jenter)
+  const e5 = numberValue('s3_a_5_sum') || (numberValue('s3_a_5_gutter') + numberValue('s3_a_5_jenter'));
+  const e6 = numberValue('s3_a_6_sum') || (numberValue('s3_a_6_gutter') + numberValue('s3_a_6_jenter'));
+  const e7 = numberValue('s3_a_7_sum') || (numberValue('s3_a_7_gutter') + numberValue('s3_a_7_jenter'));
 
-  if (hoursBox) {
-    if (jaChecked) {
-      hoursBox.style.display = 'flex';
-    } else {
-      hoursBox.style.display = 'none';
-      if (hoursInput) hoursInput.value = '';
-    }
-  }
+  const hasMellomtrinn = (e5 + e6 + e7) > 0;
+
+  const cardA = document.getElementById('s12-a-card');
+  const cardB = document.getElementById('s12-b-card');
+
+  if (cardA) cardA.style.display = hasMellomtrinn ? 'block' : 'none';
+  if (cardB) cardB.style.display = hasMellomtrinn ? 'block' : 'none';
 }
 
 function calcSide13() {
