@@ -770,31 +770,37 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 #page-12 .section-card { margin-bottom: 18px; }
 #page-12 .section-body { padding: 9px; }
 
-/* Felles tabell-stil for Side 12 (12A, 12B og 12C) */
-#page-12 table { width: 100%; table-layout: fixed; }
-#page-12 table col.row-no { width: 5%; }
-#page-12 table col.desc-wide { width: 45%; }
-#page-12 table col.number-col { width: 50%; }
+/* Felles kolonneoppsett for 12A og 12B */
+#page-12 .table-s12-a,
+#page-12 .table-s12-b { width: 100%; table-layout: fixed; }
+#page-12 .table-s12-a col.row-no,
+#page-12 .table-s12-b col.row-no { width: 5%; }
+#page-12 .table-s12-a col.desc-wide,
+#page-12 .table-s12-b col.desc-wide { width: 45%; }
+#page-12 .table-s12-a col.number-col,
+#page-12 .table-s12-b col.number-col { width: 50%; }
 
+/* Kolonneoppsett for 12C */
+#page-12 .table-s12-c { width: 100%; table-layout: fixed; }
 #page-12 .table-s12-c col.row-no { width: 5%; }
 #page-12 .table-s12-c col.desc-wide { width: 16%; }
 #page-12 .table-s12-c col.students-col { width: 39%; }
 #page-12 .table-s12-c col.hours-col { width: 40%; }
 
-/* Overskrifter og celler */
-#page-12 table th { padding: 6px 8px; white-space: normal; text-align: center; vertical-align: middle; line-height: 1.15; background: #dff1e9 !important; }
-#page-12 table td { padding: 5px 6px; vertical-align: middle; }
-#page-12 table td:first-child { background: #c4e8d7; text-align: center; font-weight: bold; }
-#page-12 table td:nth-child(2) { background: #dff1e9; text-align: left; }
+/* Overskrifter og celler for Side 12 tabeller */
+#page-12 .gsi-table th { padding: 6px 8px; white-space: normal; text-align: center; vertical-align: middle; line-height: 1.15; background: #dff1e9 !important; }
+#page-12 .gsi-table td { padding: 5px 6px; vertical-align: middle; }
+#page-12 .gsi-table td:first-child { background: #c4e8d7; text-align: center; font-weight: bold; }
+#page-12 .gsi-table td:nth-child(2) { background: #dff1e9; text-align: left; }
 
 /* Inndatafelter */
-#page-12 table input[type="number"] { width: 100%; height: 30px; padding: 3px 6px; border: 0; background: #fff; font: inherit; text-align: right; box-shadow: none; }
+#page-12 .gsi-table input[type="number"] { width: 100%; height: 30px; padding: 3px 6px; border: 0; background: #fff; font: inherit; text-align: right; box-shadow: none; }
 
 /* Totallinje / Summer */
-#page-12 table .total-row td { background: #c6c6c6 !important; }
-#page-12 table .total-row td:first-child { background: #c4e8d7 !important; }
-#page-12 table .total-row td:nth-child(2) { background: #c6c6c6 !important; }
-#page-12 table .total-row td.auto input { background: #c6c6c6 !important; border: 0; box-shadow: none; font-weight: bold; }
+#page-12 .gsi-table .total-row td { background: #c6c6c6 !important; }
+#page-12 .gsi-table .total-row td:first-child { background: #c4e8d7 !important; }
+#page-12 .gsi-table .total-row td:nth-child(2) { background: #c6c6c6 !important; }
+#page-12 .gsi-table .total-row td.auto input { background: #c6c6c6 !important; border: 0; box-shadow: none; font-weight: bold; }
 
 
 /* =========================================================
