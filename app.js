@@ -998,6 +998,7 @@ function handleCalcSide8FileUpload(event) {
   }
 }
 
+
 function applyCalcSide8Data() {
   const inputEl = document.getElementById('calc-s8-input');
   const rawText = inputEl?.value || '';
@@ -1007,6 +1008,7 @@ function applyCalcSide8Data() {
   }
 
   const lines = rawText.trim().split(/\r?\n/);
+  if (lines.length === 0) return;
 
   const s8aNorsk = Array(11).fill(0);
   const s8aGno = Array(11).fill(0);
@@ -1016,43 +1018,53 @@ function applyCalcSide8Data() {
 
   const sprakMap = {};
 
-  lines.forEach(line => {
-    // Del opp på tabulator, semikolon eller komma
+  // Standard kolonne-indekser (når filen IKKE har Navn-kolonne)
+  let idxTrinn = 0;
+  let idxKjonn = 1;
+  let idxPlan = 2;
+  let idxEgenGruppe = 3;
+  let idxAsyl = 4;
+  let idxTosprak = 5;
+  let idxSprak = 6;
+
+  let startLine = 0;
+
+  // Sjekk om første rad er overskrift og juster indekser automatisk om nødvendig
+  const firstLineCols = lines[0].split(/[\t;,]/).map(c => c.trim().toLowerCase().replace(/^"|"$/g, ''));
+  if (firstLineCols.some(c => c.includes('trinn') || c.includes('kjønn') || c.includes('kjonn') || c.includes('plan'))) {
+    startLine = 1; // Hopp over overskriftsraden
+
+    firstLineCols.forEach((colHeader, index) => {
+      if (colHeader.includes('trinn')) idxTrinn = index;
+      else if (colHeader.includes('kjønn') || colHeader.includes('kjonn')) idxKjonn = index;
+      else if (colHeader.includes('plan')) idxPlan = index;
+      else if (colHeader.includes('egne') || colHeader.includes('gruppe')) idxEgenGruppe = index;
+      else if (colHeader.includes('asyl')) idxAsyl = index;
+      else if (colHeader.includes('tosp')) idxTosprak = index;
+      else if (colHeader.includes('språk') || colHeader.includes('sprak')) idxSprak = index;
+    });
+  }
+
+  for (let l = startLine; l < lines.length; l++) {
+    const line = lines[l];
     const cols = line.split(/[\t;,]/).map(c => c.trim().replace(/^"|"$/g, ''));
-    if (cols.length < 2) return;
+    if (cols.length < 2) continue;
 
-    const lineLower = line.toLowerCase();
-    
-    // Hopp over overskrifter
-    if (lineLower.includes('trinn') && (lineLower.includes('kjønn') || lineLower.includes('kjonn') || lineLower.includes('språk') || lineLower.includes('sprak'))) {
-      return;
-    }
-
-    // Ekstraher trinn
-    const trinnMatch = cols[0].match(/\d+/);
-    if (!trinnMatch) return;
+    // Hent ut trinn
+    const trinnRawVal = cols[idxTrinn] || '';
+    const trinnMatch = trinnRawVal.match(/\d+/);
+    if (!trinnMatch) continue;
     const trinnRaw = parseInt(trinnMatch[0], 10);
-    if (isNaN(trinnRaw) || trinnRaw < 1 || trinnRaw > 10) return;
+    if (isNaN(trinnRaw) || trinnRaw < 1 || trinnRaw > 10) continue;
 
-    const kjonn = cols[1]?.toLowerCase() || '';
-    const plan = cols[2]?.toLowerCase() || '';
-    const egenGruppe = cols[3]?.toLowerCase() || '';
-    const asylsoker = cols[4]?.toLowerCase() || '';
+    const kjonn = (cols[idxKjonn] || '').toLowerCase();
+    const plan = (cols[idxPlan] || '').toLowerCase();
+    const egenGruppe = (cols[idxEgenGruppe] || '').toLowerCase();
+    const asylsoker = (cols[idxAsyl] || '').toLowerCase();
+    const tosprakOpplRaw = cols[idxTosprak] || '';
+    let sprakRaw = cols[idxSprak] || '';
 
-    const tosprakOpplRaw = cols[5] || '';
-    let sprakRaw = cols[6] || '';
-
-    // Hvis språk mangler i kolonne 6, søk bakover
-    if (!sprakRaw || !isNaN(parseFloat(sprakRaw.replace(',', '.')))) {
-      for (let i = cols.length - 1; i >= 5; i--) {
-        if (cols[i] && isNaN(parseFloat(cols[i].replace(',', '.')))) {
-          sprakRaw = cols[i];
-          break;
-        }
-      }
-    }
-
-    // Tell opp del A (Norsk/Morsmål)
+    // Tell opp S8A Norsk / Morsmål
     s8aNorsk[trinnRaw]++;
 
     // Tell opp GNO (Særskilt norskopplæring)
@@ -1076,11 +1088,8 @@ function applyCalcSide8Data() {
       if (isJente) b2J++;
     }
 
-    const hasTosprakOppl = tosprakOpplRaw !== '' && 
-                           tosprakOpplRaw !== '0' && 
-                           tosprakOpplRaw.toLowerCase() !== 'nei';
-
-    if (hasTosprakOppl && sprakRaw !== '' && !sprakRaw.toLowerCase().includes('norsk')) {
+    // Tell opp språk dersom språk er oppgitt
+    if (sprakRaw !== '' && !sprakRaw.toLowerCase().includes('norsk') && !sprakRaw.toLowerCase().includes('bokmål')) {
       let matchedSprak = sprakRaw;
       if (typeof GSI_SPRAK_LISTE !== 'undefined') {
         const found = GSI_SPRAK_LISTE.find(s => s.toLowerCase() === sprakRaw.toLowerCase());
@@ -1089,9 +1098,9 @@ function applyCalcSide8Data() {
 
       sprakMap[matchedSprak] = (sprakMap[matchedSprak] || 0) + 1;
     }
-  });
+  }
 
-  // 1. Sett inn verdier i Side 8A
+  // 1. Overfør til Side 8A
   for (let i = 1; i <= 10; i++) {
     const nEl = document.getElementById(`s8_a_${i}_norsk`) || document.getElementById(`s8_a${i}_norsk`);
     const gEl = document.getElementById(`s8_a_${i}_gno`) || document.getElementById(`s8_a${i}_gno`);
@@ -1108,7 +1117,7 @@ function applyCalcSide8Data() {
     }
   }
 
-  // 2. Sett inn verdier i Side 8B
+  // 2. Overfør til Side 8B
   const setVal = (id, v) => { 
     const el = document.getElementById(id); 
     if (el) el.value = v || ''; 
@@ -1119,7 +1128,7 @@ function applyCalcSide8Data() {
   setVal('s8_b2_g', b2G);
   setVal('s8_b2_j', b2J);
 
-  // 3. Sett inn verdier i Side 8C (Språk-tabellen)
+  // 3. Overfør til Side 8C (Språk-tabellen)
   const tbody8C = document.getElementById('s8-c-tbody');
   if (tbody8C) tbody8C.innerHTML = '';
   side8CRowCount = 0;
@@ -1143,6 +1152,7 @@ function applyCalcSide8Data() {
   if (fileEl) fileEl.value = '';
   closeCalcSide8Modal();
 }
+
 
 let side8CRowCount = 0;
 
