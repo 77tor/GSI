@@ -318,17 +318,40 @@ function updateTopbarInfo() {
    ========================================================= */
 
 function calcSide3() {
-  for (let t = 1; t <= 10; t++) setNumber(`s3_a_${t}_sum`, numberValue(`s3_a_${t}_gutter`) + numberValue(`s3_a_${t}_jenter`));
+  // 1. Beregn rad-for-rad sum (Gutter + Jenter) for trinn 1 til 10
+  for (let t = 1; t <= 10; t++) {
+    const gutter = numberValue(`s3_a_${t}_gutter`);
+    const jenter = numberValue(`s3_a_${t}_jenter`);
+    setNumber(`s3_a_${t}_sum`, gutter + jenter);
+  }
+
+  // 2. Beregn kolonnesummer for Tabell 3A (1.-7. trinn, 8.-10. trinn og Totalt)
   ['gutter', 'jenter', 'sum'].forEach(sfx => {
-    setNumber(`s3_a_sum17_${sfx}`, sumIds(rangeIds('s3_a_', 1, 7, `_${sfx}`)));
-    setNumber(`s3_a_sum810_${sfx}`, sumIds(rangeIds('s3_a_', 8, 10, `_${sfx}`)));
-    setNumber(`s3_a_total_${sfx === 'sum' ? '' : sfx}`.replace(/_$/, ''), numberValue(`s3_a_sum17_${sfx}`) + numberValue(`s3_a_sum810_${sfx}`));
+    const sum17 = sumIds(rangeIds('s3_a_', 1, 7, `_${sfx}`));
+    const sum810 = sumIds(rangeIds('s3_a_', 8, 10, `_${sfx}`));
+
+    // ID for rad 8 (Sum 1-7): s3_a_sum17_gutter, s3_a_sum17_jenter, s3_a_sum17
+    const id17 = sfx === 'sum' ? 's3_a_sum17' : `s3_a_sum17_${sfx}`;
+    setNumber(id17, sum17);
+
+    // ID for rad 12 (Sum 8-10): s3_a_sum810_gutter, s3_a_sum810_jenter, s3_a_sum810
+    const id810 = sfx === 'sum' ? 's3_a_sum810' : `s3_a_sum810_${sfx}`;
+    setNumber(id810, sum810);
+
+    // ID for rad 13 (Sum totalt): s3_a_total_gutter, s3_a_total_jenter, s3_a_total
+    const idTotal = sfx === 'sum' ? 's3_a_total' : `s3_a_total_${sfx}`;
+    setNumber(idTotal, sum17 + sum810);
   });
+
+  // 3. Tabell 3B (Undervisningstimer)
   setNumber('s3_b_sum17', sumIds(rangeIds('s3_b_', 1, 7)));
   setNumber('s3_b_sum810', sumIds(rangeIds('s3_b_', 8, 10)));
   setNumber('s3_b_total', numberValue('s3_b_sum17') + numberValue('s3_b_sum810'));
+
+  // 4. Tabell 3C (Asylsøkere)
   setNumber('s3_c_sum', sumIds(rangeIds('s3_c_', 1, 10)));
 
+  // 5. Del E
   calcSide3E();
 }
 
