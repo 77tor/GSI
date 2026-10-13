@@ -1022,9 +1022,16 @@ function applyCalcSide8Data() {
     if (cols.length < 2) return;
 
     const lineLower = line.toLowerCase();
-    if (lineLower.includes('trinn') || lineLower.includes('tospråklig') || lineLower.includes('språk')) return;
+    
+    // Hopp over overskrifter
+    if (lineLower.includes('trinn') && (lineLower.includes('kjønn') || lineLower.includes('kjonn') || lineLower.includes('språk') || lineLower.includes('sprak'))) {
+      return;
+    }
 
-    const trinnRaw = parseInt(cols[0].replace(/\D/g, ''), 10);
+    // Ekstraher trinn
+    const trinnMatch = cols[0].match(/\d+/);
+    if (!trinnMatch) return;
+    const trinnRaw = parseInt(trinnMatch[0], 10);
     if (isNaN(trinnRaw) || trinnRaw < 1 || trinnRaw > 10) return;
 
     const kjonn = cols[1]?.toLowerCase() || '';
@@ -1035,6 +1042,7 @@ function applyCalcSide8Data() {
     const tosprakOpplRaw = cols[5] || '';
     let sprakRaw = cols[6] || '';
 
+    // Hvis språk mangler i kolonne 6, søk bakover
     if (!sprakRaw || !isNaN(parseFloat(sprakRaw.replace(',', '.')))) {
       for (let i = cols.length - 1; i >= 5; i--) {
         if (cols[i] && isNaN(parseFloat(cols[i].replace(',', '.')))) {
@@ -1044,13 +1052,16 @@ function applyCalcSide8Data() {
       }
     }
 
+    // Tell opp del A (Norsk/Morsmål)
     s8aNorsk[trinnRaw]++;
-    if (plan.includes('gno') || plan.includes('grunnleggende') || plan.includes('ja')) {
+
+    // Tell opp GNO (Særskilt norskopplæring)
+    if (plan.includes('gno') || plan.includes('grunnleggende') || plan.includes('ja') || plan.includes('1') || plan.includes('særskilt')) {
       s8aGno[trinnRaw]++;
     }
 
-    const isGutt = kjonn.startsWith('g');
-    const isJente = kjonn.startsWith('j');
+    const isGutt = kjonn.startsWith('g') || kjonn === '1' || kjonn.includes('m');
+    const isJente = kjonn.startsWith('j') || kjonn === '2' || kjonn.includes('k') || kjonn.includes('f');
 
     const isEgenGruppe = egenGruppe !== '' && egenGruppe !== 'nei' && egenGruppe !== '0';
     const isAsyl = asylsoker !== '' && asylsoker !== 'nei' && asylsoker !== '0';
@@ -1080,20 +1091,35 @@ function applyCalcSide8Data() {
     }
   });
 
-  // Sett inn verdier i Side 8 (Støtter både s8_a_1_norsk og s8_a1_norsk)
+  // 1. Sett inn verdier i Side 8A
   for (let i = 1; i <= 10; i++) {
     const nEl = document.getElementById(`s8_a_${i}_norsk`) || document.getElementById(`s8_a${i}_norsk`);
     const gEl = document.getElementById(`s8_a_${i}_gno`) || document.getElementById(`s8_a${i}_gno`);
-    if (nEl) nEl.value = s8aNorsk[i] || '';
-    if (gEl) gEl.value = s8aGno[i] || '';
+    
+    const valNorsk = s8aNorsk[i] || '';
+    const valGno = s8aGno[i] || '';
+
+    if (nEl) nEl.value = valNorsk;
+    if (gEl) gEl.value = valGno;
+
+    if (typeof formData !== 'undefined') {
+      formData[`s8_a_${i}_norsk`] = valNorsk;
+      formData[`s8_a_${i}_gno`] = valGno;
+    }
   }
 
-  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  // 2. Sett inn verdier i Side 8B
+  const setVal = (id, v) => { 
+    const el = document.getElementById(id); 
+    if (el) el.value = v || ''; 
+    if (typeof formData !== 'undefined') formData[id] = v || '';
+  };
   setVal('s8_b1_g', b1G);
   setVal('s8_b1_j', b1J);
   setVal('s8_b2_g', b2G);
   setVal('s8_b2_j', b2J);
 
+  // 3. Sett inn verdier i Side 8C (Språk-tabellen)
   const tbody8C = document.getElementById('s8-c-tbody');
   if (tbody8C) tbody8C.innerHTML = '';
   side8CRowCount = 0;
@@ -2564,9 +2590,9 @@ function bindEvents() {
   on('btn-close-trash', 'click', closeTrashModal);
   on('btn-close-trash-bottom', 'click', closeTrashModal);
 
-// Eksport og import fra startsiden
-on('btn-startside-export', 'click', exportJSON);
-on('startside-import-file', 'change', importJSON);
+  // Eksport og import fra startsiden
+  on('btn-startside-export', 'click', exportJSON);
+  on('startside-import-file', 'change', importJSON);
 
   on('year-select', 'change', handleYearChange);
   on('validate-btn', 'click', () => { if (typeof runValidation === 'function') runValidation(true); });
@@ -2611,16 +2637,20 @@ on('startside-import-file', 'change', importJSON);
     });
   }
 
+  // Side 7 modal
   on('open-calc-s7-modal-btn', 'click', openCalcSide7Modal);
   on('close-calc-s7-modal', 'click', closeCalcSide7Modal);
   on('cancel-calc-s7-btn', 'click', closeCalcSide7Modal);
   on('apply-calc-s7-btn', 'click', applyCalcSide7Data);
 
+  // Side 8 modal
   on('open-calc-s8-modal-btn', 'click', openCalcSide8Modal);
   on('close-calc-s8-modal', 'click', closeCalcSide8Modal);
   on('cancel-calc-s8-btn', 'click', closeCalcSide8Modal);
   on('apply-calc-s8-btn', 'click', applyCalcSide8Data);
+  on('calc-s8-file', 'change', handleCalcSide8FileUpload); // Koppler opp filopplastingen
 
+  // Utskrift modal
   on('print-modal-btn', 'click', openPrintModal);
   on('close-print-modal', 'click', closePrintModal);
   on('cancel-print', 'click', closePrintModal);
