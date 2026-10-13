@@ -12,9 +12,13 @@ const pages = [
   {id:17,name:'Kontroller'},{id:18,name:'Fullfør'}
 ];
 
+// VIKTIG: activeSchoolId må defineres helt øverst!
+let activeSchoolId = null;
 let currentPage = 1, formData = {}, saveTimer = null;
 let activeSchoolYear = '';
 let isLoadingData = false;
+
+
 
 /* =========================================================
    HJELPEFUNKSJONER
@@ -39,7 +43,7 @@ const rangeIds = (prefix, from, to, suffix = '') => Array.from({ length: to - fr
 const allFormElements = () => document.querySelectorAll('main input[id], main select[id], main textarea[id], main input[name]');
 
 /* =========================================================
-   SKOLEÅR OG HÅNDTERING
+   SKOLEÅR OG HÅNDTERING (SEPARERT PER SKOLE OG ÅR)
    ========================================================= */
 
 function getActiveSchoolYear() {
@@ -49,7 +53,11 @@ function getActiveSchoolYear() {
   return `${startYear}-${startYear + 1}`;
 }
 
-const storageKeyFor = (year) => `gsi_data_${year || 'ukjent'}`;
+// Skolespesifikk nøkkel for localStorage (virker nå siden activeSchoolId er definert over)
+const storageKeyFor = (year) => {
+  const schoolPrefix = activeSchoolId ? `${activeSchoolId}_` : '';
+  return `gsi_data_${schoolPrefix}${year || 'ukjent'}`;
+};
 
 function populateSchoolYears() {
   const select = document.getElementById('year-select');
@@ -74,7 +82,14 @@ function handleYearChange() {
   if (select) {
     activeSchoolYear = select.value;
   }
-  loadDataForYear();
+  
+  if (!activeSchoolId) {
+    if (typeof renderStartside === 'function') renderStartside();
+  } else {
+    loadDataForYear();
+    syncActiveSchoolStamdata(); // Tvinger inn stamdata for det nye valgte året
+    if (typeof saveData === 'function') saveData(false);
+  }
 }
 
 function saveDataForYear(year) {
@@ -103,13 +118,28 @@ function loadDataForYear() {
     formData = {};
   }
 
+  // 1. Gjenopprett dynamiske rader
   if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
   if (typeof restoreSide7HRows === 'function') restoreSide7HRows();
   if (typeof restoreSide8CRows === 'function') restoreSide8CRows();
   if (typeof restoreSide8DRows === 'function') restoreSide8DRows();
   if (typeof restoreSide9CRows === 'function') restoreSide9CRows();
 
+  // 2. Fyll inn verdier i skjermfeltene (og tøm verdier som ikke tilhører dette året)
   syncDataToInputs();
+
+  // 3. Sett skolenavn og kommune fra aktiv skole dersom feltet er tomt
+  const activeSchool = typeof getSchools === 'function' ? getSchools().find(s => s.id === activeSchoolId) : null;
+  if (activeSchool) {
+    if (!formData['s1_skole']) formData['s1_skole'] = activeSchool.name;
+    if (!formData['s1_kommunenavn']) formData['s1_kommunenavn'] = activeSchool.kommune;
+    
+    const s1El = document.getElementById('s1_skole');
+    const m1El = document.getElementById('s1_kommunenavn');
+    if (s1El && !s1El.value) s1El.value = activeSchool.name;
+    if (m1El && !m1El.value) m1El.value = activeSchool.kommune;
+  }
+
   calculateAll(false);
 
   if (typeof toggleLibraryHours === 'function') toggleLibraryHours();
@@ -158,6 +188,13 @@ function syncDataToInputs() {
         el.checked = Boolean(formData[key]);
       } else {
         el.value = formData[key] !== undefined && formData[key] !== null ? formData[key] : '';
+      }
+    } else {
+      // VIKTIG: Hvis nøkkelen IKKE finnes for dette skoleåret, tøm feltet!
+      if (isCheck) {
+        el.checked = false;
+      } else {
+        el.value = '';
       }
     }
   });
@@ -251,17 +288,19 @@ function showSaveMessage(msg) {
 }
 
 function updateTopbarInfo() {
+  const activeSchool = typeof getSchools === 'function' ? getSchools().find(s => s.id === activeSchoolId) : null;
+
   const schoolInput = document.getElementById('s1_skole');
-  const schoolName = schoolInput?.value || formData['s1_skole'] || 'Skolenavn';
+  const schoolName = schoolInput?.value || formData['s1_skole'] || activeSchool?.name || 'Velg skole...';
 
   const muniInput = document.getElementById('s1_kommunenavn');
-  const municipality = muniInput?.value || formData['s1_kommunenavn'] || 'Kommune';
+  const municipality = muniInput?.value || formData['s1_kommunenavn'] || activeSchool?.kommune || 'Kommune';
 
   const userNameInput = document.getElementById('s18_navn') || document.getElementById('s18_a_navn');
-  const userName = userNameInput?.value || formData['s18_navn'] || formData['s18_a_navn'] || 'Navn';
+  const userName = userNameInput?.value || formData['s18_navn'] || formData['s18_a_navn'] || 'Tor Pettersen Skarprud';
 
   const userRoleInput = document.getElementById('s18_rolle') || document.getElementById('s18_a_rolle');
-  const userRole = userRoleInput?.value || formData['s18_rolle'] || formData['s18_a_rolle'] || 'Rolle';
+  const userRole = userRoleInput?.value || formData['s18_rolle'] || formData['s18_a_rolle'] || 'Skoleleder';
 
   const elSchool = document.getElementById('topbar-school');
   const elMuni = document.getElementById('topbar-municipality');
@@ -1637,19 +1676,40 @@ function handleResetSelect(event) {
   event.target.value = '';
 }
 
+
 function exportJSON() {
   syncInputsToData();
+  saveData(false); // Sørg for at alt for aktiv skole er lagret i localStorage først
 
+  // 1. Hent alle aktive og slettede skoler
+  const schools = getSchools();
+  const deletedSchools = getDeletedSchools();
+
+  // 2. Samle opp alle skjemadata (alle nøkler i localStorage som starter på gsi_data_)
+  const allFormData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('gsi_data_')) {
+      try {
+        allFormData[key] = JSON.parse(localStorage.getItem(key)) || {};
+      } catch (e) {
+        console.warn('Kunne ikke lese nøkkel ved eksport:', key);
+      }
+    }
+  }
+
+  // 3. Bygg en komplett system-pakke
   const exportPayload = {
-    schoolYear: activeSchoolYear,
+    version: '2.0',
     exportedAt: new Date().toISOString(),
-    formData: formData
+    schools: schools,
+    deletedSchools: deletedSchools,
+    allFormData: allFormData
   };
 
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
   const downloadAnchor = document.createElement('a');
-  
-  const fileName = `GSI_data_${activeSchoolYear}.json`;
+  const fileName = `GSI_Komplett_Sikkerhetskopi_${new Date().toISOString().slice(0, 10)}.json`;
 
   downloadAnchor.setAttribute("href", dataStr);
   downloadAnchor.setAttribute("download", fileName);
@@ -1657,8 +1717,13 @@ function exportJSON() {
   downloadAnchor.click();
   downloadAnchor.remove();
 
-  showSaveMessage(`Data for ${activeSchoolYear} ble eksportert!`);
+  if (typeof showSaveMessage === 'function') {
+    showSaveMessage('Komplett sikkerhetskopi ble eksportert!');
+  } else {
+    alert('Komplett sikkerhetskopi ble eksportert!');
+  }
 }
+
 
 function importJSON(event) {
   const file = event.target.files?.[0];
@@ -1668,31 +1733,47 @@ function importJSON(event) {
   reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-      const newFormData = imported.formData || imported;
 
-      if (typeof newFormData !== 'object' || newFormData === null) {
-        throw new Error('Ugyldig filformat.');
+      // Sjekk om det er en ny komplett backup (v2) eller gammel enkelt-eksport
+      const isFullBackup = Boolean(imported.allFormData && imported.schools);
+
+      let confirmMsg = `Vil du importere data fra filen "${file.name}"?\n\nDette vil oppdatere dine skoler og skjemaer med innholdet i filen.`;
+      if (!window.confirm(confirmMsg)) return;
+
+      if (isFullBackup) {
+        // --- 1. HÅNDTER KOMPLETT BACKUP (ALLE SKOLER OG ÅR) ---
+        if (Array.isArray(imported.schools)) {
+          localStorage.setItem('gsi_schools', JSON.stringify(imported.schools));
+        }
+        if (Array.isArray(imported.deletedSchools)) {
+          localStorage.setItem('gsi_schools_deleted', JSON.stringify(imported.deletedSchools));
+        }
+
+        // Skriv inn alle lagrede skjemanøkler til localStorage
+        if (imported.allFormData && typeof imported.allFormData === 'object') {
+          Object.keys(imported.allFormData).forEach(key => {
+            localStorage.setItem(key, JSON.stringify(imported.allFormData[key]));
+          });
+        }
+      } else {
+        // --- 2. BAKOVERKOMPATIBELT: HÅNDTER GAMMEL / ENKELTFILEKSPORT ---
+        const newFormData = imported.formData || imported;
+        if (typeof newFormData === 'object' && newFormData !== null) {
+          formData = newFormData;
+          saveDataForYear(activeSchoolYear);
+        }
       }
 
-      const confirmImport = window.confirm(
-        `Vil du importere dataene fra filen "${file.name}" into skoleåret ${activeSchoolYear}?\n\nNåværende registrerte data for dette året vil bli overskrevet.`
-      );
+      // Oppdater visningen
+      if (!activeSchoolId) {
+        renderStartside();
+      } else {
+        loadDataForYear();
+        syncActiveSchoolStamdata(); // Sikrer at importerte skoledata umiddelbart vises i feltene
+        if (typeof saveData === 'function') saveData(false);
+      }
 
-      if (!confirmImport) return;
-
-      formData = newFormData;
-      saveDataForYear(activeSchoolYear);
-
-      if (typeof restoreSide3ERows === 'function') restoreSide3ERows();
-      if (typeof restoreSide7HRows === 'function') restoreSide7HRows();
-      if (typeof restoreSide8CRows === 'function') restoreSide8CRows();
-      if (typeof restoreSide8DRows === 'function') restoreSide8DRows();
-      if (typeof restoreSide9CRows === 'function') restoreSide9CRows();
-
-      syncDataToInputs();
-      calculateAll(false);
-
-      showSaveMessage(`Data ble importert fra ${file.name}!`);
+      alert(`Suksess! Data ble importert fra ${file.name}.`);
     } catch (err) {
       console.error('Feil ved import:', err);
       alert('Kunne ikke importere filen. Sjekk at det er en gyldig GSI JSON-fil.');
@@ -1703,6 +1784,7 @@ function importJSON(event) {
 
   reader.readAsText(file);
 }
+
 
 function copyPreviousYearPageData() {
   const [startY, endY] = activeSchoolYear.split('-').map(Number);
@@ -1937,11 +2019,438 @@ function handleStartPrint() {
 }
 
 /* =========================================================
+   SKOLEBEHANDLING, STARTSIDE, PAPIRKURV OG NAVIGASJON
+   ========================================================= */
+
+let editingSchoolId = null; // null = ny skole, streng = redigerer eksisterende skole
+
+const defaultSchools = [
+  { id: 'skole_1', orgnr: '974598825', name: 'Brattbakken skole', fylke: 'Agder', fylkesnr: '42', kommune: 'Kristiansand', kommunenr: '4204', registrertAv: 'Tor Pettersen Skarprud', status: 'Under behandling' },
+  { id: 'skole_2', orgnr: '974598841', name: 'Heståsen skole', fylke: 'Agder', fylkesnr: '42', kommune: 'Kristiansand', kommunenr: '4204', registrertAv: 'Tor Pettersen Skarprud', status: 'Under behandling' }
+];
+
+function getSchools() {
+  const saved = localStorage.getItem('gsi_schools');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {
+      console.warn('Kunne ikke lese gsi_schools:', e);
+    }
+  }
+  localStorage.setItem('gsi_schools', JSON.stringify(defaultSchools));
+  return defaultSchools;
+}
+
+function getDeletedSchools() {
+  const saved = localStorage.getItem('gsi_schools_deleted');
+  if (saved) {
+    try { return JSON.parse(saved) || []; } catch (e) { return []; }
+  }
+  return [];
+}
+
+function saveSchools(schools) {
+  localStorage.setItem('gsi_schools', JSON.stringify(schools));
+  renderStartside();
+}
+
+function saveDeletedSchools(deletedList) {
+  localStorage.setItem('gsi_schools_deleted', JSON.stringify(deletedList));
+  updateTrashBadge();
+}
+
+function updateTrashBadge() {
+  const badge = document.getElementById('trash-count');
+  if (badge) badge.textContent = getDeletedSchools().length;
+}
+
+function renderStartside() {
+  const schools = getSchools();
+  const tbody = document.getElementById('startside-schools-tbody');
+  const badge = document.getElementById('school-count-badge');
+  
+  if (badge) badge.textContent = `Antall skoler: ${schools.length}`;
+  updateTrashBadge();
+  if (!tbody) return;
+
+  const yearText = activeSchoolYear ? activeSchoolYear.split('-')[0] : new Date().getFullYear().toString();
+
+  tbody.innerHTML = schools.map(s => `
+    <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+      <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${yearText}</td>
+      <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${s.orgnr}</td>
+      <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
+      <td style="padding: 14px 16px; color: #475569;">${s.fylke}</td>
+      <td style="padding: 14px 16px; color: #475569;">${s.kommune}</td>
+      <td style="padding: 14px 16px;"><span style="color: #d97706; font-size: 0.8rem;">●</span> ${s.status}</td>
+      <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
+        <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="selectSchoolForInfo('${s.id}')">
+          Åpne skjema
+        </button>
+        <button type="button" title="Rediger stamdata" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; margin-right: 8px;" onclick="openEditSchoolModal('${s.id}')">
+          ✏️ Rediger
+        </button>
+        <button type="button" title="Flytt til slettede skoler" style="background: transparent; color: #94a3b8; border: none; padding: 6px 8px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'" onclick="softDeleteSchool('${s.id}')">
+          🗑️ Slett
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* Sletting og gjenoppretting */
+function softDeleteSchool(schoolId) {
+  const schools = getSchools();
+  const schoolToDelete = schools.find(s => s.id === schoolId);
+  if (!schoolToDelete) return;
+
+  if (!confirm(`Er du sikker på at du vil slette "${schoolToDelete.name}"?\nSkolen flyttes til slettede skoler og kan gjenopprettes senere.`)) {
+    return;
+  }
+
+  const updatedSchools = schools.filter(s => s.id !== schoolId);
+  const deletedSchools = getDeletedSchools();
+  deletedSchools.push(schoolToDelete);
+
+  saveSchools(updatedSchools);
+  saveDeletedSchools(deletedSchools);
+}
+
+function restoreSchool(schoolId) {
+  const deletedSchools = getDeletedSchools();
+  const schoolToRestore = deletedSchools.find(s => s.id === schoolId);
+  if (!schoolToRestore) return;
+
+  const updatedDeleted = deletedSchools.filter(s => s.id !== schoolId);
+  const schools = getSchools();
+  schools.push(schoolToRestore);
+
+  saveSchools(schools);
+  saveDeletedSchools(updatedDeleted);
+  renderTrashModal();
+}
+
+function permanentlyDeleteSchool(schoolId) {
+  const deletedSchools = getDeletedSchools();
+  const school = deletedSchools.find(s => s.id === schoolId);
+  
+  if (!confirm(`ADVARSEL: Vil du slette "${school?.name || 'skolen'}" PERMANENT?\n\nDette kan ikke angres.`)) {
+    return;
+  }
+
+  const updatedDeleted = deletedSchools.filter(s => s.id !== schoolId);
+  saveDeletedSchools(updatedDeleted);
+  renderTrashModal();
+}
+
+/* Modal-håndtering for slettede skoler */
+function openTrashModal() {
+  renderTrashModal();
+  const modal = document.getElementById('trash-school-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeTrashModal() {
+  const modal = document.getElementById('trash-school-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function renderTrashModal() {
+  const deleted = getDeletedSchools();
+  const tbody = document.getElementById('trash-schools-tbody');
+  if (!tbody) return;
+
+  if (deleted.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b;">Ingen slettede skoler.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = deleted.map(s => `
+    <tr style="border-bottom: 1px solid #f1f5f9;">
+      <td style="padding: 8px;">${s.orgnr}</td>
+      <td style="padding: 8px; font-weight: bold;">${s.name}</td>
+      <td style="padding: 8px;">${s.kommune}</td>
+      <td style="padding: 8px; text-align: right; white-space: nowrap;">
+        <button type="button" style="background: #10b981; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px;" onclick="restoreSchool('${s.id}')">⟲ Gjenopprett</button>
+        <button type="button" style="background: #dc2626; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer;" onclick="permanentlyDeleteSchool('${s.id}')">Slett permanent</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* Hjelpefunksjon for å fylle kommune-dropdown */
+function populerKommuneDropdown(selectedKommune = '') {
+  const muniSelect = document.getElementById('new-school-muni');
+  if (!muniSelect) return;
+  muniSelect.innerHTML = '<option value="">-- Velg kommune --</option>';
+
+  if (typeof KOMMUNER_DATA !== 'undefined') {
+    const sorted = [...KOMMUNER_DATA].sort((a, b) => a.navn.localeCompare(b.navn, 'nb'));
+    sorted.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k.navn;
+      opt.textContent = `${k.navn} (${k.fylke})`;
+      if (k.navn === selectedKommune) opt.selected = true;
+      muniSelect.appendChild(opt);
+    });
+  }
+}
+
+/* Modal for å legge til NY skole */
+function openAddSchoolModal() {
+  editingSchoolId = null;
+  const modal = document.getElementById('add-school-modal');
+  if (modal) {
+    const title = modal.querySelector('h3');
+    if (title) title.textContent = 'Legg til ny skole';
+
+    document.getElementById('new-school-name').value = '';
+    document.getElementById('new-school-orgnr').value = '';
+    document.getElementById('new-school-registered-by').value = '';
+
+    populerKommuneDropdown('');
+    modal.style.display = 'flex';
+  }
+}
+
+/* Modal for å REDIGERE eksisterende skole */
+function openEditSchoolModal(schoolId) {
+  const school = getSchools().find(s => s.id === schoolId);
+  if (!school) return;
+
+  editingSchoolId = schoolId;
+  const modal = document.getElementById('add-school-modal');
+  if (modal) {
+    const title = modal.querySelector('h3');
+    if (title) title.textContent = `Rediger stamdata: ${school.name}`;
+
+    document.getElementById('new-school-name').value = school.name || '';
+    document.getElementById('new-school-orgnr').value = school.orgnr || '';
+    document.getElementById('new-school-registered-by').value = school.registrertAv || '';
+
+    populerKommuneDropdown(school.kommune);
+    modal.style.display = 'flex';
+  }
+}
+
+function closeAddSchoolModal() {
+  const modal = document.getElementById('add-school-modal');
+  if (modal) modal.style.display = 'none';
+  editingSchoolId = null;
+}
+
+function saveNewSchoolFromModal() {
+  const name = document.getElementById('new-school-name')?.value?.trim();
+  const orgnr = document.getElementById('new-school-orgnr')?.value?.trim();
+  const kommuneNavn = document.getElementById('new-school-muni')?.value;
+  const registrertAv = document.getElementById('new-school-registered-by')?.value?.trim();
+
+  if (!name || !orgnr || !kommuneNavn || !registrertAv) {
+    alert('Vennligst fyll ut alle feltene (*).');
+    return;
+  }
+
+  // Finn automatisk kommunedata fra KOMMUNER_DATA
+  const kommuneData = (typeof KOMMUNER_DATA !== 'undefined') 
+    ? (KOMMUNER_DATA.find(k => k.navn === kommuneNavn) || {}) 
+    : {};
+
+  const schools = getSchools();
+
+  if (editingSchoolId) {
+    // --- REDIGER EKSISTERENDE SKOLE ---
+    const index = schools.findIndex(s => s.id === editingSchoolId);
+    if (index !== -1) {
+      schools[index] = {
+        ...schools[index],
+        name: name,
+        orgnr: orgnr,
+        kommune: kommuneNavn,
+        kommunenr: kommuneData.knr || '',
+        fylke: kommuneData.fylke || '',
+        fylkesnr: kommuneData.fnr || '',
+        registrertAv: registrertAv
+      };
+    }
+  } else {
+    // --- OPPRETT NY SKOLE ---
+    const newId = `skole_${Date.now()}`;
+    schools.push({
+      id: newId,
+      orgnr: orgnr,
+      name: name,
+      fylke: kommuneData.fylke || '',
+      fylkesnr: kommuneData.fnr || '',
+      kommune: kommuneNavn,
+      kommunenr: kommuneData.knr || '',
+      registrertAv: registrertAv,
+      status: 'Under behandling'
+    });
+  }
+
+  saveSchools(schools);
+  closeAddSchoolModal();
+}
+
+/* Hjelpefunksjon for å vise/skjule topplinje-kontroller */
+function toggleTopbarControls(show) {
+  const displayStyle = show ? '' : 'none';
+
+  // Skjul/vis Skoleår-velger
+  const yearControl = document.querySelector('.year-control');
+  if (yearControl) yearControl.style.display = displayStyle;
+
+  // Skjul/vis Bruker- og skoleboks (de gule boksene)
+  const userbox = document.querySelector('.userbox');
+  if (userbox) userbox.style.display = show ? 'flex' : 'none';
+
+  // Skjul/vis Hamburgermeny / Verktøymeny
+  const toolsMenu = document.querySelector('.tools-menu-container');
+  if (toolsMenu) toolsMenu.style.display = displayStyle;
+}
+
+function selectSchoolForInfo(schoolId) {
+  activeSchoolId = schoolId;
+  const school = getSchools().find(s => s.id === schoolId);
+
+  const vStart = document.getElementById('view-startside');
+  const vForm = document.getElementById('view-form');
+  const vSidebar = document.getElementById('app-sidebar');
+  const vInfo = document.getElementById('view-info');
+
+  if (vStart) vStart.style.display = 'none';
+  if (vForm) vForm.style.display = 'none';
+  if (vSidebar) vSidebar.style.display = 'none';
+  if (vInfo) vInfo.style.display = 'block';
+
+  // Skjul topplinje-elementer på innledningssiden
+  toggleTopbarControls(false);
+
+  if (school) {
+    const elSchool = document.getElementById('topbar-school');
+    const elMuni = document.getElementById('topbar-municipality');
+    if (elSchool) elSchool.textContent = school.name;
+    if (elMuni) elMuni.textContent = school.kommune;
+  }
+}
+
+
+/* Hjelpefunksjon for å synkronisere stamdata på tvers av alle skoleår */
+function syncActiveSchoolStamdata() {
+  if (!activeSchoolId) return;
+  const school = getSchools().find(s => s.id === activeSchoolId);
+  if (!school) return;
+
+  // 1. Oppdater Toppmeny (.userbox og .user)
+  const topSchool = document.querySelector('.userbox strong');
+  const topMuni = document.querySelector('.userbox small');
+  const topUser = document.querySelector('.user strong');
+  if (topSchool) topSchool.textContent = school.name;
+  if (topMuni) topMuni.textContent = school.kommune;
+  if (topUser && school.registrertAv) topUser.textContent = school.registrertAv;
+
+  // 2. Fyll ut felt på Side 1 (Enhetsopplysninger)
+  setInputValue('s1_skole', school.name);
+  setInputValue('s1_orgnr_skole', school.orgnr);
+  setInputValue('s1_kommunenavn', school.kommune);
+  setInputValue('s1_kommunenummer', school.kommunenr || '');
+  setInputValue('s1_fylke', school.fylke || '');
+  setInputValue('s1_fylkesnummer', school.fylkesnr || '');
+
+  // 3. Fyll ut Side 18 (Skjema er fylt ut av)
+  setInputValue('s18_navn', school.registrertAv || '');
+
+  // 4. Oppdater formData-objektet for gjeldende år
+  if (typeof formData !== 'undefined') {
+    formData['s1_skole'] = school.name;
+    formData['s1_orgnr_skole'] = school.orgnr;
+    formData['s1_kommunenavn'] = school.kommune;
+    formData['s1_kommunenummer'] = school.kommunenr || '';
+    formData['s1_fylke'] = school.fylke || '';
+    formData['s1_fylkesnummer'] = school.fylkesnr || '';
+    if (school.registrertAv) formData['s18_navn'] = school.registrertAv;
+  }
+}
+
+function openFormForActiveSchool() {
+  const vStart = document.getElementById('view-startside');
+  const vForm = document.getElementById('view-form');
+  const vSidebar = document.getElementById('app-sidebar');
+  const vInfo = document.getElementById('view-info');
+
+  if (vInfo) vInfo.style.display = 'none';
+  if (vStart) vStart.style.display = 'none';
+  if (vSidebar) vSidebar.style.display = 'block';
+  if (vForm) vForm.style.display = 'block';
+
+  // Vis topplinje-elementene
+  toggleTopbarControls(true);
+
+  // Last data for året
+  loadDataForYear();
+
+  // Synkroniser stamdata inn over de innlastede skjemadataene
+  syncActiveSchoolStamdata();
+  saveData(false);
+
+  selectPage(1);
+}
+
+
+// Hjelpefunksjon for å sette verdier trygt på felt
+function setInputValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function goToStartside() {
+  saveData(false);
+  activeSchoolId = null;
+
+  // Skjul topplinje-elementene igjen når man går tilbake til startsiden
+  toggleTopbarControls(false);
+
+  const elSchool = document.getElementById('topbar-school');
+  const elMuni = document.getElementById('topbar-municipality');
+  if (elSchool) elSchool.textContent = 'Velg skole...';
+  if (elMuni) elMuni.textContent = 'Kommune';
+
+  const vStart = document.getElementById('view-startside');
+  const vForm = document.getElementById('view-form');
+  const vSidebar = document.getElementById('app-sidebar');
+  const vInfo = document.getElementById('view-info');
+
+  if (vInfo) vInfo.style.display = 'none';
+  if (vForm) vForm.style.display = 'none';
+  if (vSidebar) vSidebar.style.display = 'none';
+  if (vStart) vStart.style.display = 'block';
+
+  renderStartside();
+}
+
+
+/* =========================================================
    HENDELSER OG OPPSTART
    ========================================================= */
 
 function bindEvents() {
   const on = (id, event, fn) => document.getElementById(id)?.addEventListener(event, fn);
+
+  // Ny skole modal
+  on('btn-add-school', 'click', openAddSchoolModal);
+  on('btn-cancel-add-school', 'click', closeAddSchoolModal);
+  on('btn-save-add-school', 'click', saveNewSchoolFromModal);
+
+  // Papirkurv modal
+  on('btn-open-trash', 'click', openTrashModal);
+  on('btn-close-trash', 'click', closeTrashModal);
+  on('btn-close-trash-bottom', 'click', closeTrashModal);
+
+// Eksport og import fra startsiden
+on('btn-startside-export', 'click', exportJSON);
+on('startside-import-file', 'change', importJSON);
 
   on('year-select', 'change', handleYearChange);
   on('validate-btn', 'click', () => { if (typeof runValidation === 'function') runValidation(true); });
@@ -2026,5 +2535,19 @@ function bindEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   populateSchoolYears();
   bindEvents();
-  loadDataForYear();
+  toggleTopbarControls(false); // Skjuler verktøy, skoleår og brukerboks ved oppstart
+  renderStartside();
 });
+
+// Eksponer globale funksjoner
+window.goToStartside = goToStartside;
+window.selectSchoolForInfo = selectSchoolForInfo;
+window.openFormForActiveSchool = openFormForActiveSchool;
+window.openAddSchoolModal = openAddSchoolModal;
+window.closeAddSchoolModal = closeAddSchoolModal;
+window.saveNewSchoolFromModal = saveNewSchoolFromModal;
+window.softDeleteSchool = softDeleteSchool;
+window.restoreSchool = restoreSchool;
+window.permanentlyDeleteSchool = permanentlyDeleteSchool;
+window.exportJSON = exportJSON;
+window.importJSON = importJSON;

@@ -18,8 +18,8 @@
 
   <div class="userbox">
     <div>
-      <strong id="topbar-school">Heståsen skole</strong>
-      <small id="topbar-municipality">Kristiansand</small>
+      <strong id="topbar-school">Velg skole...</strong>
+      <small id="topbar-municipality">Kommune</small>
     </div>
     <div class="user">
       <span class="user-icon">♙</span>
@@ -30,7 +30,7 @@
     </div>
   </div>
 
-  <!-- Hamburgermeny plassert helt til høyre, utenfor userbox -->
+  <!-- Hamburgermeny -->
   <div class="tools-menu-container">
     <button class="icon-btn" id="tools-menu-btn" type="button" title="Verktøy og handlinger">☰</button>
     <div class="tools-dropdown" id="tools-dropdown">
@@ -52,23 +52,118 @@
 </header>
 
 <div class="app">
-  <aside class="sidebar">
+
+  <!-- SIDEMENY (Skjult ved oppstart) -->
+  <aside class="sidebar" id="app-sidebar" style="display: none;">
+    <div class="sidebar-top-link" onclick="goToStartside()" style="cursor: pointer; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #cbd5e1; display: flex; align-items: center; gap: 8px; color: #1e293b;">
+      <span style="font-size: 1.2rem;">🏠</span> Startsiden
+    </div>
     <nav id="sidebar-menu"></nav>
   </aside>
 
-  <main class="main">
+<!-- STARTSIDE (Skolevelger) -->
+<div id="view-startside" class="main-view" style="display: block; padding: 40px 20px;">
+  <!-- Midtstilt beholder med maksimal bredde for store skjermer -->
+  <div style="max-width: 1200px; margin: 0 auto;">
+    
+    <div style="background: #4a6572; color: white; padding: 14px 20px; border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600;">Grunnskole</h2>
+      <span id="school-count-badge" style="background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 12px; font-size: 0.9rem;">Antall skoler: 0</span>
+    </div>
+    
+    <table style="width: 100%; border-collapse: collapse; background: white; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+      <thead>
+        <tr style="background: #f8fafc; text-align: left; border-bottom: 2px solid #cbd5e1; color: #475569; font-size: 0.9rem;">
+          <th style="padding: 12px 16px;">År</th>
+          <th style="padding: 12px 16px;">Org.nummer</th>
+          <th style="padding: 12px 16px;">Skolenavn</th>
+          <th style="padding: 12px 16px;">Fylke</th>
+          <th style="padding: 12px 16px;">Kommune</th>
+          <th style="padding: 12px 16px;">Status</th>
+          <th style="padding: 12px 16px; text-align: right;">Handling</th>
+        </tr>
+      </thead>
+      <tbody id="startside-schools-tbody">
+        <!-- Rader genereres dynamisk -->
+      </tbody>
+    </table>
+
+<div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+  <!-- Venstre side: Skoleadministrasjon -->
+  <div style="display: flex; gap: 12px;">
+    <button type="button" id="btn-add-school" class="btn" style="background: #1e293b; color: white; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: 500; border: none; display: flex; align-items: center; gap: 6px;">
+      <span>+</span> Legg til ny skole
+    </button>
+    <button type="button" id="btn-open-trash" class="btn" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+      🗑️ Slettede skoler (<span id="trash-count">0</span>)
+    </button>
+  </div>
+
+  <!-- Høyre side: Globale dataverktøy -->
+  <div style="display: flex; gap: 12px;">
+    <button type="button" id="btn-startside-export" class="btn" style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+      📥 Eksporter alt
+    </button>
+    <label class="btn" style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; margin: 0;">
+      📤 Importer data
+      <input id="startside-import-file" type="file" accept=".json" style="display:none;">
+    </label>
+  </div>
+</div>
+
+  </div> <!-- LUKKER MAX-WIDTH BEHOLDER -->
+</div> <!-- LUKKER VIEW-STARTSIDE -->
+
+<!-- INNLEDNINGSSIDE (Infoskjerm før man går til skjema) -->
+<div id="view-info" class="main-view" style="display: none; padding: 30px; width: 100%;">
+  <div style="display: flex; gap: 40px; align-items: flex-start; max-width: 1100px; margin: 0 auto;">
+    <div style="background: #e2f1e8; border-radius: 8px; padding: 40px; text-align: center; width: 320px; flex-shrink: 0;">
+      <svg width="180" height="150" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="50" width="120" height="80" fill="#fdf6e2" stroke="#4a5568" stroke-width="2"/>
+        <path d="M20 50 L90 10 L160 50 Z" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+        <rect x="50" y="70" width="20" height="25" fill="#a0aec0"/>
+        <rect x="100" y="70" width="20" height="25" fill="#a0aec0"/>
+        <rect x="75" y="100" width="20" height="30" fill="#718096"/>
+      </svg>
+    </div>
+
+    <div style="flex: 1;">
+      <h1 style="font-size: 2rem; margin-top: 0; color: #0f172a;">Innledning</h1>
+      <p style="line-height: 1.6; color: #334155;">
+        GSI er Norges offisielle oversikt over grunnskoleundervisningen i landet, og er den viktigste kilden til grunnskoledata i Norge.
+      </p>
+      <p style="line-height: 1.6; color: #334155;">
+        Dataene gir viktig informasjon til skoleeiere, statsforvalteren, Utdanningsdirektoratet og Kunnskapsdepartementet. Tallene danner grunnlag for tilsyn, utarbeidelse av offisiell statistikk, budsjett- og planleggingsarbeid i kommunene og beskrivelse av ressurssituasjonen i grunnskoleopplæringen gjennom KOSTRA.
+      </p>
+      <p style="line-height: 1.6; color: #334155;">
+        For at GSI-statistikken skal være et pålitelig verktøy, er det svært viktig at alle fyller ut korrekte opplysninger. Det er også viktig å kontrollere at tallene er ført inn korrekt. Dersom dere får opp advarsler i systemet og dere mener at tallene dere har ført er korrekte, vennligst utkvitter advarselen med en forklaring (se felt for utkvittering som kommer opp ved utfylling av skjema).
+      </p>
+      <p style="font-weight: bold; color: #0f172a; margin-top: 20px;">
+        Del 2 bør fylles ut først, fordi del 3–16 er avhengig av informasjonen som blir fylt ut i del 2.
+      </p>
+
+      <div style="margin-top: 40px; display: flex; gap: 12px;">
+        <button type="button" class="btn" style="background: #000; color: white; padding: 10px 24px; font-weight: bold; border-radius: 4px; cursor: pointer;" onclick="openFormForActiveSchool()">Neste</button>
+        <button type="button" class="btn" style="background: white; border: 1px solid #000; color: #000; padding: 10px 24px; border-radius: 4px; cursor: pointer;" onclick="goToStartside()">Lukk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- HOVEDSKJEMA (Skjult ved oppstart) -->
+  <main class="main" id="view-form" style="display: none;">
     <div class="page-head">
       <h1 id="page-heading">1. Enhetsopplysninger</h1>
     </div>
 
     <div id="pages">
 
-      <!-- SIDE 1 -->
-      <section class="page active" id="page-1" data-page="1">
+<!-- SIDE 1 -->
+<section class="page active" id="page-1" data-page="1">
   <section class="section-card">
     <div class="section-header">A. Enhet</div>
     <div class="section-body">
-      <div class="form-group"><label for="s1_skole">Skole:</label><input id="s1_skole" type="text"></div>
+      <div class="form-group"><label for="s1_skole">Skole:</label><input id="s1_skole" type="text" readonly></div>
 
       <div class="address-grid">
         <div class="address-box">
@@ -84,15 +179,15 @@
         </div>
       </div>
 
-      <div class="form-group"><label for="s1_orgnr_skole">Org.nr. skole:</label><input id="s1_orgnr_skole" type="text"></div>
+      <div class="form-group"><label for="s1_orgnr_skole">Org.nr. skole:</label><input id="s1_orgnr_skole" type="text" readonly></div>
       <div class="form-group"><label for="s1_orgnr_skoleeier">Org.nr. skoleeier:</label><input id="s1_orgnr_skoleeier" type="text"></div>
       <div class="form-group"><label for="s1_driftsansvar">Driftsansvar:</label><input id="s1_driftsansvar" type="text"></div>
       <div class="form-group"><label for="s1_telefon">Telefon:</label><input id="s1_telefon" type="tel"></div>
       <div class="form-group"><label for="s1_epost">E-post:</label><input id="s1_epost" type="email"></div>
-      <div class="form-group"><label for="s1_kommunenummer">Kommunenummer:</label><input id="s1_kommunenummer" type="text"></div>
-      <div class="form-group"><label for="s1_kommunenavn">Kommunenavn:</label><input id="s1_kommunenavn" type="text"></div>
-      <div class="form-group"><label for="s1_fylkesnummer">Fylkesnummer:</label><input id="s1_fylkesnummer" type="text"></div>
-      <div class="form-group"><label for="s1_fylke">Fylke:</label><input id="s1_fylke" type="text"></div>
+      <div class="form-group"><label for="s1_kommunenummer">Kommunenummer:</label><input id="s1_kommunenummer" type="text" readonly></div>
+      <div class="form-group"><label for="s1_kommunenavn">Kommunenavn:</label><input id="s1_kommunenavn" type="text" readonly></div>
+      <div class="form-group"><label for="s1_fylkesnummer">Fylkesnummer:</label><input id="s1_fylkesnummer" type="text" readonly></div>
+      <div class="form-group"><label for="s1_fylke">Fylke:</label><input id="s1_fylke" type="text" readonly></div>
     </div>
   </section>
 
@@ -1316,10 +1411,6 @@
 <!-- SIDE 12 -->
 <section class="page" id="page-12" data-page="12">
 
-  <div class="page-head">
-    <h1>12. Fysisk aktivitet og leksehjelp</h1>
-  </div>
-
   <section class="section-card">
     <div class="section-header">C. Leksehjelp på 1.-10. trinn</div>
     <div class="section-body table-wrap">
@@ -1355,10 +1446,6 @@
 
 <!-- SIDE 13 -->
 <section class="page" id="page-13" data-page="13">
-
-  <div class="page-head">
-    <h1>13. Andre opplysninger</h1>
-  </div>
 
   <!-- DEL A -->
   <section class="section-card">
@@ -1523,10 +1610,6 @@
 
 <!-- SIDE 14 -->
 <section class="page" id="page-14" data-page="14">
-
-  <div class="page-head">
-    <h1>14. Skolefritidsordningen (SFO)</h1>
-  </div>
 
   <!-- DEL A -->
   <section class="section-card">
@@ -1695,10 +1778,6 @@
 <!-- SIDE 16 -->
 <section class="page" id="page-16" data-page="16">
 
-  <div class="page-head">
-    <h1>16. Fordrevne ukrainske elever</h1>
-  </div>
-
   <!-- DEL A -->
   <section class="section-card">
     <div class="section-header">A. Fordrevne ukrainske elever</div>
@@ -1844,7 +1923,7 @@
         </thead>
         <tbody>
           <tr>
-            <td><input id="s18_navn" type="text" placeholder="Navn"></td>
+            <td><input id="s18_navn" type="text" placeholder="Navn" readonly></td>
             <td><input id="s18_epost" type="text" placeholder="E-post"></td>
             <td><input id="s18_rolle" type="text" placeholder="Rolle"></td>
           </tr>
@@ -1868,6 +1947,14 @@
       <textarea id="s18_merknad_kommune" placeholder="Eventuelle merknader..."></textarea>
     </div>
   </section>
+
+  <div class="button-bar">
+    <button class="btn" data-nav="prev">Forrige</button>
+    <button class="btn" data-nav="next">Neste</button>
+    <button class="btn btn-white" data-save>Lagre</button>
+  </div>
+
+</section>
 
     </div>
   </main>
@@ -2022,6 +2109,68 @@
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <button type="button" class="btn" id="cancel-calc-s8-btn">Avbryt</button>
       <button type="button" class="btn btn-primary" id="apply-calc-s8-btn" style="background:#526b8e; color:#fff;">Beregn og overfør til Side 8</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOR Å LEGGE TIL SKOLE -->
+<div id="add-school-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+  <div style="background: white; border-radius: 6px; padding: 24px; width: 420px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <h3 style="margin-top: 0; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">Legg til ny skole</h3>
+    
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">Skolenavn *</label>
+      <input type="text" id="new-school-name" placeholder="f.eks. Solbakken skole" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">Organisasjonsnummer *</label>
+      <input type="text" id="new-school-orgnr" placeholder="9 siffer" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 14px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">Kommune *</label>
+      <select id="new-school-muni" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff;">
+        <option value="">-- Velg kommune --</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem;">Registrert av *</label>
+      <input type="text" id="new-school-registered-by" placeholder="Ditt navn / tittel" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button type="button" class="btn" id="btn-cancel-add-school" style="background: #e2e8f0; color: #1e293b; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer;">Avbryt</button>
+      <button type="button" class="btn" id="btn-save-add-school" style="background: #1e293b; color: white; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer;">Lagre skole</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOR SLETTEDE SKOLER (PAPIRKURV) -->
+<div id="trash-school-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+  <div style="background: white; border-radius: 6px; padding: 24px; width: 600px; max-width: 95%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 15px;">
+      <h3 style="margin: 0; color: #0f172a;">Slettede skoler</h3>
+      <button type="button" id="btn-close-trash" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #f8fafc; text-align: left; border-bottom: 1px solid #cbd5e1;">
+          <th style="padding: 8px;">Org.nr</th>
+          <th style="padding: 8px;">Skolenavn</th>
+          <th style="padding: 8px;">Kommune</th>
+          <th style="padding: 8px; text-align: right;">Handling</th>
+        </tr>
+      </thead>
+      <tbody id="trash-schools-tbody">
+        <!-- Fylles dynamisk -->
+      </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: flex-end;">
+      <button type="button" class="btn" id="btn-close-trash-bottom" style="background: #e2e8f0; color: #1e293b; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer;">Lukk</button>
     </div>
   </div>
 </div>

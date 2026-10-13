@@ -1,15 +1,8 @@
-/* =========================================================
-   1. GRUNNINNSTILLINGER
-   ========================================================= */
+/* ========================================================= 1. GRUNNINNSTILLINGER ========================================================= */
+* { box-sizing: border-box; }
+html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; font-family: Arial, Helvetica, sans-serif; color: #111; background: #fff; font-size: 14px; }
 
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff;font-size:14px}
-body{min-height:100vh}
-
-/* =========================================================
-   2. TOPPFELT
-   ========================================================= */
-/* ========================================================= 2. TOPPFELT (TOPBAR & VERKTØY) ========================================================= */
+/* ========================================================= 2. TOPPFELT ========================================================= */
 .topbar { height: 72px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; top: 0; z-index: 20; padding-right: 12px; }
 .brand { font-size: 24px; padding: 0 26px; white-space: nowrap; }
 .year-control { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.15); padding: 4px 10px; border-radius: 6px; }
@@ -18,7 +11,7 @@ body{min-height:100vh}
 .mini-btn { padding: 5px 10px; background: #57749b; color: #fff; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
 .file-btn input[type="file"] { display: none; }
 
-/* Bruker- og skoleinformasjon i toppfeltet */
+/* Bruker- og skoleinformasjon */
 .userbox { display: flex; align-items: center; background: #f4ead9; min-width: 390px; height: 100%; margin-left: auto; }
 .userbox > div:first-child { padding: 12px 20px; border-left: 1px solid #c9bda9; min-width: 200px; }
 .user { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-left: 1px solid #c9bda9; }
@@ -26,7 +19,20 @@ body{min-height:100vh}
 .userbox strong, .userbox small { display: block; }
 .userbox small { font-size: 11px; margin-top: 4px; }
 
-/* ========================================================= HAMBURGERMENY & DROPDOWN (HELT TIL HØYRE) ========================================================= */
+/* Nøytral og ryddig stil på skrivebeskyttede stamdatafelt på Side 1 */
+#s1_skole[readonly],
+#s1_orgnr_skole[readonly],
+#s1_kommunenummer[readonly],
+#s1_kommunenavn[readonly],
+#s1_fylkesnummer[readonly],
+#s1_fylke[readonly] {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  cursor: not-allowed;
+  border-color: #cbd5e1;
+}
+
+/* Hamburgermeny & dropdown */
 .tools-menu-container { position: relative; margin-left: 12px; }
 .icon-btn { background: #3b82f6; color: #ffffff; border: none; font-size: 1.2rem; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background 0.2s ease; }
 .icon-btn:hover { background: #2563eb; }
@@ -37,96 +43,126 @@ body{min-height:100vh}
 .dropdown-divider { height: 1px; background: #e2e8f0; margin: 4px 0; }
 .dropdown-select { width: 100%; padding: 8px 12px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #fca5a5; background-color: #fef2f2; color: #991b1b; cursor: pointer; }
 
-/* ========================================================= SIDE-OVERSKRIFT & SKOLEÅR-BADGES ========================================================= */
+/* Side-overskrift & badges */
 .page-head h1 { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 #page-heading { display: flex; align-items: center; width: 100%; }
 .heading-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .school-year-badge { font-size: 0.55em; font-weight: 600; padding: 4px 14px; border-radius: 16px; letter-spacing: 0.5px; transition: all 0.25s ease-in-out; }
-
-/* 6 Fargetemaer for skoleår */
 .school-year-badge.year-theme-1 { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
 .school-year-badge.year-theme-2 { background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
 .school-year-badge.year-theme-3 { background-color: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
 .school-year-badge.year-theme-4 { background-color: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; }
 .school-year-badge.year-theme-5 { background-color: #e0f2f1; color: #004d40; border: 1px solid #80cbc4; }
 .school-year-badge.year-theme-6 { background-color: #fce4ec; color: #880e4f; border: 1px solid #f48fb1; }
-
-/* Knappen "Hent fra forrige år" */
 .btn-fetch-prev { background-color: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; padding: 4px 10px; font-size: 0.8rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
 .btn-fetch-prev:hover { background-color: #e2e8f0; border-color: #94a3b8; color: #0f172a; }
 
-/* =========================================================
-   3. VENSTREMENY OG LAYOUT
-   ========================================================= */
-.app{display:flex;min-height:calc(100vh - 72px);align-items:flex-start}
-.sidebar{width:205px;flex:0 0 205px;border-right:1px solid #ddd;background:#fff;padding:9px 10px 30px;position:sticky;top:72px;max-height:calc(100vh - 72px);overflow-y:auto}
-.sidebar nav{display:flex;flex-direction:column;gap:0}
-.nav-item{display:flex;align-items:center;gap:8px;min-height:38px;padding:5px 7px;border-bottom:1px solid #6cc9a7;color:#111;text-decoration:none;cursor:pointer;line-height:1.05}
-.nav-item:hover{background:#f1f7f4}
-.nav-item.active{font-weight:700}
-.nav-number{width:26px;height:26px;border:1px solid #cbd2d9;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 26px}
-.nav-item.active .nav-number{background:#222;color:#fff;border-color:#222}
-.nav-item.disabled{opacity:.45;cursor:default}
+/* Sticky/Fast bunnlinje låst helt til bunnen av skjermen */
+.button-bar, .page-actions, .form-actions, .bottom-bar { position: fixed !important; bottom: 0 !important; left: 220px !important; right: 0 !important; width: auto !important; height: 56px !important; background: #ffffff !important; border-top: 1px solid #cbd5e1 !important; padding: 0 24px !important; margin: 0 !important; display: flex !important; justify-content: flex-start !important; align-items: center !important; gap: 12px !important; box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1) !important; z-index: 99999 !important; }
 
-/* =========================================================
-   4. HOVEDINNHOLD
-   ========================================================= */
+/* ========================================================= 3. VENSTREMENY OG LAYOUT ========================================================= */
+.app { display: flex; min-height: calc(100vh - 72px); align-items: flex-start; }
+.sidebar, #app-sidebar { width: 220px !important; flex: 0 0 220px !important; min-width: 220px !important; border-right: 1px solid #ddd; background: #fff; padding: 9px 10px 30px; position: sticky; top: 72px; max-height: calc(100vh - 72px); overflow-y: auto; overflow-x: hidden; }
+.sidebar nav { display: flex; flex-direction: column; gap: 0; }
+.nav-item { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 5px 7px; border-bottom: 1px solid #6cc9a7; color: #111; text-decoration: none; cursor: pointer; line-height: 1.2; font-size: 0.82rem; white-space: normal !important; word-break: break-word; }
+.nav-item:hover { background: #f1f7f4; }
+.nav-item.active { font-weight: 700; }
+.nav-number { width: 24px; height: 24px; border: 1px solid #cbd2d9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; flex: 0 0 24px; }
+.nav-item.active .nav-number { background: #222; color: #fff; border-color: #222; }
+.nav-item.disabled { opacity: .45; cursor: default; }
 
-.main{flex:1;min-width:0;padding:0 22px 40px 20px}
-.page-head{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.page-head h1{font-size:22px;margin:0;font-weight:500}
-.page{display:none;max-width:750px}
-.page.active{display:block}
+/* ========================================================= 4. HOVEDINNHOLD ========================================================= */
+.main, #view-form {
+  flex: 1;
+  min-width: 0;
+  height: calc(100vh - 72px - 56px) !important;
+  overflow-y: auto !important;
+  padding: 12px 22px 12px 12px !important; /* Redusert topp- og bunnpadding */
+  margin-left: 0 !important;
+  box-sizing: border-box !important;
+}
 
-/* Skjul utskriftstopptekst på vanlige skjermer */
-.print-header{display:none}
+.page-head {
+  min-height: 52px; /* Redusert min-height fra 72px */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 850px;
+  margin-bottom: 8px; /* Tett avstand ned til kortet */
+}
 
-/* Modal styling (enkeltlinje per selektor) */
-.modal-backdrop{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
-.modal-content{background:#fff;border-radius:8px;width:90%;max-width:620px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 25px rgba(0,0,0,0.2)}
-.modal-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
-.modal-header h3{margin:0;font-size:1.2rem;color:#0f172a}
-.close-btn{background:none;border:none;font-size:1.6rem;cursor:pointer;color:#64748b}
-.modal-body{padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
-.modal-group{display:flex;flex-direction:column;gap:8px}
-.radio-group{display:flex;gap:20px}
-.pages-select-header{display:flex;justify-content:space-between;align-items:center}
-.link-btn{background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-size:0.85rem;text-decoration:underline}
-.print-pages-grid{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;border:1px solid #e2e8f0;padding:10px;border-radius:6px;background:#f8fafc}
-.print-page-group{border-bottom:1px solid #e2e8f0;padding:6px 0}
-.print-page-header{display:flex;justify-content:space-between;align-items:center}
-.print-page-item{display:flex;align-items:center;gap:8px;font-size:0.9rem;cursor:pointer;padding:2px 4px;border-radius:4px}
-.print-page-item:hover{background:#e2e8f0}
-.toggle-sub-btn{background:none;border:none;color:#2563eb;font-size:0.75rem;cursor:pointer;font-weight:500}
-.print-sections-list{display:none;flex-direction:column;gap:4px;padding-left:24px;margin-top:6px}
-.print-sections-list.show{display:flex}
-.print-sub-item{font-size:0.82rem;color:#475569;display:flex;align-items:center;gap:6px;cursor:pointer}
-.modal-footer{padding:16px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:12px}
+.page-head h1 {
+  font-size: 22px;
+  margin: 0;
+  font-weight: 500;
+}
 
-/* =========================================================
-   UTSKRIFT (KONSISTENT 100% BREDDE PÅ ALLE SIDER)
-   ========================================================= */
-@page{size:landscape;margin:8mm 10mm}
-@media print{body{zoom:83%;transform-origin:top left}.topbar,.sidebar,.button-bar,.modal-backdrop,.btn-fetch-prev,#save-1,.page-head{display:none!important}html,body,.app,.main-container,.main,.main-content,#pages,.page,.section-card,.address-grid,table,.table-s9-c,.print-header{width:100%!important;min-width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important}.page{display:none!important}.page.print-visible{display:block!important;page-break-after:always;break-after:page;margin-bottom:0!important}.print-header{display:flex!important;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:12px;font-size:0.8rem;color:#000}.section-card.print-section-hidden{display:none!important}.section-card{padding:10px!important;margin-bottom:10px!important;break-inside:avoid!important;page-break-inside:avoid!important}th,td{padding:3px 6px!important;font-size:0.82rem!important}tr,table{break-inside:avoid!important;page-break-inside:avoid!important}input,select,textarea{border:none!important;border-bottom:1px solid #444!important;background:transparent!important;color:#000!important;padding:2px!important}}
+/* Fast konsistent bredde på alle sider (øk til 900px om du vil ha dem ennå bredere) */
+.page {
+  display: none;
+  width: 850px !important;
+  max-width: 850px !important;
+  padding-bottom: 12px !important; /* Redusert fra 30px/90px */
+}
 
-/* =========================================================
-   5. SEKSJONSKORT
-   ========================================================= */
+.page.active {
+  display: block;
+}
 
-.section-card{border:4px solid #e4edf7;border-radius:7px;margin:0 0 18px;background:#fff;overflow:hidden}
-.section-header{background:#57749b;color:#fff;font-weight:700;padding:10px 12px;min-height:38px}
-.section-body{padding:9px;background:#fff}
-.info-box,.table-note{border:1px solid #9aaec5;background:#fff;padding:10px;margin:0 0 8px;line-height:1.35}
-.placeholder{min-height:130px}
+/* Skjul utskriftstopptekst */
+.print-header { display: none; }
 
-/* =========================================================
-   6. SKJEMA OG INPUT
-   ========================================================= */
+/* Modal styling */
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 620px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { margin: 0; font-size: 1.2rem; color: #0f172a; }
+.close-btn { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: #64748b; }
+.modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+.modal-group { display: flex; flex-direction: column; gap: 8px; }
+.radio-group { display: flex; gap: 20px; }
+.pages-select-header { display: flex; justify-content: space-between; align-items: center; }
+.link-btn { background: none; border: none; color: #2563eb; cursor: pointer; padding: 0; font-size: 0.85rem; text-decoration: underline; }
+.print-pages-grid { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; background: #f8fafc; }
+.print-page-group { border-bottom: 1px solid #e2e8f0; padding: 6px 0; }
+.print-page-header { display: flex; justify-content: space-between; align-items: center; }
+.print-page-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.print-page-item:hover { background: #e2e8f0; }
+.toggle-sub-btn { background: none; border: none; color: #2563eb; font-size: 0.75rem; cursor: pointer; font-weight: 500; }
+.print-sections-list { display: none; flex-direction: column; gap: 4px; padding-left: 24px; margin-top: 6px; }
+.print-sections-list.show { display: flex; }
+.print-sub-item { font-size: 0.82rem; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
 
-.form-group{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:center;margin:8px 0}
-.form-group label{font-weight:500}
-.form-group input,.form-group textarea,input,textarea,select{font:inherit}
-.form-group input,input[type=text],input[type=number],textarea{width:100%;min-width:0;border:1px solid #55719a;border-radius:0;background:#fff;padding:7px 8px;height:32px}
+/* ========================================================= UTSKRIFT ========================================================= */
+@page { size: landscape; margin: 8mm 10mm; }
+@media print {
+  body { zoom: 83%; transform-origin: top left; }
+  .topbar, .sidebar, .button-bar, .modal-backdrop, .btn-fetch-prev, #save-1, .page-head { display: none !important; }
+  html, body, .app, .main-container, .main, .main-content, #pages, .page, .section-card, .address-grid, table, .table-s9-c, .print-header { width: 100% !important; min-width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; box-sizing: border-box !important; }
+  .page { display: none !important; }
+  .page.print-visible { display: block !important; page-break-after: always; break-after: page; margin-bottom: 0 !important; }
+  .print-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 12px; font-size: 0.8rem; color: #000; }
+  .section-card.print-section-hidden { display: none !important; }
+  .section-card { padding: 10px !important; margin-bottom: 10px !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+  th, td { padding: 3px 6px !important; font-size: 0.82rem !important; }
+  tr, table { break-inside: avoid !important; page-break-inside: avoid !important; }
+  input, select, textarea { border: none !important; border-bottom: 1px solid #444 !important; background: transparent !important; color: #000 !important; padding: 2px !important; }
+}
+
+/* ========================================================= 5. SEKSJONSKORT ========================================================= */
+.section-card { border: 4px solid #e4edf7; border-radius: 7px; margin: 0 0 18px; background: #fff; overflow: hidden; }
+.section-header { background: #57749b; color: #fff; font-weight: 700; padding: 10px 12px; min-height: 38px; }
+.section-body { padding: 9px; background: #fff; }
+.info-box, .table-note { border: 1px solid #9aaec5; background: #fff; padding: 10px; margin: 0 0 8px; line-height: 1.35; }
+.placeholder { min-height: 130px; }
+
+/* ========================================================= 6. SKJEMA OG INPUT ========================================================= */
+.form-group { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; margin: 8px 0; }
+.form-group label { font-weight: 500; }
+.form-group input, .form-group textarea, input, textarea, select { font: inherit; }
+.form-group input, input[type=text], input[type=number], textarea { width: 100%; min-width: 0; border: 1px solid #55719a; border-radius: 0; background: #fff; padding: 7px 8px; height: 32px; }
 
 /* =========================================================
    7. SIDE 1 – ENHET
@@ -958,23 +994,20 @@ body{min-height:100vh}
 #page-17 .button-bar{margin-top:10px}
 
 
-/* =========================================================
-   SIDE 18 – FULLFØR
-   ========================================================= */
-#page-18{max-width:800px}
-#page-18 .section-card{margin-bottom:72px}
-#page-18 .section-body{padding:9px}
-#page-18 .table-s18-a{width:100%;table-layout:fixed}
-#page-18 .table-s18-a col.name-col{width:38%}
-#page-18 .table-s18-a col.email-col{width:37%}
-#page-18 .table-s18-a col.role-col{width:25%}
-#page-18 .table-s18-a th{background:#dff1e9;text-align:left;font-size:16px;font-weight:600;padding:7px 5px}
-#page-18 .table-s18-a td{padding:0}
-#page-18 .table-s18-a td input{width:100%;height:42px;border:0;background:#fff;padding:7px 5px;font:inherit;text-align:left}
-#page-18 .section-card:nth-of-type(2) .section-body{padding:9px}
-#page-18 .section-card:nth-of-type(3) .section-body{padding:9px}
-#page-18 textarea{width:100%;height:162px;resize:vertical;border:0;background:#fff;padding:10px;font:inherit;line-height:1.4}
-#page-18 .button-bar{margin-top:-50px}
+/* ========================================================= SIDE 18 – FULLFØR ========================================================= */
+#page-18 { width: 850px !important; max-width: 850px !important; }
+#page-18 .section-card { margin-bottom: 12px !important; }
+#page-18 .section-body { padding: 9px; }
+#page-18 .table-s18-a { width: 100%; table-layout: fixed; }
+#page-18 .table-s18-a col.name-col { width: 38%; }
+#page-18 .table-s18-a col.email-col { width: 37%; }
+#page-18 .table-s18-a col.role-col { width: 25%; }
+#page-18 .table-s18-a th { background: #dff1e9; text-align: left; font-size: 16px; font-weight: 600; padding: 7px 5px; }
+#page-18 .table-s18-a td { padding: 0; }
+#page-18 .table-s18-a td input { width: 100%; height: 42px; border: 0; background: #fff; padding: 7px 5px; font: inherit; text-align: left; }
+#page-18 .section-card:nth-of-type(2) .section-body, #page-18 .section-card:nth-of-type(3) .section-body { padding: 9px; }
+#page-18 textarea { width: 100%; height: 100px; resize: vertical; border: 0; background: #fff; padding: 10px; font: inherit; line-height: 1.4; }
+#s18_navn[readonly], #s18_a_1_navn[readonly] { background-color: #f1f5f9 !important; color: #334155 !important; cursor: not-allowed; font-weight: 500; }
 
 /* =========================================================
    12. AUTOMATISKE SUMMER
