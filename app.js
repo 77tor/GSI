@@ -1587,6 +1587,21 @@ function restoreSide9CRows() {
   calcSide9C();
 }
 
+function toggleLibraryHours() {
+  const jaChecked = document.getElementById('s13_d_1_ja')?.checked;
+  const hoursBox = document.getElementById('s13-d-library-hours');
+  const hoursInput = document.getElementById('s13_d_library_hours');
+
+  if (hoursBox) {
+    if (jaChecked) {
+      hoursBox.style.display = 'flex';
+    } else {
+      hoursBox.style.display = 'none';
+      if (hoursInput) hoursInput.value = '';
+    }
+  }
+}
+
 function calcSide12() {
   try {
     // 1. Sum for 12A
@@ -2552,8 +2567,8 @@ function openFormForActiveSchool() {
   if (vInfo) vInfo.style.display = 'none';
   if (vStart) vStart.style.display = 'none';
   
-  // Fjerner inline 'display: none' slik at sidemenyen bruker CSS-ens standard visning (flex/block)
-  if (vSidebar) vSidebar.style.display = ''; 
+  // Tving sidemenyen til å vises eksplisitt!
+  if (vSidebar) vSidebar.style.display = 'block';
   if (vForm) vForm.style.display = 'block';
 
   // Vis topplinje-elementene
@@ -2568,7 +2583,6 @@ function openFormForActiveSchool() {
 
   if (typeof selectPage === 'function') selectPage(1);
 }
-
 
 // Hjelpefunksjon for å sette verdier trygt på felt
 function setInputValue(id, val) {
