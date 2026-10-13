@@ -1588,24 +1588,27 @@ function restoreSide9CRows() {
 }
 
 function calcSide12() {
-  // 1. Beregn sum for 12A (Elevtimer til fysisk aktivitet)
-  const sum12A = numberValue('s12_a_5') + numberValue('s12_a_6') + numberValue('s12_a_7');
-  setNumber('s12_a_sum', sum12A);
+  try {
+    // 1. Sum for 12A
+    const sum12A = (numberValue('s12_a_5') || 0) + (numberValue('s12_a_6') || 0) + (numberValue('s12_a_7') || 0);
+    setNumber('s12_a_sum', sum12A);
 
-  // 2. Beregn sum for 12C (Leksehjelp)
-  ['students', 'hours'].forEach(type => {
-    setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`)));
-  });
+    // 2. Sum for 12C
+    ['students', 'hours'].forEach(type => {
+      setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`)));
+    });
 
-  // 3. Sjekk om det er elever på 5., 6. eller 7. trinn i Tabell 3A
-  toggleSide12Tables();
+    // 3. Vurder om 12A og 12B skal vises basert på 3A (5., 6. eller 7. trinn)
+    toggleSide12Tables();
+  } catch (err) {
+    console.warn('Sjekk calcSide12:', err);
+  }
 }
 
 function toggleSide12Tables() {
-  // Hent elevtall for trinn 5, 6 og 7 fra 3A (totalt per trinn, enten fra sum-feltet eller gutter+jenter)
-  const e5 = numberValue('s3_a_5_sum') || (numberValue('s3_a_5_gutter') + numberValue('s3_a_5_jenter'));
-  const e6 = numberValue('s3_a_6_sum') || (numberValue('s3_a_6_gutter') + numberValue('s3_a_6_jenter'));
-  const e7 = numberValue('s3_a_7_sum') || (numberValue('s3_a_7_gutter') + numberValue('s3_a_7_jenter'));
+  const e5 = (numberValue('s3_a_5_sum') || 0) || ((numberValue('s3_a_5_gutter') || 0) + (numberValue('s3_a_5_jenter') || 0));
+  const e6 = (numberValue('s3_a_6_sum') || 0) || ((numberValue('s3_a_6_gutter') || 0) + (numberValue('s3_a_6_jenter') || 0));
+  const e7 = (numberValue('s3_a_7_sum') || 0) || ((numberValue('s3_a_7_gutter') || 0) + (numberValue('s3_a_7_jenter') || 0));
 
   const hasMellomtrinn = (e5 + e6 + e7) > 0;
 

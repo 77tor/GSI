@@ -787,7 +787,7 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 #page-12 .table-s12-c col.students-col { width: 39%; }
 #page-12 .table-s12-c col.hours-col { width: 40%; }
 
-/* Overskrifter og celler for Side 12 tabeller */
+/* Overskrifter og celler kun for tabellene på Side 12 */
 #page-12 .gsi-table th { padding: 6px 8px; white-space: normal; text-align: center; vertical-align: middle; line-height: 1.15; background: #dff1e9 !important; }
 #page-12 .gsi-table td { padding: 5px 6px; vertical-align: middle; }
 #page-12 .gsi-table td:first-child { background: #c4e8d7; text-align: center; font-weight: bold; }
