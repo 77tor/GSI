@@ -902,8 +902,8 @@ function restoreSide7HRows() {
    ========================================================= */
 
 function calcSide8() {
-  setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a', 1, 10, '_norsk')));
-  setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a', 1, 10, '_gno')));
+  setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a_', 1, 10, '_norsk')));
+  setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a_', 1, 10, '_gno')));
   ['b1', 'b2'].forEach(row => setNumber(`s8_${row}_sum`, numberValue(`s8_${row}_g`) + numberValue(`s8_${row}_j`)));
   
   calcSide8C();
@@ -920,6 +920,84 @@ function closeCalcSide8Modal() {
   if (modal) modal.style.display = 'none';
 }
 
+/* Håndterer filopplasting fra file-input i modalen */
+function handleCalcSide8FileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const content = e.target.result;
+    const inputEl = document.getElementById('calc-s8-input');
+    if (inputEl) {
+      inputEl.value = content;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+
+/* =========================================================
+   SIDE 8: BEREGNINGER, MODAL OG EXCEL-IMPORT
+   ========================================================= */
+
+function calcSide8() {
+  setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a_', 1, 10, '_norsk')));
+  setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a_', 1, 10, '_gno')));
+  ['b1', 'b2'].forEach(row => setNumber(`s8_${row}_sum`, numberValue(`s8_${row}_g`) + numberValue(`s8_${row}_j`)));
+  
+  calcSide8C();
+  calcSide8D();
+}
+
+function openCalcSide8Modal() {
+  const modal = document.getElementById('calc-s8-modal');
+  if (modal) modal.style.display = 'block';
+}
+
+function closeCalcSide8Modal() {
+  const modal = document.getElementById('calc-s8-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+/* Les opplastet Excel- (.xlsx/.xls) eller CSV-fil og gjør om til tabulatortekst */
+function handleCalcSide8FileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const fileName = file.name.toLowerCase();
+
+  // Hvis det er en Excel-fil og XLSX-biblioteket er lastet inn
+  if ((fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) && typeof XLSX !== 'undefined') {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Konverter regnearket til tabulator-separert tekst (TSV)
+        const tsvText = XLSX.utils.sheet_to_csv(worksheet, { FS: '\t' });
+        const inputEl = document.getElementById('calc-s8-input');
+        if (inputEl) inputEl.value = tsvText;
+      } catch (err) {
+        console.error('Feil ved lesing av Excel-fil:', err);
+        alert('Kunne ikke lese Excel-filen. Sjekk at filen ikke er korrupt.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    // Les som vanlige tekst-/CSV-filer
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const inputEl = document.getElementById('calc-s8-input');
+      if (inputEl) inputEl.value = e.target.result;
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
 function applyCalcSide8Data() {
   const inputEl = document.getElementById('calc-s8-input');
   const rawText = inputEl?.value || '';
@@ -928,7 +1006,7 @@ function applyCalcSide8Data() {
     return;
   }
 
-  const lines = rawText.trim().split('\n');
+  const lines = rawText.trim().split(/\r?\n/);
 
   const s8aNorsk = Array(11).fill(0);
   const s8aGno = Array(11).fill(0);
@@ -939,7 +1017,8 @@ function applyCalcSide8Data() {
   const sprakMap = {};
 
   lines.forEach(line => {
-    const cols = line.split('\t').map(c => c.trim());
+    // Del opp på tabulator, semikolon eller komma
+    const cols = line.split(/[\t;,]/).map(c => c.trim().replace(/^"|"$/g, ''));
     if (cols.length < 2) return;
 
     const lineLower = line.toLowerCase();
@@ -966,7 +1045,7 @@ function applyCalcSide8Data() {
     }
 
     s8aNorsk[trinnRaw]++;
-    if (plan.includes('gno') || plan.includes('grunnleggende')) {
+    if (plan.includes('gno') || plan.includes('grunnleggende') || plan.includes('ja')) {
       s8aGno[trinnRaw]++;
     }
 
@@ -1001,18 +1080,19 @@ function applyCalcSide8Data() {
     }
   });
 
+  // Sett inn verdier i Side 8 (Støtter både s8_a_1_norsk og s8_a1_norsk)
   for (let i = 1; i <= 10; i++) {
-    const nEl = document.getElementById(`s8_a${i}_norsk`);
-    const gEl = document.getElementById(`s8_a${i}_gno`);
+    const nEl = document.getElementById(`s8_a_${i}_norsk`) || document.getElementById(`s8_a${i}_norsk`);
+    const gEl = document.getElementById(`s8_a_${i}_gno`) || document.getElementById(`s8_a${i}_gno`);
     if (nEl) nEl.value = s8aNorsk[i] || '';
     if (gEl) gEl.value = s8aGno[i] || '';
   }
 
-  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-  setVal('s8_b1_g', b1G || '');
-  setVal('s8_b1_j', b1J || '');
-  setVal('s8_b2_g', b2G || '');
-  setVal('s8_b2_j', b2J || '');
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setVal('s8_b1_g', b1G);
+  setVal('s8_b1_j', b1J);
+  setVal('s8_b2_g', b2G);
+  setVal('s8_b2_j', b2J);
 
   const tbody8C = document.getElementById('s8-c-tbody');
   if (tbody8C) tbody8C.innerHTML = '';
@@ -1023,14 +1103,18 @@ function applyCalcSide8Data() {
     addSide8CRow(sprakNavn, '', antallElever, '', '');
 
     const rowId = index + 1;
-    formData[`s8_c_sprak_${rowId}`] = sprakNavn;
-    formData[`s8_c_tosprak_${rowId}`] = antallElever;
+    if (typeof formData !== 'undefined') {
+      formData[`s8_c_sprak_${rowId}`] = sprakNavn;
+      formData[`s8_c_tosprak_${rowId}`] = antallElever;
+    }
   });
 
   calcSide8();
   if (typeof saveData === 'function') saveData(true);
 
   if (inputEl) inputEl.value = '';
+  const fileEl = document.getElementById('calc-s8-file');
+  if (fileEl) fileEl.value = '';
   closeCalcSide8Modal();
 }
 

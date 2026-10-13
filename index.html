@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GSI - Grunnskolens innrapportering</title>
   <link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -2090,24 +2091,30 @@
 
 <!-- MODAL FOR SIDE 8 KALKULATOR / EXCEL-OPPLASTING -->
 <div id="calc-s8-modal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-  <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; width:80%; max-width:700px; border-radius:6px;">
+  <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; width:80%; max-width:700px; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
     <h3 style="margin-top:0;">🧮 Kalkulator og Excel-opplasting for Side 8</h3>
     <p style="font-size:0.9rem; color:#475569;">
-      Lim inn tekst fra Excel eller last opp en `.xlsx`/`.csv`-fil med kolonnene:<br>
-      <strong>Trinn | Kjønn | Plan | I egen gruppe | Asylsøker | Språk</strong>
+      Last opp en <strong>.xlsx / .csv</strong>-fil eller lim inn tekst fra Excel med kolonnene:<br>
+      <strong>Trinn | Kjønn | Plan | I egen gruppe | Asylsøker | Tospråklig | Språk</strong>
     </p>
 
-    <div style="margin-bottom:15px;">
-      <label style="display:block; font-weight:bold; margin-bottom:5px;">Lim inn tabell-data:</label>
+    <!-- Filopplasting -->
+    <div style="margin-bottom:12px; background:#f8fafc; padding:10px; border:1px dashed #cbd5e1; border-radius:4px;">
+      <label style="display:block; font-weight:bold; margin-bottom:4px; font-size:0.85rem;">📁 Last opp Excel- eller CSV-fil:</label>
+      <input type="file" id="calc-s8-file" accept=".xlsx, .xls, .csv, .txt" onchange="handleCalcSide8FileUpload(event)">
+    </div>
 
-      <textarea id="calc-s8-input" rows="8" placeholder="Eksempel:
-1&#10013;Gutt&#10013;Ja&#10013;Nei&#10013;Nei&#10013;Bokmål
-2&#10013;Jente&#10013;GNO&#10013;Ja&#10013;Ja&#10013;Arabisk" style="width:100%; font-family:monospace; padding:8px; border:1px solid #cbd5e1; border-radius:4px;"></textarea>
+    <!-- Lim inn tekst -->
+    <div style="margin-bottom:15px;">
+      <label style="display:block; font-weight:bold; margin-bottom:5px; font-size:0.85rem;">Eller lim inn tabell-data direkte:</label>
+      <textarea id="calc-s8-input" rows="7" placeholder="Eksempel:
+1&#10013;Gutt&#10013;Ja&#10013;Nei&#10013;Nei&#10013;Ja&#10013;Bokmål
+2&#10013;Jente&#10013;GNO&#10013;Ja&#10013;Ja&#10013;Ja&#10013;Arabisk" style="width:100%; font-family:monospace; padding:8px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.85rem;"></textarea>
     </div>
 
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <button type="button" class="btn" id="cancel-calc-s8-btn">Avbryt</button>
-      <button type="button" class="btn btn-primary" id="apply-calc-s8-btn" style="background:#526b8e; color:#fff;">Beregn og overfør til Side 8</button>
+      <button type="button" class="btn" id="cancel-calc-s8-btn" onclick="closeCalcSide8Modal()">Avbryt</button>
+      <button type="button" class="btn btn-primary" id="apply-calc-s8-btn" onclick="applyCalcSide8Data()" style="background:#526b8e; color:#fff;">Beregn og overfør til Side 8</button>
     </div>
   </div>
 </div>
