@@ -321,134 +321,136 @@ function selectPage(id) {
   if (id === 17 && typeof runValidation === 'function') runValidation(false);
 }
 
+
 /* =========================================================
-   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR
+   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR (100 % ANPASSET GSI ID-ER)
    ========================================================= */
 
 function runValidation(showToast = true) {
-  const warnings = []; // Milde advarsler (gule)
-  const errors = [];   // Kritiske feil (røde)
+  const warnings = []; // Milde advarsler (gule - utropstegn !)
+  const errors = [];   // Kritiske feil (røde - trekant ▲)
 
-  // Hjelpefunksjoner for innhenting av data
+  // Hjelpefunksjon for å hente ut tall trygt fra form eller DOM
   const num = (id) => typeof numberValue === 'function' ? numberValue(id) : (parseFloat(document.getElementById(id)?.value) || parseFloat(formData[id]) || 0);
-  const text = (id) => (document.getElementById(id)?.value || formData[id] || '').toString().trim();
-  const radio = (name) => (document.querySelector(`input[name="${name}"]:checked`)?.value || formData[name] || '').toString().trim();
 
-  // Hent skoletype fra Side 2 (2B laveste, 2C høyeste)
-  const minTrinn = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || '1', 10);
-  const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || '10', 10);
+  // Skoletype / trinn fra Side 2 (2B laveste, 2C høyeste)
+  const minTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
+  const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
 
   // ---------------------------------------------------------
-  // 1. SJEKK AV TRINN OG ELEVER (Side 2 vs Side 3A)
+  // 1. ELEVER OG TRINN (Side 2 vs Side 3A)
   // ---------------------------------------------------------
-  let totalEleverSide3 = 0;
+  let totalEleverSide3 = num('s3_a_total'); // Henter beregnet total fra calcSide3()
+  
   for (let t = 1; t <= 10; t++) {
-    const sumTrinn = num(`s3_a_${t}_sum`) || (num(`s3_a_${t}_gutter`) + num(`s3_a_${t}_jenter`));
-    totalEleverSide3 += sumTrinn;
+    const eleverTrinn = num(`s3_a_${t}_sum`);
 
-    // Sjekk om det er ført elever på trinn som skolen IKKE har ifølge Side 2
-    if ((t < minTrinn || t > maxTrinn) && sumTrinn > 0) {
-      errors.push(`<b>Side 3A:</b> Det er registrert ${sumTrinn} elever på ${t}. trinn, men skolens struktur på Side 2 tilsier kun ${minTrinn}.–${maxTrinn}. trinn.`);
+    // Sjekk om det er ført elever på trinn som ligger utenfor skolens trinnstruktur
+    if ((t < minTrinn || t > maxTrinn) && eleverTrinn > 0) {
+      errors.push(`<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${minTrinn}.–${maxTrinn}. trinn på Side 2.`);
     }
 
-    // Sjekk om et gyldig trinn står med 0 elever
-    if (t >= minTrinn && t <= maxTrinn && sumTrinn === 0) {
-      warnings.push(`<b>Side 3A:</b> Skolen har registrert ${t}. trinn på Side 2, men ingen elever er ført i tabell 3A.`);
-    }
-  }
-
-// ---------------------------------------------------------
-  // 2. SJEKK AV ÅRSTIMER / UNDERVISNINGSTIMER (Side 4A / 3B vs Side 3A)
-  // ---------------------------------------------------------
-  for (let t = minTrinn; t <= maxTrinn; t++) {
-    const eleverTrinn = num(`s3_a_${t}_sum`) || (num(`s3_a_${t}_gutter`) + num(`s3_a_${t}_jenter`));
-    
-    // Henter timer enten fra Side 4A (f.eks. s4_a_1) eller Side 3B (f.eks. s3_b_1)
-    const timerSide4A = num(`s4_a_${t}`) || num(`s4_a_${t}_timer`);
-    const timerSide3B = num(`s3_b_${t}`);
-    const totalTimerTrinn = timerSide4A || timerSide3B;
-
-    if (eleverTrinn > 0 && totalTimerTrinn === 0) {
-      errors.push(`<b>Side 4A / 3B:</b> ${t}. trinn har ${eleverTrinn} elever, men 0 årstimer/undervisningstimer er registrert.`);
+    // Advarsel om et trinn som skolen HAR står oppført med 0 elever
+    if (t >= minTrinn && t <= maxTrinn && eleverTrinn === 0) {
+      warnings.push(`<b>Side 3A:</b> Skolen har ${t}. trinn ifølge Side 2, men 0 elever er ført i tabell 3A.`);
     }
   }
 
   // ---------------------------------------------------------
-  // 3. SJEKK AV SFO (Side 2D vs Side 14)
+  // 2. ÅRSTIMER / ELEVTIMER (Side 4A vs Side 3A)
   // ---------------------------------------------------------
-  const sfoStatus = radio('s2_sfo').toLowerCase();
+  // calcSide4() regner ut ord. undervisningstimer i s4_a1_17 (1–7. trinn) og s4_a1_3 (8–10. trinn)
+  const timer17 = num('s4_a1_17') || (num('s4_a1_1') + num('s4_a1_2'));
+  const timer810 = num('s4_a1_3');
 
-  // Summerer opp alle mulige SFO-elevfelter (Side 14A: trinn 1-4 + eventuelle sum-felter)
-  let sfoEleverTotal = num('s14_a_total') || num('s14_total') || num('s14_a_sum');
-  if (sfoEleverTotal === 0) {
-    for (let t = 1; t <= 4; t++) {
-      sfoEleverTotal += num(`s14_a_${t}`) || num(`s14_a_${t}_elever`) || num(`s14_${t}`);
-    }
+  const elever17 = num('s3_a_sum17');
+  const elever810 = num('s3_a_sum810');
+
+  if (elever17 > 0 && timer17 === 0 && minTrinn <= 7) {
+    errors.push(`<b>Side 4A:</b> Det er registrert ${elever17} elever på 1.–7. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
   }
 
-  if ((sfoStatus === 'nei' || sfoStatus === '2') && sfoEleverTotal > 0) {
-    errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men det er registrert ${sfoEleverTotal} SFO-elever på Side 14.`);
-  } else if ((sfoStatus === 'ja' || sfoStatus === '1') && sfoEleverTotal === 0 && minTrinn <= 4) {
-    warnings.push(`<b>Side 14:</b> Skolen har SFO-tilbud ifølge Side 2, men ingen SFO-elever er registrert på Side 14.`);
+  if (elever810 > 0 && timer810 === 0 && maxTrinn >= 8) {
+    errors.push(`<b>Side 4A:</b> Det er registrert ${elever810} elever på 8.–10. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
   }
 
   // ---------------------------------------------------------
-  // 4. SJEKK AV ELEVSUMMER PÅ TVERS AV SIDER (Side 7 & 8A)
+  // 3. SFO (Side 2D vs Side 14)
   // ---------------------------------------------------------
-  const s7Gutter = num('s7_a_gutter');
-  const s7Jenter = num('s7_a_jenter');
-  const s7Total = num('s7_a_total') || (s7Gutter + s7Jenter);
+  const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
+  const sfoVal = (sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '').toString().toLowerCase();
+
+  // Side 14A summerer plass-størrelser i s14_a_sum_1 og s14_a_sum_2
+  const sfoEleverTotal = num('s14_a_sum_1') + num('s14_a_sum_2');
+
+  if ((sfoVal === 'nei' || sfoVal === '2' || sfoVal === 'false') && sfoEleverTotal > 0) {
+    errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men har registrert ${sfoEleverTotal} SFO-elever på Side 14.`);
+  } else if ((sfoVal === 'ja' || sfoVal === '1' || sfoVal === 'true') && sfoEleverTotal === 0 && minTrinn <= 4) {
+    warnings.push(`<b>Side 14:</b> Skolen har haket av for SFO-tilbud på Side 2, men ingen elever er registrert i tabell 14A.`);
+  }
+
+  // ---------------------------------------------------------
+  // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING (Side 7 & 8A vs Side 3A)
+  // ---------------------------------------------------------
+  const s7Total = num('s7_a_tot');
+  const s7Gutter = num('s7_a_gsum');
+  const s7Jenter = num('s7_a_jsum');
 
   if (s7Total > totalEleverSide3) {
-    errors.push(`<b>Side 7:</b> Antall elever med spesialundervisning (${s7Total}) overstiger det totale elevantallet på skolen (${totalEleverSide3}).`);
+    errors.push(`<b>Side 7:</b> Antall elever med spesialundervisning (${s7Total}) kan ikke overstige skolens totale elevtall (${totalEleverSide3}).`);
   }
 
   if (s7Gutter + s7Jenter !== s7Total && s7Total > 0) {
-    errors.push(`<b>Side 7:</b> Summen av gutter (${s7Gutter}) og jenter (${s7Jenter}) stemmer ikke overens med totalsummen (${s7Total}).`);
+    errors.push(`<b>Side 7:</b> Summen av gutter (${s7Gutter}) og jenter (${s7Jenter}) stemmer ikke overens med totalkolonnen (${s7Total}).`);
   }
 
   const s8NorskSum = num('s8_a_norsk_sum');
   if (s8NorskSum > totalEleverSide3) {
-    errors.push(`<b>Side 8A:</b> Antall elever med forsterket norsk (${s8NorskSum}) kan ikke være høyere enn totalt antall elever (${totalEleverSide3}).`);
+    errors.push(`<b>Side 8A:</b> Antall elever med særskilt norsk (${s8NorskSum}) overstiger det totale elevantallet (${totalEleverSide3}).`);
   }
 
   // ---------------------------------------------------------
-  // 5. LÆRERTETTHET OG LÆRERNORM (Side 3A vs Side 5A/6A)
+  // 5. SPESIALUNDERVISNINGSTIMER (Side 4B vs Side 7)
   // ---------------------------------------------------------
-  const laererAarsverk = num('s5_a_laerere_total') || num('s6_a_laerere');
-  if (totalEleverSide3 > 0 && laererAarsverk > 0) {
-    const snittElevPerLaerer = totalEleverSide3 / laererAarsverk;
-    if (minTrinn <= 4 && snittElevPerLaerer > 18) {
-      warnings.push(`<b>Lærertetthet:</b> Skolen har i snitt ${snittElevPerLaerer.toFixed(1)} elever per lærerårsverk. Vær oppmerksom på lærernormen for 1.–4. trinn (maks 15).`);
+  // Sum spesialundervisningstimer i tabell 4B er s4_b13_sum
+  const spesPedTimerSide4 = num('s4_b13_sum');
+
+  if (s7Total > 0 && spesPedTimerSide4 === 0) {
+    warnings.push(`<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`);
+  }
+
+  // ---------------------------------------------------------
+  // 6. LÆRERTETTHET OG BEMANNING (Side 5A / Side 6A vs Side 3A)
+  // ---------------------------------------------------------
+  const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
+
+  if (totalEleverSide3 > 0 && laererAarsverk === 0) {
+    errors.push(`<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`);
+  } else if (totalEleverSide3 > 0 && laererAarsverk > 0) {
+    const eleverPerLaerer = totalEleverSide3 / laererAarsverk;
+    
+    // Veiledende lærernorm (1.–4. trinn maks 15 elever per lærer)
+    if (minTrinn <= 4 && eleverPerLaerer > 18) {
+      warnings.push(`<b>Lærertetthet:</b> Gjennomsnittlig elevtall per lærerårsverk er ${eleverPerLaerer.toFixed(1)}. Vær obs på lærernormen for 1.–4. trinn (normen tilsier maks 15 elever per lærer).`);
     }
-  } else if (totalEleverSide3 > 0 && laererAarsverk === 0) {
-    errors.push(`<b>Side 5/6:</b> Skolen har ${totalEleverSide3} elever, men 0 lærerårsverk er registrert.`);
   }
 
   // ---------------------------------------------------------
-  // 6. SJEKK AV SAMSPILL SIDES 4B OG 7 (Spes.ped)
-  // ---------------------------------------------------------
-  const timerSpesPedSide4 = num('s4_b_spesped');
-  if (s7Total > 0 && timerSpesPedSide4 === 0) {
-    warnings.push(`<b>Side 4B / Side 7:</b> Det er registrert ${s7Total} elever med vedtak på Side 7, men 0 timer til spesialundervisning er oppgitt på Side 4B.`);
-  }
-
-  // ---------------------------------------------------------
-  // 7. VIS RESULTATENE I GRENSEGNSNITTET
+  // 7. PUBLISER OG VIS RESULTATENE
   // ---------------------------------------------------------
   renderValidationResults(errors, warnings);
 
   if (showToast && typeof showSaveMessage === 'function') {
     const totalCount = errors.length + warnings.length;
     if (totalCount === 0) {
-      showSaveMessage('Ingen feil funnet i skjemaet!');
+      showSaveMessage('Ingen feil eller avvik funnet!');
     } else {
       showSaveMessage(`Kontroll utført: ${errors.length} feil, ${warnings.length} advarsler.`);
     }
   }
 }
 
-/* Render-funksjon tilpasset din eksisterende HTML-struktur */
+/* Render-funksjon som oppdaterer grensesnittet på Side 17 */
 function renderValidationResults(errors, warnings) {
   const container = document.getElementById('validation-results');
   const countSpan = document.getElementById('validation-count');
@@ -461,7 +463,7 @@ function renderValidationResults(errors, warnings) {
   if (totalCount === 0) {
     container.innerHTML = `
       <div class="validation-item success-item" style="padding: 12px; background: #e6f4ea; border: 1px solid #a8dab5; border-radius: 4px; color: #137333; font-weight: bold;">
-        ✓ Ingen feil eller advarsler funnet! Skjemaet er klart til å leveres.
+        ✓ Ingen feil eller advarsler funnet! Skjemaet er i orden og klart til å leveres.
       </div>
     `;
     return;
@@ -470,7 +472,7 @@ function renderValidationResults(errors, warnings) {
   let html = '';
 
   // Røde feilmeldinger (Trekant ▲)
-  errors.forEach((err, idx) => {
+  errors.forEach(err => {
     html += `
       <div class="validation-item error-item" style="margin-bottom: 8px; padding: 10px; background: #fce8e6; border-left: 4px solid #d93025; display: flex; align-items: flex-start; gap: 10px;">
         <span class="validation-icon error-icon" style="color: #d93025; font-weight: bold;">▲</span>
@@ -480,10 +482,10 @@ function renderValidationResults(errors, warnings) {
   });
 
   // Gule advarsler (Utropstegn !)
-  warnings.forEach((warn, idx) => {
+  warnings.forEach(warn => {
     html += `
       <div class="validation-item warning-item" style="margin-bottom: 8px; padding: 10px; background: #feefc3; border-left: 4px solid #f9ab00; display: flex; align-items: flex-start; gap: 10px;">
-        <span class="validation-icon warning-icon" style="color: #b06000; font-weight: bold; background: #f9ab00; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">!</span>
+        <span class="validation-icon warning-icon" style="background: #f9ab00; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">!</span>
         <div class="validation-text" style="color: #804b00; font-size: 0.9rem;">${warn}</div>
       </div>
     `;
@@ -491,6 +493,7 @@ function renderValidationResults(errors, warnings) {
 
   container.innerHTML = html;
 }
+
 
 const navigatePage = dir => selectPage(currentPage + dir);
 
