@@ -418,19 +418,45 @@ function runValidation(showToast = true) {
     warnings.push(`<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`);
   }
 
-  // ---------------------------------------------------------
-  // 6. LÆRERTETTHET OG BEMANNING (Side 5A / Side 6A vs Side 3A)
+// ---------------------------------------------------------
+  // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel)
   // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
   if (totalEleverSide3 > 0 && laererAarsverk === 0) {
     errors.push(`<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`);
-  } else if (totalEleverSide3 > 0 && laererAarsverk > 0) {
-    const eleverPerLaerer = totalEleverSide3 / laererAarsverk;
+  } else {
+    // 1. Beregn elevtimer for 1.–4. trinn (Elevtall per trinn * uketimer på trinnet)
+    // Dersom skolen ikke har egne timetall ført på Side 3B (s3_b_1..4), brukes Udirs standard (~19 t/uke)
+    let elevtimer14 = 0;
+    for (let t = 1; t <= Math.min(4, maxTrinn); t++) {
+      const elever = num(`s3_a_${t}_sum`);
+      const timerPrUke = num(`s3_b_${t}`) || 19;
+      elevtimer14 += (elever * timerPrUke);
+    }
+
+    // 2. Ordinære undervisningstimer for 1.–7. trinn fra Side 4A (s4_a1_17 eller s4_a1_1 + s4_a1_2)
+    const ordTimer17 = num('s4_a1_17') || (num('s4_a1_1') + num('s4_a1_2'));
     
-    // Veiledende lærernorm (1.–4. trinn maks 15 elever per lærer)
-    if (minTrinn <= 4 && eleverPerLaerer > 18) {
-      warnings.push(`<b>Lærertetthet:</b> Gjennomsnittlig elevtall per lærerårsverk er ${eleverPerLaerer.toFixed(1)}. Vær obs på lærernormen for 1.–4. trinn (normen tilsier maks 15 elever per lærer).`);
+    // Timer fra Side 4B (spesialundervisning og særskilt norsk for 1.–7. trinn)
+    const spesPedTimer17 = num('s4_b13_1') || num('s4_b1_1');
+    const saerskiltNorsk17 = num('s4_b2_1');
+
+    // Teller: Netto elevtimer (Elevtimer - spes.ped - særskilt norsk)
+    const teller = Math.max(0, elevtimer14 - spesPedTimer17 - saerskiltNorsk17);
+    
+    // Nevner: Ordinære undervisningstimer
+    const nevner = ordTimer17;
+
+    if (nevner > 0 && elevtimer14 > 0) {
+      const gruppestorrelse2 = Math.round((teller / nevner) * 10) / 10;
+
+      // Lærernorm for 1.–4. trinn: Maksimalt 15 elever per lærer i ordinær undervisning
+      if (minTrinn <= 4 && gruppestorrelse2 > 15) {
+        warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gruppestorrelse2}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
+      }
+    } else if (elevtimer14 > 0 && nevner === 0) {
+      warnings.push(`<b>Lærertetthet:</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
     }
   }
 
