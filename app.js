@@ -326,7 +326,7 @@ function selectPage(id) {
    SIDE 17: VALIDERINGS- OG KONTROLLMOTOR (SKOLE-SEPARERT)
    ========================================================= */
 
-// Hjelpefunksjon for å hente unikk kommentarnøkkel per skole
+// Hjelpefunksjon for å hente unik kommentarnøkkel per skole
 function getCommentKey(checkId) {
   const schoolId = typeof activeSchoolId !== 'undefined' ? activeSchoolId : 'default';
   return `val_comment_${schoolId}_${checkId}`;
@@ -650,6 +650,51 @@ function runValidation(showToast = true) {
   }
 }
 
+/* =========================================================
+   REDIGERBAR STATUSLOGG FOR KVITTERTE AVVIK
+   ========================================================= */
+
+// Funksjon for å bytte mellom visning og redigering av kommentar i loggen
+function toggleEditComment(checkKey) {
+  const container = document.getElementById(`log-comment-box-${checkKey}`);
+  if (!container) return;
+
+  const isEditing = container.getAttribute('data-editing') === 'true';
+
+  if (isEditing) {
+    const input = container.querySelector('input');
+    const newVal = input ? input.value.trim() : '';
+
+    if (!newVal) {
+      alert('Vennligst skriv en kommentar før du lagrer.');
+      return;
+    }
+
+    const storageKey = getCommentKey(checkKey);
+    if (!window.validationComments) window.validationComments = {};
+    window.validationComments[storageKey] = newVal;
+
+    if (typeof formData !== 'undefined') {
+      formData[storageKey] = newVal;
+    }
+
+    runValidation(false);
+  } else {
+    const storageKey = getCommentKey(checkKey);
+    const currentComment = window.validationComments?.[storageKey] || (typeof formData !== 'undefined' ? formData[storageKey] : '') || '';
+
+    container.setAttribute('data-editing', 'true');
+    container.innerHTML = `
+      <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+        <input type="text" class="validation-comment-input" value="${currentComment}" style="flex: 1; padding: 4px 8px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+        <button type="button" class="btn" style="padding: 4px 10px; font-size: 0.78rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="toggleEditComment('${checkKey}')">
+          Lagre
+        </button>
+      </div>
+    `;
+  }
+}
+
 function renderValidationResults(errors, warnings, allChecks = []) {
   const container = document.getElementById('validation-results');
   const countSpan = document.getElementById('validation-count');
@@ -709,7 +754,7 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }
   }
 
-  // TEGN UT HELE STATUSLOGGEN MED SKOLESPESIFIKKE KOMMENTARER
+  // TEGN UT HELE STATUSLOGGEN MED REDIGERBARE KOMMENTARER
   const logList = document.getElementById('validation-log-list');
   if (logList && allChecks.length > 0) {
     logList.innerHTML = allChecks.map(check => {
@@ -737,8 +782,13 @@ function renderValidationResults(errors, warnings, allChecks = []) {
             ${badgeHtml}
           </div>
           ${comment ? `
-            <div style="margin-top: 6px; padding: 6px 10px; background: #f1f5f9; border-left: 3px solid #2563eb; font-size: 0.82rem; color: #334155; border-radius: 2px;">
-              💬 <strong>Kommentar:</strong> ${comment}
+            <div id="log-comment-box-${check.id}" data-editing="false" style="margin-top: 8px; padding: 6px 10px; background: #f1f5f9; border-left: 3px solid #2563eb; font-size: 0.82rem; color: #334155; border-radius: 2px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div>
+                💬 <strong>Kommentar:</strong> ${comment}
+              </div>
+              <button type="button" style="background: transparent; border: none; color: #2563eb; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: underline;" onclick="toggleEditComment('${check.id}')">
+                Endre
+              </button>
             </div>
           ` : ''}
         </div>
@@ -746,7 +796,6 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }).join('');
   }
 }
-
 
 function togglePassedChecksView() {
   const checkbox = document.getElementById('toggle-passed-checks');
@@ -784,6 +833,7 @@ function updateTopbarInfo() {
 
 // Eksponer funksjonene globalt på window-objektet
 window.saveValidationComment = saveValidationComment;
+window.toggleEditComment = toggleEditComment;
 window.runValidation = runValidation;
 window.renderValidationResults = renderValidationResults;
 window.togglePassedChecksView = togglePassedChecksView;
