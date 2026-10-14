@@ -327,14 +327,13 @@ function selectPage(id) {
    ========================================================= */
 
 function runValidation(showToast = true) {
-  const warnings = []; // Milde advarsler (gule - utropstegn !)
-  const errors = [];   // Kritiske feil (røde - trekant ▲)
+  const warnings = [];
+  const errors = [];
 
-  // Hjelpefunksjon for å hente ut tall trygt fra form eller DOM
   const num = (id) => typeof numberValue === 'function' ? numberValue(id) : (parseFloat(document.getElementById(id)?.value) || parseFloat(formData[id]) || 0);
 
-  // Skoletype / trinn fra Side 2 (2B laveste, 2C høyeste)
-  const minTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
+  // Henter laveste trinn fra s2_laveste_trinn og høyeste fra s2_hoyeste_trinn
+  const minTrinn = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
   const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
 
   // ---------------------------------------------------------
