@@ -576,52 +576,78 @@ function runValidation(showToast = true) {
   }
 }
 
-
-
-/* Render-funksjon som oppdaterer grensesnittet på Side 17 */
-function renderValidationResults(errors, warnings) {
+/* Render-funksjon som oppdaterer avvik og den komplette kontroll-loggen på Side 17 */
+function renderValidationResults(errors, warnings, allChecks = []) {
   const container = document.getElementById('validation-results');
   const countSpan = document.getElementById('validation-count');
   
   const totalCount = errors.length + warnings.length;
   if (countSpan) countSpan.textContent = totalCount;
 
-  if (!container) return;
-
-  if (totalCount === 0) {
-    container.innerHTML = `
-      <div class="validation-item success-item" style="padding: 12px; background: #e6f4ea; border: 1px solid #a8dab5; border-radius: 4px; color: #137333; font-weight: bold;">
-        ✓ Ingen feil eller advarsler funnet! Skjemaet er i orden og klart til å leveres.
-      </div>
-    `;
-    return;
+  // 1. Tegn ut avvikene (eller grønn suksessmelding) i øverste panel
+  if (container) {
+    if (totalCount === 0) {
+      container.innerHTML = `
+        <div class="validation-item success-item" style="padding: 12px; background: #e6f4ea; border: 1px solid #a8dab5; border-radius: 4px; color: #137333; font-weight: bold;">
+          ✓ Ingen feil eller advarsler funnet! Skjemaet er i orden og klart til å leveres.
+        </div>
+      `;
+    } else {
+      let html = '';
+      errors.forEach(err => {
+        html += `
+          <div class="validation-item error-item" style="margin-bottom: 8px; padding: 10px; background: #fce8e6; border-left: 4px solid #d93025; display: flex; align-items: flex-start; gap: 10px;">
+            <span class="validation-icon error-icon" style="color: #d93025; font-weight: bold;">▲</span>
+            <div class="validation-text" style="color: #a50e0e; font-size: 0.9rem;">${err}</div>
+          </div>
+        `;
+      });
+      warnings.forEach(warn => {
+        html += `
+          <div class="validation-item warning-item" style="margin-bottom: 8px; padding: 10px; background: #feefc3; border-left: 4px solid #f9ab00; display: flex; align-items: flex-start; gap: 10px;">
+            <span class="validation-icon warning-icon" style="background: #f9ab00; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">!</span>
+            <div class="validation-text" style="color: #804b00; font-size: 0.9rem;">${warn}</div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
   }
 
-  let html = '';
+  // 2. Tegn ut den detaljerte kontroll-loggen i boksen under
+  const logList = document.getElementById('validation-log-list');
+  if (logList && allChecks.length > 0) {
+    logList.innerHTML = allChecks.map(check => {
+      let badgeHtml = '';
+      if (check.status === 'passed') {
+        badgeHtml = `<span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">✓ OK</span>`;
+      } else if (check.status === 'warning') {
+        badgeHtml = `<span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">! Advarsel</span>`;
+      } else {
+        badgeHtml = `<span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">▲ Feil</span>`;
+      }
 
-  // Røde feilmeldinger (Trekant ▲)
-  errors.forEach(err => {
-    html += `
-      <div class="validation-item error-item" style="margin-bottom: 8px; padding: 10px; background: #fce8e6; border-left: 4px solid #d93025; display: flex; align-items: flex-start; gap: 10px;">
-        <span class="validation-icon error-icon" style="color: #d93025; font-weight: bold;">▲</span>
-        <div class="validation-text" style="color: #a50e0e; font-size: 0.9rem;">${err}</div>
-      </div>
-    `;
-  });
-
-  // Gule advarsler (Utropstegn !)
-  warnings.forEach(warn => {
-    html += `
-      <div class="validation-item warning-item" style="margin-bottom: 8px; padding: 10px; background: #feefc3; border-left: 4px solid #f9ab00; display: flex; align-items: flex-start; gap: 10px;">
-        <span class="validation-icon warning-icon" style="background: #f9ab00; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">!</span>
-        <div class="validation-text" style="color: #804b00; font-size: 0.9rem;">${warn}</div>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.88rem;">
+          <div>
+            <strong style="color: #1e293b;">${check.title}</strong>
+            <span style="color: #64748b; margin-left: 8px;">— ${check.detail}</span>
+          </div>
+          ${badgeHtml}
+        </div>
+      `;
+    }).join('');
+  }
 }
 
+/* Bryter for å vise eller skjule loggboksen basert på checkboxen */
+function togglePassedChecksView() {
+  const checkbox = document.getElementById('toggle-passed-checks');
+  const container = document.getElementById('validation-log-container');
+  if (container) {
+    container.style.display = checkbox?.checked ? 'block' : 'none';
+  }
+}
 
 const navigatePage = dir => selectPage(currentPage + dir);
 
@@ -664,6 +690,15 @@ function updateTopbarInfo() {
   if (elName) elName.textContent = userName;
   if (elRole) elRole.textContent = userRole;
 }
+
+// Eksponer funksjonene globalt på window-objektet
+window.runValidation = runValidation;
+window.renderValidationResults = renderValidationResults;
+window.togglePassedChecksView = togglePassedChecksView;
+window.selectPage = selectPage;
+window.updateHeading = updateHeading;
+
+
 
 /* =========================================================
    SIDE 3 TIL 16 BEREGNINGSFUNKSJONER
