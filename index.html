@@ -1933,13 +1933,30 @@
     <p class="validation-explanation"><span class="validation-icon error-icon">▲</span> Feilmeldinger er merket med rød trekant. Disse feilene må rettes i skjemaet <em>før</em> man kan levere skjemaet.</p>
   </div>
 
-  <div class="validation-toolbar">
-    <button class="btn" id="validate-btn" type="button">Kontroller skjema</button>
-    <span class="validation-count">Antall: <span id="validation-count">0</span></span>
+  <div class="validation-toolbar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn" id="validate-btn" type="button">Kontroller skjema</button>
+      <span class="validation-count">Antall avvik: <span id="validation-count">0</span></span>
+    </div>
+
+    <!-- BRYTER FOR Å VISE ALLE GJENNOMFØRTE KONTROLLER -->
+    <label class="toggle-switch" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #334155;">
+      <input type="checkbox" id="toggle-passed-checks" style="cursor: pointer; width: 16px; height: 16px;" onchange="togglePassedChecksView()">
+      <span>Vis alle utførte kontroller</span>
+    </label>
   </div>
 
+  <!-- AVVIKSRAPPORT (FEIL OG ADVARSLER) -->
   <div class="validation-panel">
     <div id="validation-results" class="validation-results"></div>
+  </div>
+
+  <!-- BOKS FOR UTFØRTE KONTROLLER OG RESULTAT (SKJULT SOM STANDARD) -->
+  <div id="validation-log-container" style="display: none; margin-top: 16px; padding: 16px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;">
+    <h4 style="margin: 0 0 12px 0; color: #1e293b; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+      🔍 Status på gjennomførte kontroller
+    </h4>
+    <div id="validation-log-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
   </div>
 
   <div class="button-bar">
