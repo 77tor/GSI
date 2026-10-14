@@ -323,7 +323,7 @@ function selectPage(id) {
 
 
 /* =========================================================
-   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED KVITTERING OG LOGG
+   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED KVITTERING OG SKJULT LOGG
    ========================================================= */
 
 if (!window.validationComments) {
@@ -340,13 +340,36 @@ function saveValidationComment(checkKey, btnElement) {
     return;
   }
 
+  // Lagre kommentar i minnet og formData
   window.validationComments[checkKey] = val;
   if (typeof formData !== 'undefined') {
     formData[`val_comment_${checkKey}`] = val;
   }
 
-  // Kjør kontrollen på nytt for å oppdatere visning og teller
+  // Kjør kontrollen på nytt (uten toast) for å fjerne avviket fra øvre liste og flytte det til loggen
   runValidation(false);
+}
+
+function selectPage(id) {
+  if (id < 1 || id > 18) return;
+  
+  if (typeof getDisabledPages === 'function' && getDisabledPages().includes(id)) return;
+
+  if (typeof saveData === 'function') saveData(false);
+
+  currentPage = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', Number(p.dataset.page) === id));
+
+  if (typeof updateHeading === 'function') updateHeading();
+  if (typeof renderSidebar === 'function') renderSidebar();
+
+  // Nullstill/skjul loggboksen og bryteren hver gang brukeren navigerer inn på Side 17
+  if (id === 17) {
+    const toggle = document.getElementById('toggle-passed-checks');
+    if (toggle) toggle.checked = false;
+    const logContainer = document.getElementById('validation-log-container');
+    if (logContainer) logContainer.style.display = 'none';
+  }
 }
 
 function runValidation(showToast = true) {
@@ -360,7 +383,9 @@ function runValidation(showToast = true) {
   const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
   const totalEleverSide3 = num('s3_a_total');
 
+  // ---------------------------------------------------------
   // 1. ELEVER OG TRINN
+  // ---------------------------------------------------------
   let trinnFeil = false;
   let trinnAdvarsel = false;
   for (let t = 1; t <= 10; t++) {
@@ -389,7 +414,9 @@ function runValidation(showToast = true) {
     detail: trinnFeil ? 'Elever ført på trinn utenfor skolens ramme.' : (trinnAdvarsel ? 'Ett eller flere trinn står med 0 elever.' : 'Elever er korrekt ført på skolens trinn.')
   });
 
+  // ---------------------------------------------------------
   // 2. ÅRSTIMER / ELEVTIMER
+  // ---------------------------------------------------------
   const timer17 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
   const timer810 = num('s4_a3_3') || num('s4_a1_3');
   const elever17 = num('s3_a_sum17');
@@ -419,7 +446,9 @@ function runValidation(showToast = true) {
     detail: ordTimerFeil ? 'Timer mangler for registrert elevtall.' : 'Årstimer til ordinær undervisning er registrert.'
   });
 
+  // ---------------------------------------------------------
   // 3. SFO
+  // ---------------------------------------------------------
   const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
   const sfoVal = (sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '').toString().toLowerCase();
   const sfoEleverTotal = num('s14_a_sum_1') + num('s14_a_sum_2');
@@ -445,7 +474,9 @@ function runValidation(showToast = true) {
   }
   allChecks.push({ id: 'sfo_sjekk', title: 'SFO-tilbud og elevtall (Side 2D vs Side 14)', status: sfoStatus, detail: sfoDetail });
 
+  // ---------------------------------------------------------
   // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING
+  // ---------------------------------------------------------
   const s7Total = num('s7_a_tot');
   const s7Gutter = num('s7_a_gsum');
   const s7Jenter = num('s7_a_jsum');
@@ -479,11 +510,13 @@ function runValidation(showToast = true) {
   allChecks.push({
     id: 'spesped_ksn_sjekk',
     title: 'Spesialundervisning og særskilt norsk (Side 7 & 8A)',
-    status: spesPedFeil ? 'error' : 'passed',
+    status: spesPedFeil ? 'error' : (s8NorskSum > totalEleverSide3 ? 'error' : 'passed'),
     detail: spesPedFeil ? 'Avvik i elevtall for tilrettelagt opplæring.' : `Svarer til registrert elevmasse (${s7Total} vedtak).`
   });
 
+  // ---------------------------------------------------------
   // 5. SPESIALUNDERVISNINGSTIMER
+  // ---------------------------------------------------------
   const spesPedTimerSide4 = num('s4_b13_sum') || (num('s4_b1_1') + num('s4_b1_2') + num('s4_b1_3'));
   let spesPedTimerAdvarsel = false;
   if (s7Total > 0 && spesPedTimerSide4 === 0) {
@@ -501,7 +534,9 @@ function runValidation(showToast = true) {
     detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
   });
 
+  // ---------------------------------------------------------
   // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2
+  // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
   if (totalEleverSide3 > 0 && laererAarsverk === 0) {
@@ -632,7 +667,12 @@ function renderValidationResults(errors, warnings, allChecks = []) {
   const countSpan = document.getElementById('validation-count');
 
   const allIssues = [...errors, ...warnings];
-  const unacknowledgedIssues = allIssues.filter(issue => !window.validationComments[issue.id]);
+  
+  // Sorter ut KUN ubehandlede/ukvitterte avvik for den øvre avvikslisten
+  const unacknowledgedIssues = allIssues.filter(issue => {
+    const saved = window.validationComments[issue.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${issue.id}`] : '');
+    return !saved;
+  });
 
   if (countSpan) countSpan.textContent = unacknowledgedIssues.length;
 
@@ -643,16 +683,19 @@ function renderValidationResults(errors, warnings, allChecks = []) {
           ✓ Ingen feil eller advarsler funnet! Skjemaet er i orden og klart til å leveres.
         </div>
       `;
+    } else if (unacknowledgedIssues.length === 0) {
+      container.innerHTML = `
+        <div class="validation-item success-item" style="padding: 12px; background: #e6f4ea; border: 1px solid #a8dab5; border-radius: 4px; color: #137333; font-weight: bold;">
+          ✓ Alle avvik er kvittert ut og behandlet. Skjemaet er klart til å leveres.
+        </div>
+      `;
     } else {
       let html = '';
-      allIssues.forEach(issue => {
+      unacknowledgedIssues.forEach(issue => {
         const isError = issue.type === 'error';
-        const savedComment = window.validationComments[issue.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${issue.id}`] : '') || '';
-        const isAcknowledged = Boolean(savedComment);
-
-        const bgColor = isAcknowledged ? '#f8fafc' : (isError ? '#fce8e6' : '#feefc3');
-        const borderColor = isAcknowledged ? '#94a3b8' : (isError ? '#d93025' : '#f9ab00');
-        const textColor = isAcknowledged ? '#475569' : (isError ? '#a50e0e' : '#804b00');
+        const bgColor = isError ? '#fce8e6' : '#feefc3';
+        const borderColor = isError ? '#d93025' : '#f9ab00';
+        const textColor = isError ? '#a50e0e' : '#804b00';
         const icon = isError ? '▲' : '!';
 
         html += `
@@ -662,13 +705,12 @@ function renderValidationResults(errors, warnings, allChecks = []) {
                 <span class="validation-icon" style="color: ${borderColor}; font-weight: bold; font-size: 1.1rem;">${icon}</span>
                 <div class="validation-text" style="color: ${textColor}; font-size: 0.9rem;">${issue.text}</div>
               </div>
-              ${isAcknowledged ? `<span style="background: #e2e8f0; color: #334155; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; white-space: nowrap;">✓ Kvittert ut</span>` : ''}
             </div>
 
             <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <input type="text" class="validation-comment-input" placeholder="Skriv kommentar/forklaring her..." value="${savedComment}" style="flex: 1; padding: 6px 10px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+              <input type="text" class="validation-comment-input" placeholder="Skriv kommentar/forklaring her..." style="flex: 1; padding: 6px 10px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px;">
               <button type="button" class="btn" style="padding: 6px 12px; font-size: 0.82rem; white-space: nowrap; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="saveValidationComment('${issue.id}', this)">
-                ${isAcknowledged ? 'Oppdater' : 'Kvittér ut'}
+                Kvittér ut
               </button>
             </div>
           </div>
@@ -678,19 +720,22 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }
   }
 
+  // TEGN UT HELE STATUSLOGGEN MED EVENTUELLE KOMMENTARER
   const logList = document.getElementById('validation-log-list');
   if (logList && allChecks.length > 0) {
     logList.innerHTML = allChecks.map(check => {
+      const comment = window.validationComments[check.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${check.id}`] : '');
+
       let badgeHtml = '';
       if (check.status === 'passed') {
         badgeHtml = `<span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">✓ OK</span>`;
+      } else if (comment) {
+        badgeHtml = `<span style="background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">✓ Kvittert ut</span>`;
       } else if (check.status === 'warning') {
         badgeHtml = `<span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">! Advarsel</span>`;
       } else {
         badgeHtml = `<span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">▲ Feil</span>`;
       }
-
-      const comment = window.validationComments[check.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${check.id}`] : '');
 
       return `
         <div style="padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.88rem;">
@@ -720,55 +765,13 @@ function togglePassedChecksView() {
   }
 }
 
-const navigatePage = dir => selectPage(currentPage + dir);
-
-function showSaveMessage(msg) {
-  let box = document.getElementById('save-message');
-  if (!box) {
-    box = document.createElement('div');
-    box.id = 'save-message';
-    box.className = 'save-message-toast';
-    document.body.appendChild(box);
-  }
-  box.textContent = msg;
-  box.style.display = 'block';
-  clearTimeout(box._timer);
-  box._timer = setTimeout(() => box.style.display = 'none', 1800);
-}
-
-function updateTopbarInfo() {
-  const activeSchool = typeof getSchools === 'function' ? getSchools().find(s => s.id === activeSchoolId) : null;
-
-  const schoolInput = document.getElementById('s1_skole');
-  const schoolName = schoolInput?.value || formData['s1_skole'] || activeSchool?.name || 'Velg skole...';
-
-  const muniInput = document.getElementById('s1_kommunenavn');
-  const municipality = muniInput?.value || formData['s1_kommunenavn'] || activeSchool?.kommune || 'Kommune';
-
-  const userNameInput = document.getElementById('s18_navn') || document.getElementById('s18_a_navn');
-  const userName = userNameInput?.value || formData['s18_navn'] || formData['s18_a_navn'] || 'Tor Pettersen Skarprud';
-
-  const userRoleInput = document.getElementById('s18_rolle') || document.getElementById('s18_a_rolle');
-  const userRole = userRoleInput?.value || formData['s18_rolle'] || formData['s18_a_rolle'] || 'Skoleleder';
-
-  const elSchool = document.getElementById('topbar-school');
-  const elMuni = document.getElementById('topbar-municipality');
-  const elName = document.getElementById('topbar-user-name');
-  const elRole = document.getElementById('topbar-user-role');
-
-  if (elSchool) elSchool.textContent = schoolName;
-  if (elMuni) elMuni.textContent = municipality;
-  if (elName) elName.textContent = userName;
-  if (elRole) elRole.textContent = userRole;
-}
-
-// Eksponer funksjonene globalt på window-objektet
+// Eksponer funksjonene globalt
 window.saveValidationComment = saveValidationComment;
 window.runValidation = runValidation;
 window.renderValidationResults = renderValidationResults;
 window.togglePassedChecksView = togglePassedChecksView;
 window.selectPage = selectPage;
-window.updateHeading = updateHeading;
+
 
 
 /* =========================================================

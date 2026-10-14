@@ -1939,7 +1939,7 @@
       <span class="validation-count">Antall ubehandlede avvik: <span id="validation-count">0</span></span>
     </div>
 
-    <!-- SLIDE-BRYTER FOR Å VISE ALLE GJENNOMFØRTE KONTROLLER -->
+    <!-- SLIDE-BRYTER (STARTER ALLTID AV) -->
     <div style="display: flex; align-items: center; gap: 10px;">
       <span style="font-size: 0.88rem; font-weight: 600; color: #334155;">Vis alle utførte kontroller</span>
       <label class="switch-slide">
@@ -1951,7 +1951,11 @@
 
   <!-- AVVIKSRAPPORT MED KOMMENTARFELT OG KVITTERING -->
   <div class="validation-panel">
-    <div id="validation-results" class="validation-results"></div>
+    <div id="validation-results" class="validation-results">
+      <div style="padding: 16px; color: #e2e8f0; font-style: italic;">
+        Trykk på knappen «Kontroller skjema» ovenfor for å starte kontrollen av opplysningene i skjemaet.
+      </div>
+    </div>
   </div>
 
   <!-- BOKS FOR UTFØRTE KONTROLLER OG RESULTAT (SKJULT SOM STANDARD) -->
