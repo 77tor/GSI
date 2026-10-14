@@ -322,13 +322,14 @@ function selectPage(id) {
 }
 
 
-
 /* =========================================================
-   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED KVITTERING OG SKJULT LOGG
+   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR (SKOLE-SEPARERT)
    ========================================================= */
 
-if (!window.validationComments) {
-  window.validationComments = {};
+// Hjelpefunksjon for å hente unikk kommentarnøkkel per skole
+function getCommentKey(checkId) {
+  const schoolId = typeof activeSchoolId !== 'undefined' ? activeSchoolId : 'default';
+  return `val_comment_${schoolId}_${checkId}`;
 }
 
 function saveValidationComment(checkKey, btnElement) {
@@ -341,36 +342,15 @@ function saveValidationComment(checkKey, btnElement) {
     return;
   }
 
-  // Lagre kommentar i minnet og formData
-  window.validationComments[checkKey] = val;
+  const storageKey = getCommentKey(checkKey);
+  if (!window.validationComments) window.validationComments = {};
+  window.validationComments[storageKey] = val;
+
   if (typeof formData !== 'undefined') {
-    formData[`val_comment_${checkKey}`] = val;
+    formData[storageKey] = val;
   }
 
-  // Kjør kontrollen på nytt (uten toast) for å fjerne avviket fra øvre liste og flytte det til loggen
   runValidation(false);
-}
-
-function selectPage(id) {
-  if (id < 1 || id > 18) return;
-  
-  if (typeof getDisabledPages === 'function' && getDisabledPages().includes(id)) return;
-
-  if (typeof saveData === 'function') saveData(false);
-
-  currentPage = id;
-  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', Number(p.dataset.page) === id));
-
-  if (typeof updateHeading === 'function') updateHeading();
-  if (typeof renderSidebar === 'function') renderSidebar();
-
-  // Nullstill/skjul loggboksen og bryteren hver gang brukeren navigerer inn på Side 17
-  if (id === 17) {
-    const toggle = document.getElementById('toggle-passed-checks');
-    if (toggle) toggle.checked = false;
-    const logContainer = document.getElementById('validation-log-container');
-    if (logContainer) logContainer.style.display = 'none';
-  }
 }
 
 function runValidation(showToast = true) {
@@ -380,26 +360,40 @@ function runValidation(showToast = true) {
 
   const num = (id) => typeof numberValue === 'function' ? numberValue(id) : (parseFloat(document.getElementById(id)?.value) || parseFloat(formData[id]) || 0);
 
-  const minTrinn = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
-  const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
+  // Dynamisk beregning av laveste og høyeste trinn med elever på Side 3A
+  let dynamicMin = 10, dynamicMax = 1;
+  let hasStudentsOnAnyGrade = false;
+
+  for (let t = 1; t <= 10; t++) {
+    if (num(`s3_a_${t}_sum`) > 0) {
+      hasStudentsOnAnyGrade = true;
+      if (t < dynamicMin) dynamicMin = t;
+      if (t > dynamicMax) dynamicMax = t;
+    }
+  }
+
+  const s2Min = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
+  const s2Max = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
+
+  // Bruk reelle elever på Side 3A hvis de finnes, ellers Side 2 sine rammer
+  const minTrinn = hasStudentsOnAnyGrade ? Math.min(s2Min, dynamicMin) : s2Min;
+  const maxTrinn = hasStudentsOnAnyGrade ? Math.max(s2Max, dynamicMax) : s2Max;
   const totalEleverSide3 = num('s3_a_total');
 
-  // ---------------------------------------------------------
   // 1. ELEVER OG TRINN
-  // ---------------------------------------------------------
   let trinnFeil = false;
   let trinnAdvarsel = false;
   for (let t = 1; t <= 10; t++) {
     const eleverTrinn = num(`s3_a_${t}_sum`);
-    if ((t < minTrinn || t > maxTrinn) && eleverTrinn > 0) {
+    if ((t < s2Min || t > s2Max) && eleverTrinn > 0) {
       trinnFeil = true;
       errors.push({
         id: `trinn_ramme_${t}`,
         type: 'error',
-        text: `<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${minTrinn}.–${maxTrinn}. trinn på Side 2.`
+        text: `<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${s2Min}.–${s2Max}. trinn på Side 2.`
       });
     }
-    if (t >= minTrinn && t <= maxTrinn && eleverTrinn === 0) {
+    if (t >= s2Min && t <= s2Max && eleverTrinn === 0) {
       trinnAdvarsel = true;
       warnings.push({
         id: `trinn_null_${t}`,
@@ -415,9 +409,7 @@ function runValidation(showToast = true) {
     detail: trinnFeil ? 'Elever ført på trinn utenfor skolens ramme.' : (trinnAdvarsel ? 'Ett eller flere trinn står med 0 elever.' : 'Elever er korrekt ført på skolens trinn.')
   });
 
-  // ---------------------------------------------------------
   // 2. ÅRSTIMER / ELEVTIMER
-  // ---------------------------------------------------------
   const timer17 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
   const timer810 = num('s4_a3_3') || num('s4_a1_3');
   const elever17 = num('s3_a_sum17');
@@ -447,9 +439,7 @@ function runValidation(showToast = true) {
     detail: ordTimerFeil ? 'Timer mangler for registrert elevtall.' : 'Årstimer til ordinær undervisning er registrert.'
   });
 
-  // ---------------------------------------------------------
   // 3. SFO
-  // ---------------------------------------------------------
   const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
   const sfoVal = (sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '').toString().toLowerCase();
   const sfoEleverTotal = num('s14_a_sum_1') + num('s14_a_sum_2');
@@ -475,9 +465,7 @@ function runValidation(showToast = true) {
   }
   allChecks.push({ id: 'sfo_sjekk', title: 'SFO-tilbud og elevtall (Side 2D vs Side 14)', status: sfoStatus, detail: sfoDetail });
 
-  // ---------------------------------------------------------
   // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING
-  // ---------------------------------------------------------
   const s7Total = num('s7_a_tot');
   const s7Gutter = num('s7_a_gsum');
   const s7Jenter = num('s7_a_jsum');
@@ -515,9 +503,7 @@ function runValidation(showToast = true) {
     detail: spesPedFeil ? 'Avvik i elevtall for tilrettelagt opplæring.' : `Svarer til registrert elevmasse (${s7Total} vedtak).`
   });
 
-  // ---------------------------------------------------------
   // 5. SPESIALUNDERVISNINGSTIMER
-  // ---------------------------------------------------------
   const spesPedTimerSide4 = num('s4_b13_sum') || (num('s4_b1_1') + num('s4_b1_2') + num('s4_b1_3'));
   let spesPedTimerAdvarsel = false;
   if (s7Total > 0 && spesPedTimerSide4 === 0) {
@@ -535,9 +521,7 @@ function runValidation(showToast = true) {
     detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
   });
 
-  // ---------------------------------------------------------
   // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2
-  // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
   if (totalEleverSide3 > 0 && laererAarsverk === 0) {
@@ -658,7 +642,10 @@ function runValidation(showToast = true) {
   renderValidationResults(errors, warnings, allChecks);
 
   if (showToast && typeof showSaveMessage === 'function') {
-    const unacknowledged = [...errors, ...warnings].filter(i => !window.validationComments[i.id]).length;
+    const unacknowledged = [...errors, ...warnings].filter(i => {
+      const key = getCommentKey(i.id);
+      return !(window.validationComments?.[key] || formData?.[key]);
+    }).length;
     showSaveMessage(unacknowledged === 0 ? 'Ingen ubehandlede avvik funnet!' : `Kontroll utført: ${unacknowledged} ubehandlede avvik.`);
   }
 }
@@ -669,9 +656,10 @@ function renderValidationResults(errors, warnings, allChecks = []) {
 
   const allIssues = [...errors, ...warnings];
   
-  // Sorter ut KUN ubehandlede/ukvitterte avvik for den øvre avvikslisten
+  // Sorter ut KUN ubehandlede/ukvitterte avvik for aktiv skole
   const unacknowledgedIssues = allIssues.filter(issue => {
-    const saved = window.validationComments[issue.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${issue.id}`] : '');
+    const key = getCommentKey(issue.id);
+    const saved = window.validationComments?.[key] || (typeof formData !== 'undefined' ? formData[key] : '');
     return !saved;
   });
 
@@ -721,11 +709,12 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }
   }
 
-  // TEGN UT HELE STATUSLOGGEN MED EVENTUELLE KOMMENTARER
+  // TEGN UT HELE STATUSLOGGEN MED SKOLESPESIFIKKE KOMMENTARER
   const logList = document.getElementById('validation-log-list');
   if (logList && allChecks.length > 0) {
     logList.innerHTML = allChecks.map(check => {
-      const comment = window.validationComments[check.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${check.id}`] : '');
+      const key = getCommentKey(check.id);
+      const comment = window.validationComments?.[key] || (typeof formData !== 'undefined' ? formData[key] : '');
 
       let badgeHtml = '';
       if (check.status === 'passed') {
@@ -757,6 +746,7 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }).join('');
   }
 }
+
 
 function togglePassedChecksView() {
   const checkbox = document.getElementById('toggle-passed-checks');
