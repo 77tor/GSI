@@ -322,6 +322,7 @@ function selectPage(id) {
 }
 
 
+
 /* =========================================================
    SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED KVITTERING OG SKJULT LOGG
    ========================================================= */
@@ -528,7 +529,7 @@ function runValidation(showToast = true) {
     });
   }
   allChecks.push({
-    id: 'spesped_timer_sjekk',
+    id: 'spesped_timer_mangler',
     title: 'Spesialundervisningstimer (Side 4B vs Side 7)',
     status: spesPedTimerAdvarsel ? 'warning' : 'passed',
     detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
@@ -545,7 +546,7 @@ function runValidation(showToast = true) {
       type: 'error',
       text: `<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`
     });
-    allChecks.push({ id: 'laereraarsverk_sjekk', title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
+    allChecks.push({ id: 'laereraarsverk_mangler', title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
   } else {
 
     // A. 1.–4. TRINN
@@ -575,7 +576,7 @@ function runValidation(showToast = true) {
         gs2Status14 = 'warning';
         gs2Detail14 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push({
-          id: 'laerernorm_14_mangler_timer',
+          id: 'laerernorm_14',
           type: 'warning',
           text: `<b>Lærertetthet (1.–4. trinn):</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
         });
@@ -610,7 +611,7 @@ function runValidation(showToast = true) {
         gs2Status57 = 'warning';
         gs2Detail57 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push({
-          id: 'laerernorm_57_mangler_timer',
+          id: 'laerernorm_57',
           type: 'warning',
           text: `<b>Lærertetthet (5.–7. trinn):</b> Det er registrert elever på 5.–7. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
         });
@@ -645,7 +646,7 @@ function runValidation(showToast = true) {
         gs2Status810 = 'warning';
         gs2Detail810 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push({
-          id: 'laerernorm_810_mangler_timer',
+          id: 'laerernorm_810',
           type: 'warning',
           text: `<b>Lærertetthet (8.–10. trinn):</b> Det er registrert elever på 8.–10. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
         });
@@ -765,13 +766,39 @@ function togglePassedChecksView() {
   }
 }
 
-// Eksponer funksjonene globalt
+function updateTopbarInfo() {
+  const activeSchool = typeof getSchools === 'function' ? getSchools().find(s => s.id === activeSchoolId) : null;
+
+  const schoolInput = document.getElementById('s1_skole');
+  const schoolName = schoolInput?.value || formData['s1_skole'] || activeSchool?.name || 'Velg skole...';
+
+  const muniInput = document.getElementById('s1_kommunenavn');
+  const municipality = muniInput?.value || formData['s1_kommunenavn'] || activeSchool?.kommune || 'Kommune';
+
+  const userNameInput = document.getElementById('s18_navn') || document.getElementById('s18_a_navn');
+  const userName = userNameInput?.value || formData['s18_navn'] || formData['s18_a_navn'] || 'Tor Pettersen Skarprud';
+
+  const userRoleInput = document.getElementById('s18_rolle') || document.getElementById('s18_a_rolle');
+  const userRole = userRoleInput?.value || formData['s18_rolle'] || formData['s18_a_rolle'] || 'Skoleleder';
+
+  const elSchool = document.getElementById('topbar-school');
+  const elMuni = document.getElementById('topbar-municipality');
+  const elName = document.getElementById('topbar-user-name');
+  const elRole = document.getElementById('topbar-user-role');
+
+  if (elSchool) elSchool.textContent = schoolName;
+  if (elMuni) elMuni.textContent = municipality;
+  if (elName) elName.textContent = userName;
+  if (elRole) elRole.textContent = userRole;
+}
+
+// Eksponer funksjonene globalt på window-objektet
 window.saveValidationComment = saveValidationComment;
 window.runValidation = runValidation;
 window.renderValidationResults = renderValidationResults;
 window.togglePassedChecksView = togglePassedChecksView;
 window.selectPage = selectPage;
-
+window.updateTopbarInfo = updateTopbarInfo;
 
 
 /* =========================================================
