@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GSI - Grunnskolens innrapportering</title>
+    <link rel="icon" type="image/svg" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
   <link rel="stylesheet" href="styles.css">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -241,7 +243,7 @@
     <div class="section-header">C. Hva er normalt høyeste trinn ved skolen? <span class="help-icon">?</span></div>
     <div class="section-body">
       <div class="form-group">
-        <select id="s2_hoyeste_trinn">
+        <select id="s2_hoyeste_trinn" onchange="renderSidebar(); if(typeof saveData === 'function') saveData(false);">
           <option value="1">1. trinn</option>
           <option value="2">2. trinn</option>
           <option value="3">3. trinn</option>
@@ -262,8 +264,8 @@
     <div class="section-header">D. Har skolen tilbud om SFO? <span class="help-icon">?</span></div>
     <div class="section-body">
       <div class="radio-inline">
-        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_ja" value="Ja"> <span>Ja</span></label>
-        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_nei" value="Nei"> <span>Nei</span></label>
+        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_ja" value="Ja" onchange="renderSidebar(); if(typeof saveData === 'function') saveData(false);"> <span>Ja</span></label>
+        <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_nei" value="Nei" onchange="renderSidebar(); if(typeof saveData === 'function') saveData(false);"> <span>Nei</span></label>
       </div>
     </div>
   </section>

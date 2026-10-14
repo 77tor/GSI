@@ -221,17 +221,61 @@ function calculateAll(saveAfter = false) {
 /* =========================================================
    SIDEMENY OG NAVIGASJON
    ========================================================= */
+/* Dynamisk sjekk av hvilke sider som skal være deaktiverte basert på Side 2 */
+function getDisabledPages() {
+  // Side 15 (PPT) er alltid deaktivert for skoler
+  const disabled = [15];
+
+  // 1. Sjekk Høyeste trinn (2C)
+  const maxTrinnEl = document.getElementById('s2_hoyeste_trinn') || document.getElementById('s2_c');
+  const maxTrinnVal = maxTrinnEl?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '';
+  const maxTrinn = parseInt(maxTrinnVal, 10);
+
+  // Hvis høyeste trinn er lavere enn 8 (dvs. 1.–7. trinn/barneskole), deaktiveres Side 10 og 11
+  if (isNaN(maxTrinn) || maxTrinn < 8) {
+    disabled.push(10, 11);
+  }
+
+  // 2. Sjekk SFO (2D)
+  const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
+  const sfoVal = sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '';
+  const sfoValLower = String(sfoVal).toLowerCase();
+
+  // Deaktiver Side 14 dersom "Nei" er valgt
+  if (sfoValLower === 'nei' || sfoValLower === '2' || sfoValLower === 'false') {
+    disabled.push(14);
+  }
+
+  return disabled;
+}
 
 function renderSidebar() {
   const nav = document.getElementById('sidebar-menu');
   if (!nav) return;
 
-  nav.innerHTML = pages.map(p => `
-    <a href="#" class="nav-item${p.id === currentPage ? ' active' : ''}" onclick="event.preventDefault(); selectPage(${p.id})">
-      <span class="nav-number">${p.id}</span><span>${p.name}</span>
-    </a>
-  `).join('');
+  const activeDisabledPages = getDisabledPages();
+
+  nav.innerHTML = pages.map(p => {
+    const isActive = p.id === currentPage;
+    const isDisabled = activeDisabledPages.includes(p.id);
+
+    let classList = 'nav-item';
+    if (isActive) classList += ' active';
+    if (isDisabled) classList += ' disabled';
+
+    const clickAttr = isDisabled 
+      ? 'onclick="event.preventDefault();"' 
+      : `onclick="event.preventDefault(); selectPage(${p.id});"`;
+
+    return `
+      <a href="#" class="${classList}" ${clickAttr}>
+        <span class="nav-number">${p.id}</span><span>${p.name}</span>
+      </a>
+    `;
+  }).join('');
 }
+
+
 
 function updateHeading() {
   const heading = document.getElementById('page-heading');
@@ -261,6 +305,10 @@ function updateHeading() {
 
 function selectPage(id) {
   if (id < 1 || id > 18) return;
+  
+  // Hindre navigasjon til sider som er deaktiverte
+  if (getDisabledPages().includes(id)) return;
+
   saveData(false);
 
   currentPage = id;
@@ -904,32 +952,30 @@ function restoreSide7HRows() {
    ========================================================= */
 
 function calcSide8() {
-  // 1. Summer hver enkelt rad (1.-10. trinn) i 8A
+  let sumNorsk = 0;
+  let sumGno = 0;
+
+  // 1. Les ut verdier fra trinn 1 til 10 (s8_a1_norsk ... s8_a10_norsk)
   for (let i = 1; i <= 10; i++) {
-    const norsk = numberValue(`s8_a_${i}_norsk`);
-    const gno = numberValue(`s8_a_${i}_gno`);
-    const rowSum = norsk + gno;
-    setNumber(`s8_a_${i}_sum`, rowSum > 0 ? rowSum : '');
+    const norskVal = numberValue(`s8_a${i}_norsk`) || 0;
+    const gnoVal = numberValue(`s8_a${i}_gno`) || 0;
+
+    sumNorsk += norskVal;
+    sumGno += gnoVal;
   }
 
-  // 2. Summer kolonnene i 8A
-  const norskSum = sumIds(rangeIds('s8_a_', 1, 10, '_norsk'));
-  const gnoSum = sumIds(rangeIds('s8_a_', 1, 10, '_gno'));
-  const totalSum = norskSum + gnoSum;
+  // 2. Oppdater sum-raden nederst (s8_a_norsk_sum og s8_a_gno_sum)
+  setNumber('s8_a_norsk_sum', sumNorsk > 0 ? sumNorsk : '');
+  setNumber('s8_a_gno_sum', sumGno > 0 ? sumGno : '');
 
-  setNumber('s8_a_norsk_sum', norskSum);
-  setNumber('s8_a_gno_sum', gnoSum);
-  setNumber('s8_a_sum', totalSum);
-  setNumber('s8_a_total_sum', totalSum);
-
-  // 3. Summer Tabell 8B (Gutter + Jenter)
+  // 3. Tabell 8B (Gutter + Jenter)
   ['b1', 'b2'].forEach(row => {
-    const g = numberValue(`s8_${row}_g`);
-    const j = numberValue(`s8_${row}_j`);
+    const g = numberValue(`s8_${row}_g`) || 0;
+    const j = numberValue(`s8_${row}_j`) || 0;
     setNumber(`s8_${row}_sum`, (g + j) > 0 ? (g + j) : '');
   });
 
-  // 4. Utfør eksisterende beregninger for 8C og 8D
+  // 4. Oppdater 8C og 8D
   if (typeof calcSide8C === 'function') calcSide8C();
   if (typeof calcSide8D === 'function') calcSide8D();
 }

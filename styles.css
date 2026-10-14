@@ -71,6 +71,19 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 .nav-item.active .nav-number { background: #222; color: #fff; border-color: #222; }
 .nav-item.disabled { opacity: .45; cursor: default; }
 
+/* Deaktiverte og dimmede meny-elementer i venstremenyen */
+.nav-item.disabled {
+  opacity: 0.45 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+
+.nav-item.disabled .nav-number {
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  background-color: #f1f5f9 !important;
+}
+
 /* ========================================================= 4. HOVEDINNHOLD ========================================================= */
 .main, #view-form {
   flex: 1;
@@ -247,10 +260,15 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
    INPUTFELT
    ========================================================= */
 
-.page-3 .gsi-table input[type="number"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit;text-align:right}
-.page-3 .gsi-table input[type="text"]{width:100%;height:30px;padding:3px 6px;border:0;background:#fff;font:inherit}
-.page-3 .gsi-table .auto input,.page-3 .gsi-table .total-row input{background:#cfcfcf}
+.page-3 .gsi-table input[type="number"] { width: 100%; height: 100%; padding: 3px 6px; border: 0; background: #fff; font: inherit; text-align: right; box-shadow: none; outline: none; }
+.page-3 .gsi-table input[type="text"] { width: 100%; height: 100%; padding: 3px 6px; border: 0; background: #fff; font: inherit; box-shadow: none; outline: none; }
 
+/* Sømløs gråfarge over hele sum- og totalfeltene */
+.page-3 .gsi-table td.auto,
+.page-3 .gsi-table .total-row td { background: #c6c6c6 !important; }
+
+.page-3 .gsi-table .auto input,
+.page-3 .gsi-table .total-row input { background: transparent !important; border: 0 !important; box-shadow: none !important; font-weight: bold; }
 /* =========================================================
    LEGG TIL RAD
    ========================================================= */
