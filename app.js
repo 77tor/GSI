@@ -357,15 +357,19 @@ function runValidation(showToast = true) {
     }
   }
 
-  // ---------------------------------------------------------
-  // 2. SJEKK AV UNDERVISNINGSTIMER (Side 3B vs Side 3A)
+// ---------------------------------------------------------
+  // 2. SJEKK AV ÅRSTIMER / UNDERVISNINGSTIMER (Side 4A / 3B vs Side 3A)
   // ---------------------------------------------------------
   for (let t = minTrinn; t <= maxTrinn; t++) {
     const eleverTrinn = num(`s3_a_${t}_sum`) || (num(`s3_a_${t}_gutter`) + num(`s3_a_${t}_jenter`));
-    const timerTrinn = num(`s3_b_${t}`);
+    
+    // Henter timer enten fra Side 4A (f.eks. s4_a_1) eller Side 3B (f.eks. s3_b_1)
+    const timerSide4A = num(`s4_a_${t}`) || num(`s4_a_${t}_timer`);
+    const timerSide3B = num(`s3_b_${t}`);
+    const totalTimerTrinn = timerSide4A || timerSide3B;
 
-    if (eleverTrinn > 0 && timerTrinn === 0) {
-      errors.push(`<b>Side 3B:</b> ${t}. trinn har ${eleverTrinn} elever, men det er ført 0 undervisningstimer.`);
+    if (eleverTrinn > 0 && totalTimerTrinn === 0) {
+      errors.push(`<b>Side 4A / 3B:</b> ${t}. trinn har ${eleverTrinn} elever, men 0 årstimer/undervisningstimer er registrert.`);
     }
   }
 
@@ -373,12 +377,19 @@ function runValidation(showToast = true) {
   // 3. SJEKK AV SFO (Side 2D vs Side 14)
   // ---------------------------------------------------------
   const sfoStatus = radio('s2_sfo').toLowerCase();
-  const sfoEleverTotal = num('s14_a_total') || num('s14_total');
+
+  // Summerer opp alle mulige SFO-elevfelter (Side 14A: trinn 1-4 + eventuelle sum-felter)
+  let sfoEleverTotal = num('s14_a_total') || num('s14_total') || num('s14_a_sum');
+  if (sfoEleverTotal === 0) {
+    for (let t = 1; t <= 4; t++) {
+      sfoEleverTotal += num(`s14_a_${t}`) || num(`s14_a_${t}_elever`) || num(`s14_${t}`);
+    }
+  }
 
   if ((sfoStatus === 'nei' || sfoStatus === '2') && sfoEleverTotal > 0) {
-    errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men det er likevel ført ${sfoEleverTotal} SFO-elever.`);
+    errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men det er registrert ${sfoEleverTotal} SFO-elever på Side 14.`);
   } else if ((sfoStatus === 'ja' || sfoStatus === '1') && sfoEleverTotal === 0 && minTrinn <= 4) {
-    warnings.push(`<b>Side 14:</b> Skolen har SFO-tilbud på Side 2, men 0 elever er registrert på Side 14.`);
+    warnings.push(`<b>Side 14:</b> Skolen har SFO-tilbud ifølge Side 2, men ingen SFO-elever er registrert på Side 14.`);
   }
 
   // ---------------------------------------------------------
