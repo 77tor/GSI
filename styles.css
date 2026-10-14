@@ -1007,23 +1007,87 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 #page-16 .table-s16-a thead th:last-child{background:#c6c6c6!important}
 #page-16 .table-s16-d thead th:last-child{background:#c6c6c6!important}
 
-
 /* =========================================================
-   SIDE 17 – KONTROLLER
+   SIDE 17 – KONTROLLER (INKL. SLIDE-BRYTER OG KOMMENTARFELT)
    ========================================================= */
-#page-17{max-width:965px}
-#page-17 .validation-intro{font-size:13px;line-height:1.35;margin:0 0 10px}
-#page-17 .validation-intro p{margin:0 0 7px}
-#page-17 .validation-explanation{display:flex;align-items:center;gap:6px}
-#page-17 .validation-icon{width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 17px;font-weight:700;color:#fff;font-size:12px}
-#page-17 .warning-icon{background:#f2b600;border-radius:50%}
-#page-17 .error-icon{background:#d71920;clip-path:polygon(50% 0,100% 100%,0 100%);font-size:9px;padding-top:4px}
-#page-17 .validation-toolbar{display:flex;align-items:center;justify-content:space-between;margin:12px 0 7px;padding:0 8px 0 4px}
-#page-17 .validation-toolbar .btn{font-size:12px;padding:7px 10px;min-width:auto}
-#page-17 .validation-count{font-size:13px}
-#page-17 .validation-panel{min-height:163px;background:#57749b;border:8px solid #e4edf7;border-radius:7px;padding:0}
-#page-17 .validation-results{min-height:147px;padding:8px;background:#57749b;color:#fff}
-#page-17 .button-bar{margin-top:10px}
+#page-17 { max-width: 965px; }
+#page-17 .validation-intro { font-size: 13px; line-height: 1.35; margin: 0 0 10px; }
+#page-17 .validation-intro p { margin: 0 0 7px; }
+#page-17 .validation-explanation { display: flex; align-items: center; gap: 6px; }
+#page-17 .validation-icon { width: 17px; height: 17px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 17px; font-weight: 700; color: #fff; font-size: 12px; }
+#page-17 .warning-icon { background: #f2b600; border-radius: 50%; }
+#page-17 .error-icon { background: #d71920; clip-path: polygon(50% 0, 100% 100%, 0 100%); font-size: 9px; padding-top: 4px; }
+#page-17 .validation-toolbar { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 7px; padding: 0 8px 0 4px; }
+#page-17 .validation-toolbar .btn { font-size: 12px; padding: 7px 10px; min-width: auto; }
+#page-17 .validation-count { font-size: 13px; }
+#page-17 .validation-panel { min-height: 163px; background: #57749b; border: 8px solid #e4edf7; border-radius: 7px; padding: 0; }
+#page-17 .validation-results { min-height: 147px; padding: 8px; background: #57749b; color: #333; }
+#page-17 .button-bar { margin-top: 10px; }
+
+/* STYLING FOR SLIDE-BRYTER (TOGGLE SWITCH) */
+.switch-slide {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch-slide input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #2563eb;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 22px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* STYLING FOR KOMMENTARINPUT NÅR AVVIK SKAL KVITTERES UT */
+.validation-comment-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.validation-comment-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
 
 
 /* ========================================================= SIDE 18 – FULLFØR ========================================================= */

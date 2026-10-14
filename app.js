@@ -323,295 +323,321 @@ function selectPage(id) {
 
 
 /* =========================================================
-   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED LOGG-VISNING
+   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED KVITTERING OG LOGG
    ========================================================= */
+
+if (!window.validationComments) {
+  window.validationComments = {};
+}
+
+function saveValidationComment(checkKey, btnElement) {
+  const container = btnElement.closest('.validation-item');
+  const input = container.querySelector('.validation-comment-input');
+  const val = input ? input.value.trim() : '';
+
+  if (!val) {
+    alert('Vennligst skriv en kommentar før du kvitterer ut avviket.');
+    return;
+  }
+
+  window.validationComments[checkKey] = val;
+  if (typeof formData !== 'undefined') {
+    formData[`val_comment_${checkKey}`] = val;
+  }
+
+  // Kjør kontrollen på nytt for å oppdatere visning og teller
+  runValidation(false);
+}
 
 function runValidation(showToast = true) {
   const warnings = [];
   const errors = [];
-  const allChecks = []; // Liste over alle gjennomførte kontroller for logg-visning
+  const allChecks = [];
 
   const num = (id) => typeof numberValue === 'function' ? numberValue(id) : (parseFloat(document.getElementById(id)?.value) || parseFloat(formData[id]) || 0);
 
-  // Henter laveste trinn fra s2_laveste_trinn og høyeste fra s2_hoyeste_trinn
   const minTrinn = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
   const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
   const totalEleverSide3 = num('s3_a_total');
 
-  // ---------------------------------------------------------
-  // 1. ELEVER OG TRINN (Side 2 vs Side 3A)
-  // ---------------------------------------------------------
+  // 1. ELEVER OG TRINN
   let trinnFeil = false;
   let trinnAdvarsel = false;
-  
   for (let t = 1; t <= 10; t++) {
     const eleverTrinn = num(`s3_a_${t}_sum`);
-
     if ((t < minTrinn || t > maxTrinn) && eleverTrinn > 0) {
       trinnFeil = true;
-      errors.push(`<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${minTrinn}.–${maxTrinn}. trinn på Side 2.`);
+      errors.push({
+        id: `trinn_ramme_${t}`,
+        type: 'error',
+        text: `<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${minTrinn}.–${maxTrinn}. trinn på Side 2.`
+      });
     }
-
     if (t >= minTrinn && t <= maxTrinn && eleverTrinn === 0) {
       trinnAdvarsel = true;
-      warnings.push(`<b>Side 3A:</b> Skolen har ${t}. trinn ifølge Side 2, men 0 elever er ført i tabell 3A.`);
+      warnings.push({
+        id: `trinn_null_${t}`,
+        type: 'warning',
+        text: `<b>Side 3A:</b> Skolen har ${t}. trinn ifølge Side 2, men 0 elever er ført i tabell 3A.`
+      });
     }
   }
-
   allChecks.push({
+    id: 'trinn_konsistens',
     title: 'Trinn- og elevtallskonsistens (Side 2 vs Side 3A)',
     status: trinnFeil ? 'error' : (trinnAdvarsel ? 'warning' : 'passed'),
     detail: trinnFeil ? 'Elever ført på trinn utenfor skolens ramme.' : (trinnAdvarsel ? 'Ett eller flere trinn står med 0 elever.' : 'Elever er korrekt ført på skolens trinn.')
   });
 
-  // ---------------------------------------------------------
-  // 2. ÅRSTIMER / ELEVTIMER (Side 4A vs Side 3A)
-  // ---------------------------------------------------------
+  // 2. ÅRSTIMER / ELEVTIMER
   const timer17 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
   const timer810 = num('s4_a3_3') || num('s4_a1_3');
-
   const elever17 = num('s3_a_sum17');
   const elever810 = num('s3_a_sum810');
-
   let ordTimerFeil = false;
 
   if (elever17 > 0 && timer17 === 0 && minTrinn <= 7) {
     ordTimerFeil = true;
-    errors.push(`<b>Side 4A:</b> Det er registrert ${elever17} elever på 1.–7. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
+    errors.push({
+      id: 'timer_mangler_17',
+      type: 'error',
+      text: `<b>Side 4A:</b> Det er registrert ${elever17} elever på 1.–7. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`
+    });
   }
-
   if (elever810 > 0 && timer810 === 0 && maxTrinn >= 8) {
     ordTimerFeil = true;
-    errors.push(`<b>Side 4A:</b> Det er registrert ${elever810} elever på 8.–10. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
+    errors.push({
+      id: 'timer_mangler_810',
+      type: 'error',
+      text: `<b>Side 4A:</b> Det er registrert ${elever810} elever på 8.–10. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`
+    });
   }
-
   allChecks.push({
+    id: 'ordinaere_timer',
     title: 'Ordinære undervisningstimer (Side 4A vs Side 3A)',
     status: ordTimerFeil ? 'error' : 'passed',
     detail: ordTimerFeil ? 'Timer mangler for registrert elevtall.' : 'Årstimer til ordinær undervisning er registrert.'
   });
 
-  // ---------------------------------------------------------
-  // 3. SFO (Side 2D vs Side 14)
-  // ---------------------------------------------------------
+  // 3. SFO
   const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
   const sfoVal = (sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '').toString().toLowerCase();
   const sfoEleverTotal = num('s14_a_sum_1') + num('s14_a_sum_2');
-
   let sfoStatus = 'passed';
   let sfoDetail = 'SFO-status stemmer overens med Side 14.';
 
   if ((sfoVal === 'nei' || sfoVal === '2' || sfoVal === 'false') && sfoEleverTotal > 0) {
     sfoStatus = 'error';
     sfoDetail = 'SFO er satt til "Nei", men elever er registrert på Side 14.';
-    errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men har registrert ${sfoEleverTotal} SFO-elever på Side 14.`);
+    errors.push({
+      id: 'sfo_feil_registrert',
+      type: 'error',
+      text: `<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men har registrert ${sfoEleverTotal} SFO-elever på Side 14.`
+    });
   } else if ((sfoVal === 'ja' || sfoVal === '1' || sfoVal === 'true') && sfoEleverTotal === 0 && minTrinn <= 4) {
     sfoStatus = 'warning';
     sfoDetail = 'SFO er satt til "Ja", men ingen elever er ført i tabell 14A.';
-    warnings.push(`<b>Side 14:</b> Skolen har haket av for SFO-tilbud på Side 2, men ingen elever er registrert i tabell 14A.`);
+    warnings.push({
+      id: 'sfo_mangler_elever',
+      type: 'warning',
+      text: `<b>Side 14:</b> Skolen har haket av for SFO-tilbud på Side 2, men ingen elever er registrert i tabell 14A.`
+    });
   }
+  allChecks.push({ id: 'sfo_sjekk', title: 'SFO-tilbud og elevtall (Side 2D vs Side 14)', status: sfoStatus, detail: sfoDetail });
 
-  allChecks.push({ title: 'SFO-tilbud og elevtall (Side 2D vs Side 14)', status: sfoStatus, detail: sfoDetail });
-
-  // ---------------------------------------------------------
-  // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING (Side 7 & 8A vs Side 3A)
-  // ---------------------------------------------------------
+  // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING
   const s7Total = num('s7_a_tot');
   const s7Gutter = num('s7_a_gsum');
   const s7Jenter = num('s7_a_jsum');
   const s8NorskSum = num('s8_a_norsk_sum');
-
   let spesPedFeil = false;
 
   if (s7Total > totalEleverSide3) {
     spesPedFeil = true;
-    errors.push(`<b>Side 7:</b> Antall elever med spesialundervisning (${s7Total}) kan ikke overstige skolens totale elevtall (${totalEleverSide3}).`);
+    errors.push({
+      id: 'spesped_overstiger_total',
+      type: 'error',
+      text: `<b>Side 7:</b> Antall elever med spesialundervisning (${s7Total}) kan ikke overstige skolens totale elevtall (${totalEleverSide3}).`
+    });
   }
-
   if (s7Gutter + s7Jenter !== s7Total && s7Total > 0) {
     spesPedFeil = true;
-    errors.push(`<b>Side 7:</b> Summen av gutter (${s7Gutter}) og jenter (${s7Jenter}) stemmer ikke overens med totalkolonnen (${s7Total}).`);
+    errors.push({
+      id: 'spesped_kjoenn_sum',
+      type: 'error',
+      text: `<b>Side 7:</b> Summen av gutter (${s7Gutter}) og jenter (${s7Jenter}) stemmer ikke overens med totalkolonnen (${s7Total}).`
+    });
   }
-
   if (s8NorskSum > totalEleverSide3) {
     spesPedFeil = true;
-    errors.push(`<b>Side 8A:</b> Antall elever med særskilt norsk (${s8NorskSum}) overstiger det totale elevantallet (${totalEleverSide3}).`);
+    errors.push({
+      id: 'norsk_overstiger_total',
+      type: 'error',
+      text: `<b>Side 8A:</b> Antall elever med særskilt norsk (${s8NorskSum}) overstiger det totale elevantallet (${totalEleverSide3}).`
+    });
   }
-
   allChecks.push({
+    id: 'spesped_ksn_sjekk',
     title: 'Spesialundervisning og særskilt norsk (Side 7 & 8A)',
     status: spesPedFeil ? 'error' : 'passed',
     detail: spesPedFeil ? 'Avvik i elevtall for tilrettelagt opplæring.' : `Svarer til registrert elevmasse (${s7Total} vedtak).`
   });
 
-  // ---------------------------------------------------------
-  // 5. SPESIALUNDERVISNINGSTIMER (Side 4B vs Side 7)
-  // ---------------------------------------------------------
+  // 5. SPESIALUNDERVISNINGSTIMER
   const spesPedTimerSide4 = num('s4_b13_sum') || (num('s4_b1_1') + num('s4_b1_2') + num('s4_b1_3'));
   let spesPedTimerAdvarsel = false;
-
   if (s7Total > 0 && spesPedTimerSide4 === 0) {
     spesPedTimerAdvarsel = true;
-    warnings.push(`<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`);
+    warnings.push({
+      id: 'spesped_timer_mangler',
+      type: 'warning',
+      text: `<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`
+    });
   }
-
   allChecks.push({
+    id: 'spesped_timer_sjekk',
     title: 'Spesialundervisningstimer (Side 4B vs Side 7)',
     status: spesPedTimerAdvarsel ? 'warning' : 'passed',
     detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
   });
 
-  // ---------------------------------------------------------
-  // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel for alle trinn)
-  // ---------------------------------------------------------
+  // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
   if (totalEleverSide3 > 0 && laererAarsverk === 0) {
-    errors.push(`<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`);
-    allChecks.push({ title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
+    errors.push({
+      id: 'laereraarsverk_mangler',
+      type: 'error',
+      text: `<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`
+    });
+    allChecks.push({ id: 'laereraarsverk_sjekk', title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
   } else {
 
-    // =========================================================
-    // A. 1.–4. TRINN (Lærernorm: Maks 15,0 elever per lærer)
-    // =========================================================
+    // A. 1.–4. TRINN
     if (minTrinn <= 4) {
-      let bruttoElevtimer14 = 0;
-      let antallElever14 = 0;
-
+      let bruttoElevtimer14 = 0, antallElever14 = 0;
       for (let t = Math.max(1, minTrinn); t <= Math.min(4, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`);
         antallElever14 += elever;
-        bruttoElevtimer14 += (elever * aarstimerTrinn);
+        bruttoElevtimer14 += (elever * num(`s3_b_${t}`));
       }
-
       const ordTimerBrutto14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
-      const spesPed14 = num('s4_b1_1');
-      const norsk14 = num('s4_b2_1');
-      const nettoOrdTimer14 = Math.max(0, ordTimerBrutto14 - spesPed14 - norsk14);
-
-      let gs2Status14 = 'passed';
-      let gs2Detail14 = 'Innenfor normen (maks 15,0).';
+      const nettoOrdTimer14 = Math.max(0, ordTimerBrutto14 - num('s4_b1_1') - num('s4_b2_1'));
+      let gs2Status14 = 'passed', gs2Detail14 = 'Innenfor normen (maks 15,0).';
 
       if (nettoOrdTimer14 > 0 && bruttoElevtimer14 > 0) {
         const gs2_14 = Math.round((bruttoElevtimer14 / nettoOrdTimer14) * 100) / 100;
-
         gs2Detail14 = `Beregnet til ${gs2_14.toString().replace('.', ',')} elever/lærer.`;
         if (gs2_14 > 15.0) {
           gs2Status14 = 'warning';
-          warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
+          warnings.push({
+            id: 'laerernorm_14',
+            type: 'warning',
+            text: `<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`
+          });
         }
       } else if (antallElever14 > 0 && nettoOrdTimer14 === 0) {
         gs2Status14 = 'warning';
         gs2Detail14 = 'Ordinære undervisningstimer mangler på Side 4A.';
-        warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
+        warnings.push({
+          id: 'laerernorm_14_mangler_timer',
+          type: 'warning',
+          text: `<b>Lærertetthet (1.–4. trinn):</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
+        });
       }
-
-      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (1.–4. trinn)', status: gs2Status14, detail: gs2Detail14 });
+      allChecks.push({ id: 'laerernorm_14', title: 'Lærernorm / Gruppestørrelse 2 (1.–4. trinn)', status: gs2Status14, detail: gs2Detail14 });
     }
 
-    // =========================================================
-    // B. 5.–7. TRINN (Lærernorm: Maks 20,0 elever per lærer)
-    // =========================================================
+    // B. 5.–7. TRINN
     if (maxTrinn >= 5 && minTrinn <= 7) {
-      let bruttoElevtimer57 = 0;
-      let antallElever57 = 0;
-
+      let bruttoElevtimer57 = 0, antallElever57 = 0;
       for (let t = Math.max(5, minTrinn); t <= Math.min(7, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`);
         antallElever57 += elever;
-        bruttoElevtimer57 += (elever * aarstimerTrinn);
+        bruttoElevtimer57 += (elever * num(`s3_b_${t}`));
       }
-
       const ordTimerBrutto57 = num('s4_a3_2') || (num('s4_a1_2') + num('s4_a2_2'));
-      const spesPed57 = num('s4_b1_2');
-      const norsk57 = num('s4_b2_2');
-      const nettoOrdTimer57 = Math.max(0, ordTimerBrutto57 - spesPed57 - norsk57);
-
-      let gs2Status57 = 'passed';
-      let gs2Detail57 = 'Innenfor normen (maks 20,0).';
+      const nettoOrdTimer57 = Math.max(0, ordTimerBrutto57 - num('s4_b1_2') - num('s4_b2_2'));
+      let gs2Status57 = 'passed', gs2Detail57 = 'Innenfor normen (maks 20,0).';
 
       if (nettoOrdTimer57 > 0 && bruttoElevtimer57 > 0) {
         const gs2_57 = Math.round((bruttoElevtimer57 / nettoOrdTimer57) * 100) / 100;
-
         gs2Detail57 = `Beregnet til ${gs2_57.toString().replace('.', ',')} elever/lærer.`;
         if (gs2_57 > 20.0) {
           gs2Status57 = 'warning';
-          warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`);
+          warnings.push({
+            id: 'laerernorm_57',
+            type: 'warning',
+            text: `<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`
+          });
         }
       } else if (antallElever57 > 0 && nettoOrdTimer57 === 0) {
         gs2Status57 = 'warning';
         gs2Detail57 = 'Ordinære undervisningstimer mangler på Side 4A.';
-        warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Det er registrert elever på 5.–7. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
+        warnings.push({
+          id: 'laerernorm_57_mangler_timer',
+          type: 'warning',
+          text: `<b>Lærertetthet (5.–7. trinn):</b> Det er registrert elever på 5.–7. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
+        });
       }
-
-      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (5.–7. trinn)', status: gs2Status57, detail: gs2Detail57 });
+      allChecks.push({ id: 'laerernorm_57', title: 'Lærernorm / Gruppestørrelse 2 (5.–7. trinn)', status: gs2Status57, detail: gs2Detail57 });
     }
 
-    // =========================================================
-    // C. 8.–10. TRINN (Lærernorm: Maks 20,0 elever per lærer)
-    // =========================================================
+    // C. 8.–10. TRINN
     if (maxTrinn >= 8) {
-      let bruttoElevtimer810 = 0;
-      let antallElever810 = 0;
-
+      let bruttoElevtimer810 = 0, antallElever810 = 0;
       for (let t = Math.max(8, minTrinn); t <= Math.min(10, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`);
         antallElever810 += elever;
-        bruttoElevtimer810 += (elever * aarstimerTrinn);
+        bruttoElevtimer810 += (elever * num(`s3_b_${t}`));
       }
-
       const ordTimerBrutto810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3'));
-      const spesPed810 = num('s4_b1_3');
-      const norsk810 = num('s4_b2_3');
-      const nettoOrdTimer810 = Math.max(0, ordTimerBrutto810 - spesPed810 - norsk810);
-
-      let gs2Status810 = 'passed';
-      let gs2Detail810 = 'Innenfor normen (maks 20,0).';
+      const nettoOrdTimer810 = Math.max(0, ordTimerBrutto810 - num('s4_b1_3') - num('s4_b2_3'));
+      let gs2Status810 = 'passed', gs2Detail810 = 'Innenfor normen (maks 20,0).';
 
       if (nettoOrdTimer810 > 0 && bruttoElevtimer810 > 0) {
         const gs2_810 = Math.round((bruttoElevtimer810 / nettoOrdTimer810) * 100) / 100;
-
         gs2Detail810 = `Beregnet til ${gs2_810.toString().replace('.', ',')} elever/lærer.`;
         if (gs2_810 > 20.0) {
           gs2Status810 = 'warning';
-          warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`);
+          warnings.push({
+            id: 'laerernorm_810',
+            type: 'warning',
+            text: `<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`
+          });
         }
       } else if (antallElever810 > 0 && nettoOrdTimer810 === 0) {
         gs2Status810 = 'warning';
         gs2Detail810 = 'Ordinære undervisningstimer mangler på Side 4A.';
-        warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Det er registrert elever på 8.–10. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
+        warnings.push({
+          id: 'laerernorm_810_mangler_timer',
+          type: 'warning',
+          text: `<b>Lærertetthet (8.–10. trinn):</b> Det er registrert elever på 8.–10. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`
+        });
       }
-
-      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (8.–10. trinn)', status: gs2Status810, detail: gs2Detail810 });
+      allChecks.push({ id: 'laerernorm_810', title: 'Lærernorm / Gruppestørrelse 2 (8.–10. trinn)', status: gs2Status810, detail: gs2Detail810 });
     }
+  }
 
-  } // <-- Her manglet det en lukkende parantes for 'else'
-
-  // ---------------------------------------------------------
-  // PUBLISER OG VIS RESULTATENE
-  // ---------------------------------------------------------
   renderValidationResults(errors, warnings, allChecks);
 
   if (showToast && typeof showSaveMessage === 'function') {
-    const totalCount = errors.length + warnings.length;
-    showSaveMessage(totalCount === 0 ? 'Ingen feil eller avvik funnet!' : `Kontroll utført: ${errors.length} feil, ${warnings.length} advarsler.`);
+    const unacknowledged = [...errors, ...warnings].filter(i => !window.validationComments[i.id]).length;
+    showSaveMessage(unacknowledged === 0 ? 'Ingen ubehandlede avvik funnet!' : `Kontroll utført: ${unacknowledged} ubehandlede avvik.`);
   }
 }
 
-/* Render-funksjon som oppdaterer avvik og den komplette kontroll-loggen på Side 17 */
 function renderValidationResults(errors, warnings, allChecks = []) {
   const container = document.getElementById('validation-results');
   const countSpan = document.getElementById('validation-count');
-  
-  const totalCount = errors.length + warnings.length;
-  if (countSpan) countSpan.textContent = totalCount;
 
-  // 1. Tegn ut avvikene (eller grønn suksessmelding) i øverste panel
+  const allIssues = [...errors, ...warnings];
+  const unacknowledgedIssues = allIssues.filter(issue => !window.validationComments[issue.id]);
+
+  if (countSpan) countSpan.textContent = unacknowledgedIssues.length;
+
   if (container) {
-    if (totalCount === 0) {
+    if (allIssues.length === 0) {
       container.innerHTML = `
         <div class="validation-item success-item" style="padding: 12px; background: #e6f4ea; border: 1px solid #a8dab5; border-radius: 4px; color: #137333; font-weight: bold;">
           ✓ Ingen feil eller advarsler funnet! Skjemaet er i orden og klart til å leveres.
@@ -619,19 +645,32 @@ function renderValidationResults(errors, warnings, allChecks = []) {
       `;
     } else {
       let html = '';
-      errors.forEach(err => {
+      allIssues.forEach(issue => {
+        const isError = issue.type === 'error';
+        const savedComment = window.validationComments[issue.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${issue.id}`] : '') || '';
+        const isAcknowledged = Boolean(savedComment);
+
+        const bgColor = isAcknowledged ? '#f8fafc' : (isError ? '#fce8e6' : '#feefc3');
+        const borderColor = isAcknowledged ? '#94a3b8' : (isError ? '#d93025' : '#f9ab00');
+        const textColor = isAcknowledged ? '#475569' : (isError ? '#a50e0e' : '#804b00');
+        const icon = isError ? '▲' : '!';
+
         html += `
-          <div class="validation-item error-item" style="margin-bottom: 8px; padding: 10px; background: #fce8e6; border-left: 4px solid #d93025; display: flex; align-items: flex-start; gap: 10px;">
-            <span class="validation-icon error-icon" style="color: #d93025; font-weight: bold;">▲</span>
-            <div class="validation-text" style="color: #a50e0e; font-size: 0.9rem;">${err}</div>
-          </div>
-        `;
-      });
-      warnings.forEach(warn => {
-        html += `
-          <div class="validation-item warning-item" style="margin-bottom: 8px; padding: 10px; background: #feefc3; border-left: 4px solid #f9ab00; display: flex; align-items: flex-start; gap: 10px;">
-            <span class="validation-icon warning-icon" style="background: #f9ab00; color: #fff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">!</span>
-            <div class="validation-text" style="color: #804b00; font-size: 0.9rem;">${warn}</div>
+          <div class="validation-item" style="margin-bottom: 12px; padding: 12px; background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 4px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+              <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span class="validation-icon" style="color: ${borderColor}; font-weight: bold; font-size: 1.1rem;">${icon}</span>
+                <div class="validation-text" style="color: ${textColor}; font-size: 0.9rem;">${issue.text}</div>
+              </div>
+              ${isAcknowledged ? `<span style="background: #e2e8f0; color: #334155; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; white-space: nowrap;">✓ Kvittert ut</span>` : ''}
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <input type="text" class="validation-comment-input" placeholder="Skriv kommentar/forklaring her..." value="${savedComment}" style="flex: 1; padding: 6px 10px; font-size: 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+              <button type="button" class="btn" style="padding: 6px 12px; font-size: 0.82rem; white-space: nowrap; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="saveValidationComment('${issue.id}', this)">
+                ${isAcknowledged ? 'Oppdater' : 'Kvittér ut'}
+              </button>
+            </div>
           </div>
         `;
       });
@@ -639,7 +678,6 @@ function renderValidationResults(errors, warnings, allChecks = []) {
     }
   }
 
-  // 2. Tegn ut den detaljerte kontroll-loggen i boksen under
   const logList = document.getElementById('validation-log-list');
   if (logList && allChecks.length > 0) {
     logList.innerHTML = allChecks.map(check => {
@@ -652,20 +690,28 @@ function renderValidationResults(errors, warnings, allChecks = []) {
         badgeHtml = `<span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: bold; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">▲ Feil</span>`;
       }
 
+      const comment = window.validationComments[check.id] || (typeof formData !== 'undefined' ? formData[`val_comment_${check.id}`] : '');
+
       return `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.88rem;">
-          <div>
-            <strong style="color: #1e293b;">${check.title}</strong>
-            <span style="color: #64748b; margin-left: 8px;">— ${check.detail}</span>
+        <div style="padding: 10px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.88rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong style="color: #1e293b;">${check.title}</strong>
+              <span style="color: #64748b; margin-left: 8px;">— ${check.detail}</span>
+            </div>
+            ${badgeHtml}
           </div>
-          ${badgeHtml}
+          ${comment ? `
+            <div style="margin-top: 6px; padding: 6px 10px; background: #f1f5f9; border-left: 3px solid #2563eb; font-size: 0.82rem; color: #334155; border-radius: 2px;">
+              💬 <strong>Kommentar:</strong> ${comment}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
   }
 }
 
-/* Bryter for å vise eller skjule loggboksen basert på checkboxen */
 function togglePassedChecksView() {
   const checkbox = document.getElementById('toggle-passed-checks');
   const container = document.getElementById('validation-log-container');
@@ -717,12 +763,12 @@ function updateTopbarInfo() {
 }
 
 // Eksponer funksjonene globalt på window-objektet
+window.saveValidationComment = saveValidationComment;
 window.runValidation = runValidation;
 window.renderValidationResults = renderValidationResults;
 window.togglePassedChecksView = togglePassedChecksView;
 window.selectPage = selectPage;
 window.updateHeading = updateHeading;
-
 
 
 /* =========================================================
