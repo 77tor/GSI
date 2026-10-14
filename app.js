@@ -323,70 +323,95 @@ function selectPage(id) {
 
 
 /* =========================================================
-   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR (100 % ANPASSET GSI ID-ER)
+   SIDE 17: VALIDERINGS- OG KONTROLLMOTOR MED LOGG-VISNING
    ========================================================= */
 
 function runValidation(showToast = true) {
   const warnings = [];
   const errors = [];
+  const allChecks = []; // Liste over alle gjennomførte kontroller for logg-visning
 
   const num = (id) => typeof numberValue === 'function' ? numberValue(id) : (parseFloat(document.getElementById(id)?.value) || parseFloat(formData[id]) || 0);
 
   // Henter laveste trinn fra s2_laveste_trinn og høyeste fra s2_hoyeste_trinn
   const minTrinn = parseInt(document.getElementById('s2_laveste_trinn')?.value || formData['s2_laveste_trinn'] || formData['s2_b'] || '1', 10);
   const maxTrinn = parseInt(document.getElementById('s2_hoyeste_trinn')?.value || formData['s2_hoyeste_trinn'] || formData['s2_c'] || '10', 10);
+  const totalEleverSide3 = num('s3_a_total');
 
   // ---------------------------------------------------------
   // 1. ELEVER OG TRINN (Side 2 vs Side 3A)
   // ---------------------------------------------------------
-  let totalEleverSide3 = num('s3_a_total'); // Henter beregnet total fra calcSide3()
+  let trinnFeil = false;
+  let trinnAdvarsel = false;
   
   for (let t = 1; t <= 10; t++) {
     const eleverTrinn = num(`s3_a_${t}_sum`);
 
-    // Sjekk om det er ført elever på trinn som ligger utenfor skolens trinnstruktur
     if ((t < minTrinn || t > maxTrinn) && eleverTrinn > 0) {
+      trinnFeil = true;
       errors.push(`<b>Side 3A:</b> Det er registrert ${eleverTrinn} elever på ${t}. trinn, men skolen er registrert med kun ${minTrinn}.–${maxTrinn}. trinn på Side 2.`);
     }
 
-    // Advarsel om et trinn som skolen HAR står oppført med 0 elever
     if (t >= minTrinn && t <= maxTrinn && eleverTrinn === 0) {
+      trinnAdvarsel = true;
       warnings.push(`<b>Side 3A:</b> Skolen har ${t}. trinn ifølge Side 2, men 0 elever er ført i tabell 3A.`);
     }
   }
 
+  allChecks.push({
+    title: 'Trinn- og elevtallskonsistens (Side 2 vs Side 3A)',
+    status: trinnFeil ? 'error' : (trinnAdvarsel ? 'warning' : 'passed'),
+    detail: trinnFeil ? 'Elever ført på trinn utenfor skolens ramme.' : (trinnAdvarsel ? 'Ett eller flere trinn står med 0 elever.' : 'Elever er korrekt ført på skolens trinn.')
+  });
+
   // ---------------------------------------------------------
   // 2. ÅRSTIMER / ELEVTIMER (Side 4A vs Side 3A)
   // ---------------------------------------------------------
-  // calcSide4() regner ut ord. undervisningstimer i s4_a1_17 (1–7. trinn) og s4_a1_3 (8–10. trinn)
-  const timer17 = num('s4_a1_17') || (num('s4_a1_1') + num('s4_a1_2'));
-  const timer810 = num('s4_a1_3');
+  const timer17 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
+  const timer810 = num('s4_a3_3') || num('s4_a1_3');
 
   const elever17 = num('s3_a_sum17');
   const elever810 = num('s3_a_sum810');
 
+  let ordTimerFeil = false;
+
   if (elever17 > 0 && timer17 === 0 && minTrinn <= 7) {
+    ordTimerFeil = true;
     errors.push(`<b>Side 4A:</b> Det er registrert ${elever17} elever på 1.–7. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
   }
 
   if (elever810 > 0 && timer810 === 0 && maxTrinn >= 8) {
+    ordTimerFeil = true;
     errors.push(`<b>Side 4A:</b> Det er registrert ${elever810} elever på 8.–10. trinn (Side 3A), men 0 årstimer til ordinær undervisning er ført i tabell 4A.`);
   }
+
+  allChecks.push({
+    title: 'Ordinære undervisningstimer (Side 4A vs Side 3A)',
+    status: ordTimerFeil ? 'error' : 'passed',
+    detail: ordTimerFeil ? 'Timer mangler for registrert elevtall.' : 'Årstimer til ordinær undervisning er registrert.'
+  });
 
   // ---------------------------------------------------------
   // 3. SFO (Side 2D vs Side 14)
   // ---------------------------------------------------------
   const sfoChecked = document.querySelector('input[name="s2_sfo"]:checked');
   const sfoVal = (sfoChecked?.value || formData['s2_sfo'] || formData['s2_d'] || '').toString().toLowerCase();
-
-  // Side 14A summerer plass-størrelser i s14_a_sum_1 og s14_a_sum_2
   const sfoEleverTotal = num('s14_a_sum_1') + num('s14_a_sum_2');
 
+  let sfoStatus = 'passed';
+  let sfoDetail = 'SFO-status stemmer overens med Side 14.';
+
   if ((sfoVal === 'nei' || sfoVal === '2' || sfoVal === 'false') && sfoEleverTotal > 0) {
+    sfoStatus = 'error';
+    sfoDetail = 'SFO er satt til "Nei", men elever er registrert på Side 14.';
     errors.push(`<b>Side 14:</b> Skolen har oppgitt "Nei" til SFO på Side 2, men har registrert ${sfoEleverTotal} SFO-elever på Side 14.`);
   } else if ((sfoVal === 'ja' || sfoVal === '1' || sfoVal === 'true') && sfoEleverTotal === 0 && minTrinn <= 4) {
+    sfoStatus = 'warning';
+    sfoDetail = 'SFO er satt til "Ja", men ingen elever er ført i tabell 14A.';
     warnings.push(`<b>Side 14:</b> Skolen har haket av for SFO-tilbud på Side 2, men ingen elever er registrert i tabell 14A.`);
   }
+
+  allChecks.push({ title: 'SFO-tilbud og elevtall (Side 2D vs Side 14)', status: sfoStatus, detail: sfoDetail });
 
   // ---------------------------------------------------------
   // 4. KONTROLL AV KSN OG SPESIALUNDERVISNING (Side 7 & 8A vs Side 3A)
@@ -394,137 +419,164 @@ function runValidation(showToast = true) {
   const s7Total = num('s7_a_tot');
   const s7Gutter = num('s7_a_gsum');
   const s7Jenter = num('s7_a_jsum');
+  const s8NorskSum = num('s8_a_norsk_sum');
+
+  let spesPedFeil = false;
 
   if (s7Total > totalEleverSide3) {
+    spesPedFeil = true;
     errors.push(`<b>Side 7:</b> Antall elever med spesialundervisning (${s7Total}) kan ikke overstige skolens totale elevtall (${totalEleverSide3}).`);
   }
 
   if (s7Gutter + s7Jenter !== s7Total && s7Total > 0) {
+    spesPedFeil = true;
     errors.push(`<b>Side 7:</b> Summen av gutter (${s7Gutter}) og jenter (${s7Jenter}) stemmer ikke overens med totalkolonnen (${s7Total}).`);
   }
 
-  const s8NorskSum = num('s8_a_norsk_sum');
   if (s8NorskSum > totalEleverSide3) {
+    spesPedFeil = true;
     errors.push(`<b>Side 8A:</b> Antall elever med særskilt norsk (${s8NorskSum}) overstiger det totale elevantallet (${totalEleverSide3}).`);
   }
+
+  allChecks.push({
+    title: 'Spesialundervisning og særskilt norsk (Side 7 & 8A)',
+    status: spesPedFeil ? 'error' : 'passed',
+    detail: spesPedFeil ? 'Avvik i elevtall for tilrettelagt opplæring.' : `Svarer til registrert elevmasse (${s7Total} vedtak).`
+  });
 
   // ---------------------------------------------------------
   // 5. SPESIALUNDERVISNINGSTIMER (Side 4B vs Side 7)
   // ---------------------------------------------------------
-  // Sum spesialundervisningstimer i tabell 4B er s4_b13_sum
-  const spesPedTimerSide4 = num('s4_b13_sum');
+  const spesPedTimerSide4 = num('s4_b13_sum') || (num('s4_b1_1') + num('s4_b1_2') + num('s4_b1_3'));
+  let spesPedTimerAdvarsel = false;
 
   if (s7Total > 0 && spesPedTimerSide4 === 0) {
+    spesPedTimerAdvarsel = true;
     warnings.push(`<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`);
   }
 
+  allChecks.push({
+    title: 'Spesialundervisningstimer (Side 4B vs Side 7)',
+    status: spesPedTimerAdvarsel ? 'warning' : 'passed',
+    detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
+  });
 
-// ---------------------------------------------------------
+  // ---------------------------------------------------------
   // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel for alle trinn)
   // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
   if (totalEleverSide3 > 0 && laererAarsverk === 0) {
     errors.push(`<b>Side 5 / Side 6:</b> Skolen har ${totalEleverSide3} elever, men ingen lærerårsverk er registrert.`);
+    allChecks.push({ title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
   } else {
 
-    // =========================================================
-    // A. 1.–4. TRINN (Lærernorm: Maks 15,0 elever per lærer)
-    // =========================================================
+    // A. 1.–4. TRINN
     if (minTrinn <= 4) {
       let bruttoElevtimer14 = 0;
       for (let t = Math.max(1, minTrinn); t <= Math.min(4, maxTrinn); t++) {
-        const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
-        bruttoElevtimer14 += (elever * aarstimerTrinn);
+        bruttoElevtimer14 += (num(`s3_a_${t}_sum`) * num(`s3_b_${t}`));
       }
 
-      const spesPedTimer14 = num('s4_b1_1');   // Rad 1, kol 1: Spesialundervisning
-      const saerskiltNorsk14 = num('s4_b2_1'); // Rad 2, kol 1: Særskilt norsk
-
+      const spesPedTimer14 = num('s4_b1_1');
+      const saerskiltNorsk14 = num('s4_b2_1');
       const teller14 = Math.max(0, bruttoElevtimer14 - spesPedTimer14 - saerskiltNorsk14);
-      const nevner14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1')); // Side 4A, Tabell A, rad 3, kol 1
+      const nevner14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
+
+      let gs2Status14 = 'passed';
+      let gs2Detail14 = 'Innenfor normen (maks 15,0).';
 
       if (nevner14 > 0 && bruttoElevtimer14 > 0) {
         const gs2_14 = Math.round((teller14 / nevner14) * 10) / 10;
+        gs2Detail14 = `Beregnet til ${gs2_14} elever/lærer.`;
         if (gs2_14 > 15) {
+          gs2Status14 = 'warning';
           warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
         }
       } else if (bruttoElevtimer14 > 0 && nevner14 === 0) {
+        gs2Status14 = 'warning';
+        gs2Detail14 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
+
+      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (1.–4. trinn)', status: gs2Status14, detail: gs2Detail14 });
     }
 
-    // =========================================================
-    // B. 5.–7. TRINN (Lærernorm: Maks 20,0 elever per lærer)
-    // =========================================================
+    // B. 5.–7. TRINN
     if (maxTrinn >= 5 && minTrinn <= 7) {
       let bruttoElevtimer57 = 0;
       for (let t = Math.max(5, minTrinn); t <= Math.min(7, maxTrinn); t++) {
-        const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
-        bruttoElevtimer57 += (elever * aarstimerTrinn);
+        bruttoElevtimer57 += (num(`s3_a_${t}_sum`) * num(`s3_b_${t}`));
       }
 
-      const spesPedTimer57 = num('s4_b1_2');   // Rad 1, kol 2
-      const saerskiltNorsk57 = num('s4_b2_2'); // Rad 2, kol 2
-
+      const spesPedTimer57 = num('s4_b1_2');
+      const saerskiltNorsk57 = num('s4_b2_2');
       const teller57 = Math.max(0, bruttoElevtimer57 - spesPedTimer57 - saerskiltNorsk57);
-      const nevner57 = num('s4_a3_2') || (num('s4_a1_2') + num('s4_a2_2')); // Side 4A, Tabell A, rad 3, kol 2
+      const nevner57 = num('s4_a3_2') || (num('s4_a1_2') + num('s4_a2_2'));
+
+      let gs2Status57 = 'passed';
+      let gs2Detail57 = 'Innenfor normen (maks 20,0).';
 
       if (nevner57 > 0 && bruttoElevtimer57 > 0) {
         const gs2_57 = Math.round((teller57 / nevner57) * 10) / 10;
+        gs2Detail57 = `Beregnet til ${gs2_57} elever/lærer.`;
         if (gs2_57 > 20) {
+          gs2Status57 = 'warning';
           warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`);
         }
       } else if (bruttoElevtimer57 > 0 && nevner57 === 0) {
+        gs2Status57 = 'warning';
+        gs2Detail57 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Det er registrert elever på 5.–7. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
+
+      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (5.–7. trinn)', status: gs2Status57, detail: gs2Detail57 });
     }
 
-    // =========================================================
-    // C. 8.–10. TRINN (Lærernorm: Maks 20,0 elever per lærer)
-    // =========================================================
+    // C. 8.–10. TRINN
     if (maxTrinn >= 8) {
       let bruttoElevtimer810 = 0;
       for (let t = Math.max(8, minTrinn); t <= Math.min(10, maxTrinn); t++) {
-        const elever = num(`s3_a_${t}_sum`);
-        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
-        bruttoElevtimer810 += (elever * aarstimerTrinn);
+        bruttoElevtimer810 += (num(`s3_a_${t}_sum`) * num(`s3_b_${t}`));
       }
 
-      const spesPedTimer810 = num('s4_b1_3');   // Rad 1, kol 4 (8-10 trinn)
-      const saerskiltNorsk810 = num('s4_b2_3'); // Rad 2, kol 4 (8-10 trinn)
-
+      const spesPedTimer810 = num('s4_b1_3');
+      const saerskiltNorsk810 = num('s4_b2_3');
       const teller810 = Math.max(0, bruttoElevtimer810 - spesPedTimer810 - saerskiltNorsk810);
-      const nevner810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3')); // Side 4A, Tabell A, rad 3, kol 4
+      const nevner810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3'));
+
+      let gs2Status810 = 'passed';
+      let gs2Detail810 = 'Innenfor normen (maks 20,0).';
 
       if (nevner810 > 0 && bruttoElevtimer810 > 0) {
         const gs2_810 = Math.round((teller810 / nevner810) * 10) / 10;
+        gs2Detail810 = `Beregnet til ${gs2_810} elever/lærer.`;
         if (gs2_810 > 20) {
+          gs2Status810 = 'warning';
           warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`);
         }
       } else if (bruttoElevtimer810 > 0 && nevner810 === 0) {
+        gs2Status810 = 'warning';
+        gs2Detail810 = 'Ordinære undervisningstimer mangler på Side 4A.';
         warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Det er registrert elever på 8.–10. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
-    }
 
+      allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (8.–10. trinn)', status: gs2Status810, detail: gs2Detail810 });
+    }
   }
 
   // ---------------------------------------------------------
-  // 7. PUBLISER OG VIS RESULTATENE
+  // PUBLISER OG VIS RESULTATENE
   // ---------------------------------------------------------
-  renderValidationResults(errors, warnings);
+  renderValidationResults(errors, warnings, allChecks);
 
   if (showToast && typeof showSaveMessage === 'function') {
     const totalCount = errors.length + warnings.length;
-    if (totalCount === 0) {
-      showSaveMessage('Ingen feil eller avvik funnet!');
-    } else {
-      showSaveMessage(`Kontroll utført: ${errors.length} feil, ${warnings.length} advarsler.`);
-    }
+    showSaveMessage(totalCount === 0 ? 'Ingen feil eller avvik funnet!' : `Kontroll utført: ${errors.length} feil, ${warnings.length} advarsler.`);
   }
 }
+
+
 
 /* Render-funksjon som oppdaterer grensesnittet på Side 17 */
 function renderValidationResults(errors, warnings) {
