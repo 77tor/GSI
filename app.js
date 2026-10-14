@@ -418,8 +418,9 @@ function runValidation(showToast = true) {
     warnings.push(`<b>Side 4B / Side 7:</b> Det er ført ${s7Total} elever med enkeltvedtak på Side 7, men 0 timer til spesialundervisning er registrert i tabell 4B.`);
   }
 
+
 // ---------------------------------------------------------
-  // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel)
+  // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel for alle trinn)
   // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
 
@@ -428,86 +429,82 @@ function runValidation(showToast = true) {
   } else {
 
     // =========================================================
-    // A. 1.–4. TRINN (Lærernorm: Maks 15 elever per lærer)
+    // A. 1.–4. TRINN (Lærernorm: Maks 15,0 elever per lærer)
     // =========================================================
     if (minTrinn <= 4) {
-      let elevtimer14 = 0;
+      let bruttoElevtimer14 = 0;
       for (let t = Math.max(1, minTrinn); t <= Math.min(4, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const timerPrUke = num(`s3_b_${t}`) || 19; // Standard uketimer
-        elevtimer14 += (elever * timerPrUke);
+        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
+        bruttoElevtimer14 += (elever * aarstimerTrinn);
       }
 
-      // Timer fra Side 4A og 4B (1.–4. trinn / 1.–7. trinn ramme)
-      const ordTimer14 = num('s4_a1_1') || num('s4_a1_17');
-      const spesPedTimer14 = num('s4_b13_1') || num('s4_b1_1');
-      const saerskiltNorsk14 = num('s4_b2_1');
+      const spesPedTimer14 = num('s4_b1_1');   // Rad 1, kol 1: Spesialundervisning
+      const saerskiltNorsk14 = num('s4_b2_1'); // Rad 2, kol 1: Særskilt norsk
 
-      const teller14 = Math.max(0, elevtimer14 - spesPedTimer14 - saerskiltNorsk14);
-      const nevner14 = ordTimer14;
+      const teller14 = Math.max(0, bruttoElevtimer14 - spesPedTimer14 - saerskiltNorsk14);
+      const nevner14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1')); // Side 4A, Tabell A, rad 3, kol 1
 
-      if (nevner14 > 0 && elevtimer14 > 0) {
+      if (nevner14 > 0 && bruttoElevtimer14 > 0) {
         const gs2_14 = Math.round((teller14 / nevner14) * 10) / 10;
         if (gs2_14 > 15) {
           warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
         }
-      } else if (elevtimer14 > 0 && nevner14 === 0) {
+      } else if (bruttoElevtimer14 > 0 && nevner14 === 0) {
         warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Det er registrert elever på 1.–4. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
     }
 
     // =========================================================
-    // B. 5.–7. TRINN (Lærernorm: Maks 20 elever per lærer)
+    // B. 5.–7. TRINN (Lærernorm: Maks 20,0 elever per lærer)
     // =========================================================
     if (maxTrinn >= 5 && minTrinn <= 7) {
-      let elevtimer57 = 0;
+      let bruttoElevtimer57 = 0;
       for (let t = Math.max(5, minTrinn); t <= Math.min(7, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const timerPrUke = num(`s3_b_${t}`) || 24; // Standard uketimer mellomtrinn
-        elevtimer57 += (elever * timerPrUke);
+        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
+        bruttoElevtimer57 += (elever * aarstimerTrinn);
       }
 
-      const ordTimer57 = num('s4_a1_2') || num('s4_a1_17');
-      const spesPedTimer57 = num('s4_b13_2') || num('s4_b1_2');
-      const saerskiltNorsk57 = num('s4_b2_2');
+      const spesPedTimer57 = num('s4_b1_2');   // Rad 1, kol 2
+      const saerskiltNorsk57 = num('s4_b2_2'); // Rad 2, kol 2
 
-      const teller57 = Math.max(0, elevtimer57 - spesPedTimer57 - saerskiltNorsk57);
-      const nevner57 = ordTimer57;
+      const teller57 = Math.max(0, bruttoElevtimer57 - spesPedTimer57 - saerskiltNorsk57);
+      const nevner57 = num('s4_a3_2') || (num('s4_a1_2') + num('s4_a2_2')); // Side 4A, Tabell A, rad 3, kol 2
 
-      if (nevner57 > 0 && elevtimer57 > 0) {
+      if (nevner57 > 0 && bruttoElevtimer57 > 0) {
         const gs2_57 = Math.round((teller57 / nevner57) * 10) / 10;
         if (gs2_57 > 20) {
           warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`);
         }
-      } else if (elevtimer57 > 0 && nevner57 === 0) {
+      } else if (bruttoElevtimer57 > 0 && nevner57 === 0) {
         warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Det er registrert elever på 5.–7. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
     }
 
     // =========================================================
-    // C. 8.–10. TRINN (Lærernorm: Maks 20 elever per lærer)
+    // C. 8.–10. TRINN (Lærernorm: Maks 20,0 elever per lærer)
     // =========================================================
     if (maxTrinn >= 8) {
-      let elevtimer810 = 0;
+      let bruttoElevtimer810 = 0;
       for (let t = Math.max(8, minTrinn); t <= Math.min(10, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
-        const timerPrUke = num(`s3_b_${t}`) || 30; // Standard uketimer ungdomstrinn
-        elevtimer810 += (elever * timerPrUke);
+        const aarstimerTrinn = num(`s3_b_${t}`); // Fra Tabell 3B
+        bruttoElevtimer810 += (elever * aarstimerTrinn);
       }
 
-      const ordTimer810 = num('s4_a1_3');
-      const spesPedTimer810 = num('s4_b13_3') || num('s4_b1_3');
-      const saerskiltNorsk810 = num('s4_b2_3');
+      const spesPedTimer810 = num('s4_b1_3');   // Rad 1, kol 4 (8-10 trinn)
+      const saerskiltNorsk810 = num('s4_b2_3'); // Rad 2, kol 4 (8-10 trinn)
 
-      const teller810 = Math.max(0, elevtimer810 - spesPedTimer810 - saerskiltNorsk810);
-      const nevner810 = ordTimer810;
+      const teller810 = Math.max(0, bruttoElevtimer810 - spesPedTimer810 - saerskiltNorsk810);
+      const nevner810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3')); // Side 4A, Tabell A, rad 3, kol 4
 
-      if (nevner810 > 0 && elevtimer810 > 0) {
+      if (nevner810 > 0 && bruttoElevtimer810 > 0) {
         const gs2_810 = Math.round((teller810 / nevner810) * 10) / 10;
         if (gs2_810 > 20) {
           warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`);
         }
-      } else if (elevtimer810 > 0 && nevner810 === 0) {
+      } else if (bruttoElevtimer810 > 0 && nevner810 === 0) {
         warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Det er registrert elever på 8.–10. trinn, men ordinære undervisningstimer mangler på Side 4A for å beregne Gruppestørrelse 2.`);
       }
     }
