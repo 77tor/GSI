@@ -471,12 +471,12 @@ function runValidation(showToast = true) {
     allChecks.push({ title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
   } else {
 
-    // =========================================================
+// =========================================================
     // A. 1.–4. TRINN (Lærernorm: Maks 15,0 elever per lærer)
     // =========================================================
     if (minTrinn <= 4) {
-      let antallElever14 = 0;
       let bruttoElevtimer14 = 0;
+      let antallElever14 = 0;
 
       for (let t = Math.max(1, minTrinn); t <= Math.min(4, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
@@ -485,10 +485,7 @@ function runValidation(showToast = true) {
         bruttoElevtimer14 += (elever * aarstimerTrinn);
       }
 
-      // Snitt årstimer per elev på 1.–4. trinn
-      const snittAarstimer14 = antallElever14 > 0 ? (bruttoElevtimer14 / antallElever14) : 0;
-
-      // Netto ordinære undervisningstimer (Side 4A minus Side 4B spes.ped og særskilt norsk)
+      // Netto ordinære undervisningstimer = Side 4A (rad 3, kol 1) minus Side 4B spes.ped og særskilt norsk
       const ordTimerBrutto14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
       const spesPed14 = num('s4_b1_1');
       const norsk14 = num('s4_b2_1');
@@ -497,15 +494,14 @@ function runValidation(showToast = true) {
       let gs2Status14 = 'passed';
       let gs2Detail14 = 'Innenfor normen (maks 15,0).';
 
-      if (nettoOrdTimer14 > 0 && snittAarstimer14 > 0) {
-        // Antall ekvivalente lærere/grupper = Netto timer / elevens årstimer
-        const ekvivalenteLaerere14 = nettoOrdTimer14 / snittAarstimer14;
-        const gs2_14 = Math.round((antallElever14 / ekvivalenteLaerere14) * 10) / 10;
+      if (nettoOrdTimer14 > 0 && bruttoElevtimer14 > 0) {
+        // Formel: Brutto elevtimer delt på netto ordinære undervisningstimer
+        const gs2_14 = Math.round((bruttoElevtimer14 / nettoOrdTimer14) * 100) / 100;
 
-        gs2Detail14 = `Beregnet til ${gs2_14} elever/lærer.`;
-        if (gs2_14 > 15) {
+        gs2Detail14 = `Beregnet til ${gs2_14.toString().replace('.', ',')} elever/lærer.`;
+        if (gs2_14 > 15.0) {
           gs2Status14 = 'warning';
-          warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
+          warnings.push(`<b>Lærertetthet (1.–4. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_14.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 1.–4. trinn er maksimalt 15,0.`);
         }
       } else if (antallElever14 > 0 && nettoOrdTimer14 === 0) {
         gs2Status14 = 'warning';
@@ -520,8 +516,8 @@ function runValidation(showToast = true) {
     // B. 5.–7. TRINN (Lærernorm: Maks 20,0 elever per lærer)
     // =========================================================
     if (maxTrinn >= 5 && minTrinn <= 7) {
-      let antallElever57 = 0;
       let bruttoElevtimer57 = 0;
+      let antallElever57 = 0;
 
       for (let t = Math.max(5, minTrinn); t <= Math.min(7, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
@@ -530,10 +526,6 @@ function runValidation(showToast = true) {
         bruttoElevtimer57 += (elever * aarstimerTrinn);
       }
 
-      // Snitt årstimer per elev på 5.–7. trinn
-      const snittAarstimer57 = antallElever57 > 0 ? (bruttoElevtimer57 / antallElever57) : 0;
-
-      // Netto ordinære undervisningstimer (Side 4A minus Side 4B spes.ped og særskilt norsk)
       const ordTimerBrutto57 = num('s4_a3_2') || (num('s4_a1_2') + num('s4_a2_2'));
       const spesPed57 = num('s4_b1_2');
       const norsk57 = num('s4_b2_2');
@@ -542,14 +534,13 @@ function runValidation(showToast = true) {
       let gs2Status57 = 'passed';
       let gs2Detail57 = 'Innenfor normen (maks 20,0).';
 
-      if (nettoOrdTimer57 > 0 && snittAarstimer57 > 0) {
-        const ekvivalenteLaerere57 = nettoOrdTimer57 / snittAarstimer57;
-        const gs2_57 = Math.round((antallElever57 / ekvivalenteLaerere57) * 10) / 10;
+      if (nettoOrdTimer57 > 0 && bruttoElevtimer57 > 0) {
+        const gs2_57 = Math.round((bruttoElevtimer57 / nettoOrdTimer57) * 100) / 100;
 
-        gs2Detail57 = `Beregnet til ${gs2_57} elever/lærer.`;
-        if (gs2_57 > 20) {
+        gs2Detail57 = `Beregnet til ${gs2_57.toString().replace('.', ',')} elever/lærer.`;
+        if (gs2_57 > 20.0) {
           gs2Status57 = 'warning';
-          warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`);
+          warnings.push(`<b>Lærertetthet (5.–7. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_57.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 5.–7. trinn er maksimalt 20,0.`);
         }
       } else if (antallElever57 > 0 && nettoOrdTimer57 === 0) {
         gs2Status57 = 'warning';
@@ -560,12 +551,13 @@ function runValidation(showToast = true) {
       allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (5.–7. trinn)', status: gs2Status57, detail: gs2Detail57 });
     }
 
-    // =========================================================
+
+// =========================================================
     // C. 8.–10. TRINN (Lærernorm: Maks 20,0 elever per lærer)
     // =========================================================
     if (maxTrinn >= 8) {
-      let antallElever810 = 0;
       let bruttoElevtimer810 = 0;
+      let antallElever810 = 0;
 
       for (let t = Math.max(8, minTrinn); t <= Math.min(10, maxTrinn); t++) {
         const elever = num(`s3_a_${t}_sum`);
@@ -574,10 +566,7 @@ function runValidation(showToast = true) {
         bruttoElevtimer810 += (elever * aarstimerTrinn);
       }
 
-      // Snitt årstimer per elev på 8.–10. trinn
-      const snittAarstimer810 = antallElever810 > 0 ? (bruttoElevtimer810 / antallElever810) : 0;
-
-      // Netto ordinære undervisningstimer (Side 4A minus Side 4B spes.ped og særskilt norsk)
+      // Netto ordinære undervisningstimer = Side 4A (rad 3, kol 3/4) minus Side 4B spes.ped og særskilt norsk
       const ordTimerBrutto810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3'));
       const spesPed810 = num('s4_b1_3');
       const norsk810 = num('s4_b2_3');
@@ -586,14 +575,13 @@ function runValidation(showToast = true) {
       let gs2Status810 = 'passed';
       let gs2Detail810 = 'Innenfor normen (maks 20,0).';
 
-      if (nettoOrdTimer810 > 0 && snittAarstimer810 > 0) {
-        const ekvivalenteLaerere810 = nettoOrdTimer810 / snittAarstimer810;
-        const gs2_810 = Math.round((antallElever810 / ekvivalenteLaerere810) * 10) / 10;
+      if (nettoOrdTimer810 > 0 && bruttoElevtimer810 > 0) {
+        const gs2_810 = Math.round((bruttoElevtimer810 / nettoOrdTimer810) * 100) / 100;
 
-        gs2Detail810 = `Beregnet til ${gs2_810} elever/lærer.`;
-        if (gs2_810 > 20) {
+        gs2Detail810 = `Beregnet til ${gs2_810.toString().replace('.', ',')} elever/lærer.`;
+        if (gs2_810 > 20.0) {
           gs2Status810 = 'warning';
-          warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`);
+          warnings.push(`<b>Lærertetthet (8.–10. trinn):</b> Beregnet Gruppestørrelse 2 er <b>${gs2_810.toString().replace('.', ',')}</b> elever per lærer. Målet i lærernormen for 8.–10. trinn er maksimalt 20,0.`);
         }
       } else if (antallElever810 > 0 && nettoOrdTimer810 === 0) {
         gs2Status810 = 'warning';
@@ -603,8 +591,6 @@ function runValidation(showToast = true) {
 
       allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (8.–10. trinn)', status: gs2Status810, detail: gs2Detail810 });
     }
-
-  }
 
   // ---------------------------------------------------------
   // PUBLISER OG VIS RESULTATENE
