@@ -897,44 +897,6 @@ function restoreSide7HRows() {
   calcSide7H();
 }
 
-/* =========================================================
-   SIDE 8: BEREGNINGER, MODAL OG EXCEL-IMPORT
-   ========================================================= */
-
-function calcSide8() {
-  setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a_', 1, 10, '_norsk')));
-  setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a_', 1, 10, '_gno')));
-  ['b1', 'b2'].forEach(row => setNumber(`s8_${row}_sum`, numberValue(`s8_${row}_g`) + numberValue(`s8_${row}_j`)));
-  
-  calcSide8C();
-  calcSide8D();
-}
-
-function openCalcSide8Modal() {
-  const modal = document.getElementById('calc-s8-modal');
-  if (modal) modal.style.display = 'block';
-}
-
-function closeCalcSide8Modal() {
-  const modal = document.getElementById('calc-s8-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-/* Håndterer filopplasting fra file-input i modalen */
-function handleCalcSide8FileUpload(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const content = e.target.result;
-    const inputEl = document.getElementById('calc-s8-input');
-    if (inputEl) {
-      inputEl.value = content;
-    }
-  };
-  reader.readAsText(file, 'UTF-8');
-}
 
 
 /* =========================================================
@@ -942,12 +904,34 @@ function handleCalcSide8FileUpload(event) {
    ========================================================= */
 
 function calcSide8() {
-  setNumber('s8_a_norsk_sum', sumIds(rangeIds('s8_a_', 1, 10, '_norsk')));
-  setNumber('s8_a_gno_sum', sumIds(rangeIds('s8_a_', 1, 10, '_gno')));
-  ['b1', 'b2'].forEach(row => setNumber(`s8_${row}_sum`, numberValue(`s8_${row}_g`) + numberValue(`s8_${row}_j`)));
-  
-  calcSide8C();
-  calcSide8D();
+  // 1. Summer hver enkelt rad (1.-10. trinn) i 8A
+  for (let i = 1; i <= 10; i++) {
+    const norsk = numberValue(`s8_a_${i}_norsk`);
+    const gno = numberValue(`s8_a_${i}_gno`);
+    const rowSum = norsk + gno;
+    setNumber(`s8_a_${i}_sum`, rowSum > 0 ? rowSum : '');
+  }
+
+  // 2. Summer kolonnene i 8A
+  const norskSum = sumIds(rangeIds('s8_a_', 1, 10, '_norsk'));
+  const gnoSum = sumIds(rangeIds('s8_a_', 1, 10, '_gno'));
+  const totalSum = norskSum + gnoSum;
+
+  setNumber('s8_a_norsk_sum', norskSum);
+  setNumber('s8_a_gno_sum', gnoSum);
+  setNumber('s8_a_sum', totalSum);
+  setNumber('s8_a_total_sum', totalSum);
+
+  // 3. Summer Tabell 8B (Gutter + Jenter)
+  ['b1', 'b2'].forEach(row => {
+    const g = numberValue(`s8_${row}_g`);
+    const j = numberValue(`s8_${row}_j`);
+    setNumber(`s8_${row}_sum`, (g + j) > 0 ? (g + j) : '');
+  });
+
+  // 4. Utfør eksisterende beregninger for 8C og 8D
+  if (typeof calcSide8C === 'function') calcSide8C();
+  if (typeof calcSide8D === 'function') calcSide8D();
 }
 
 function openCalcSide8Modal() {
