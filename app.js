@@ -461,7 +461,7 @@ function runValidation(showToast = true) {
     detail: spesPedTimerAdvarsel ? 'Enkeltvedtak finnes, men 0 timer ført i 4B.' : 'Timer og vedtak stemmer overens.'
   });
 
-// ---------------------------------------------------------
+  // ---------------------------------------------------------
   // 6. LÆRERTETTHET / GROUPPESTØRRELSE 2 (Udirs formel for alle trinn)
   // ---------------------------------------------------------
   const laererAarsverk = num('s6_a_sum') || (num('s5_a1_sum') + num('s5_a2_sum'));
@@ -471,7 +471,7 @@ function runValidation(showToast = true) {
     allChecks.push({ title: 'Lærerårsverk registrert', status: 'error', detail: 'Ingen lærerårsverk ført.' });
   } else {
 
-// =========================================================
+    // =========================================================
     // A. 1.–4. TRINN (Lærernorm: Maks 15,0 elever per lærer)
     // =========================================================
     if (minTrinn <= 4) {
@@ -485,7 +485,6 @@ function runValidation(showToast = true) {
         bruttoElevtimer14 += (elever * aarstimerTrinn);
       }
 
-      // Netto ordinære undervisningstimer = Side 4A (rad 3, kol 1) minus Side 4B spes.ped og særskilt norsk
       const ordTimerBrutto14 = num('s4_a3_1') || (num('s4_a1_1') + num('s4_a2_1'));
       const spesPed14 = num('s4_b1_1');
       const norsk14 = num('s4_b2_1');
@@ -495,7 +494,6 @@ function runValidation(showToast = true) {
       let gs2Detail14 = 'Innenfor normen (maks 15,0).';
 
       if (nettoOrdTimer14 > 0 && bruttoElevtimer14 > 0) {
-        // Formel: Brutto elevtimer delt på netto ordinære undervisningstimer
         const gs2_14 = Math.round((bruttoElevtimer14 / nettoOrdTimer14) * 100) / 100;
 
         gs2Detail14 = `Beregnet til ${gs2_14.toString().replace('.', ',')} elever/lærer.`;
@@ -551,8 +549,7 @@ function runValidation(showToast = true) {
       allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (5.–7. trinn)', status: gs2Status57, detail: gs2Detail57 });
     }
 
-
-// =========================================================
+    // =========================================================
     // C. 8.–10. TRINN (Lærernorm: Maks 20,0 elever per lærer)
     // =========================================================
     if (maxTrinn >= 8) {
@@ -566,7 +563,6 @@ function runValidation(showToast = true) {
         bruttoElevtimer810 += (elever * aarstimerTrinn);
       }
 
-      // Netto ordinære undervisningstimer = Side 4A (rad 3, kol 3/4) minus Side 4B spes.ped og særskilt norsk
       const ordTimerBrutto810 = num('s4_a3_3') || (num('s4_a1_3') + num('s4_a2_3'));
       const spesPed810 = num('s4_b1_3');
       const norsk810 = num('s4_b2_3');
@@ -591,6 +587,8 @@ function runValidation(showToast = true) {
 
       allChecks.push({ title: 'Lærernorm / Gruppestørrelse 2 (8.–10. trinn)', status: gs2Status810, detail: gs2Detail810 });
     }
+
+  } // <-- Her manglet det en lukkende parantes for 'else'
 
   // ---------------------------------------------------------
   // PUBLISER OG VIS RESULTATENE
