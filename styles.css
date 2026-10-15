@@ -146,27 +146,30 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 .print-sub-item { font-size: 0.82rem; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 .modal-footer { padding: 16px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
 
-/* ========================================================= UTSKRIFT (RETTET) ========================================================= */
-@page { size: portrait; margin: 10mm 12mm; }
+/* ========================================================= UTSKRIFT (KONTROLLERT & KOMPAKT) ========================================================= */
+@page { size: portrait; margin: 8mm 10mm; }
 @media print {
   body { zoom: 100%; transform-origin: top left; }
   .topbar, .sidebar, #app-sidebar, .tools-menu-container, .button-bar, .modal-backdrop, .modal, .btn-fetch-prev, #save-1, .page-head, #view-startside, #view-info { display: none !important; }
   html, body, .app, .main-container, .main, .main-content, #view-form, #pages, .content { height: auto !important; min-height: auto !important; max-height: none !important; overflow: visible !important; position: static !important; width: 100% !important; min-width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background: #ffffff !important; }
   .page { display: none !important; }
-  .page.print-visible { display: block !important; visibility: visible !important; page-break-after: always !important; break-after: page !important; margin-bottom: 0 !important; height: auto !important; overflow: visible !important; }
   
+  /* TVING NY SIDE KUN NÅR EN NY SKJEMASIDE (1-18) STARTER */
+  .page.print-visible { display: block !important; visibility: visible !important; page-break-before: always !important; break-before: page !important; margin-bottom: 0 !important; height: auto !important; overflow: visible !important; }
+  .page.print-visible:first-of-type { page-break-before: avoid !important; break-before: avoid !important; } /* Første side starter direkte */
+
   /* TOPPTEKST */
-  .print-header { display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; padding-bottom: 6px !important; margin-bottom: 12px !important; box-sizing: border-box !important; font-weight: 400 !important; color: #64748b !important; font-size: 0.82rem !important; border-bottom: 1px solid #cbd5e1 !important; }
+  .print-header { display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; padding-bottom: 4px !important; margin-bottom: 10px !important; box-sizing: border-box !important; font-weight: 400 !important; color: #64748b !important; font-size: 0.82rem !important; border-bottom: 1px solid #cbd5e1 !important; }
   .print-header-main { font-weight: 700 !important; color: #0f172a !important; font-size: 0.90rem !important; border-bottom: 2px solid #0f172a !important; }
-  .print-header-sub { page-break-before: always !important; break-before: page !important; } /* Tvinger undertopptekst til toppen av del-ark */
+  .print-header-sub { font-weight: 400 !important; color: #475569 !important; font-size: 0.82rem !important; border-bottom: 1px solid #cbd5e1 !important; }
   .print-header-left { white-space: nowrap !important; }
   .print-header-right { display: flex !important; align-items: center !important; gap: 16px !important; white-space: nowrap !important; }
   .print-header-title { font-weight: 600 !important; }
-  
-  /* INNHOLD OG TABELLER */
+
+  /* KOMPAKT FLYT FOR TABELLER OG KORT */
   .section-card.print-section-hidden { display: none !important; }
-  .section-card { padding: 10px !important; margin-bottom: 12px !important; break-inside: avoid !important; page-break-inside: avoid !important; }
-  th, td { padding: 4px 8px !important; font-size: 0.82rem !important; }
+  .section-card { padding: 8px 10px !important; margin-bottom: 10px !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+  th, td { padding: 3px 6px !important; font-size: 0.80rem !important; }
   tr, table { break-inside: avoid !important; page-break-inside: avoid !important; }
   input, select, textarea { border: none !important; border-bottom: 1px solid #444 !important; background: transparent !important; color: #000 !important; padding: 2px !important; }
 }
