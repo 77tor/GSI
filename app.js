@@ -2632,6 +2632,7 @@ function closePrintModal() {
   if (modal) modal.style.display = 'none';
 }
 
+
 function handleStartPrint() {
   const selectedYear = document.getElementById('print-year-select')?.value;
   const isDataMode = document.querySelector('input[name="print-data-mode"]:checked')?.value === 'with-data';
@@ -2643,8 +2644,6 @@ function handleStartPrint() {
     alert('Vennligst velg minst én side for utskrift.');
     return;
   }
-
-  const totalPagesCount = checkedPageIds.length;
 
   // Hent skjemadata for utskrift
   let printData = {};
@@ -2675,13 +2674,11 @@ function handleStartPrint() {
   const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
-  // Fjern tidligere topptekster
+  // Fjern tidligere topptekst-instanser
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
-  let activePrintPageCount = 0;
-
-  // Gå gjennom alle sider
+  // Gå gjennom alle skjemasider og gjør de valgte synlige
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2690,20 +2687,17 @@ function handleStartPrint() {
     pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
 
     if (checkedPageIds.includes(pageNum)) {
-      activePrintPageCount++;
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
-      // Sett inn topptekst med sidetall (Side X/Y)
-      const isFirstPrintPage = activePrintPageCount === 1;
+      // Sett inn strukturert topptekst der sidetallet fylles ut av CSS
       const printHeader = document.createElement('div');
-      printHeader.className = `print-header print-header-instance ${isFirstPrintPage ? 'print-header-main' : 'print-header-sub'}`;
-      
+      printHeader.className = 'print-header print-header-instance';
       printHeader.innerHTML = `
         <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
         <div class="print-header-right">
           <span class="print-header-title">${pageTitle}</span>
-          <span class="print-header-page-num">Side ${activePrintPageCount}/${totalPagesCount}</span>
+          <span class="print-header-page-num">Side <span class="print-page-val"></span></span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
