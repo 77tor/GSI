@@ -304,13 +304,30 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 .gsi-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
 .gsi-table th,.gsi-table td{border:1px solid #4f6e98;vertical-align:middle;padding:5px 7px}
 .gsi-table th{background:#dff1e9;font-weight:500;text-align:center;line-height:1.15}
-.gsi-table td:first-child{text-align:center}
-.gsi-table td:nth-child(2){text-align:left}
-.gsi-table td input{height:30px;padding:3px 6px;text-align:right;border:0;background:transparent}
-.gsi-table .auto{background:#cfcfcf}
-.gsi-table .auto input{background:#cfcfcf}
-.gsi-table .total-row td{background:#cfcfcf}
-.gsi-table .total-row input{background:#cfcfcf}
+
+/* Første kolonne (Radnummer): Mørkere grønnfarge */
+.gsi-table td:first-child{background:#c4e8d7 !important;text-align:center;font-weight:500}
+
+/* Andre kolonne (Beskrivelse/Fag): Lysere grønnfarge */
+.gsi-table td:nth-child(2){background:#dff1e9;text-align:left}
+
+/* Unntak for input-celler i andre kolonne hvis man skal skrive tekst der */
+.gsi-table td:nth-child(2) input{background:#fff}
+
+/* Inputfelt generelt */
+.gsi-table input[type="number"],
+.gsi-table input[type="text"]{width:100%;height:30px;padding:3px 6px;text-align:right;border:0;background:#fff;font:inherit;box-shadow:none;outline:none}
+
+/* Automatisk beregnede sum-celler og totalrader */
+.gsi-table td.auto,
+.gsi-table .total-row td{background:#c6c6c6 !important}
+
+.gsi-table td.auto input,
+.gsi-table .total-row td input{background:transparent !important;border:0 !important;box-shadow:none !important;font-weight:bold}
+
+/* Bevar grønnfargen på radnummeret i totalraden */
+.gsi-table .total-row td:first-child{background:#c4e8d7 !important}
+
 .gsi-table col.row-no{width:42px}
 .gsi-table col.desc-wide{width:36%}
 .gsi-table col.sum-col{width:11%}

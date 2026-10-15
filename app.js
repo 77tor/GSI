@@ -207,8 +207,21 @@ function autoSave() {
 }
 
 function calculateAll(saveAfter = false) {
-  [calcSide3, calcSide4, calcSide5, calcSide6, calcSide7, calcSide8, calcSide9, calcSide12, calcSide13, calcSide14, calcSide16]
-    .forEach(fn => typeof fn === 'function' && fn());
+  [
+    calcSide3, 
+    calcSide4, 
+    calcSide5, 
+    calcSide6, 
+    calcSide7, 
+    calcSide8, 
+    calcSide9, 
+    calcSide10, // <--- Lagt til
+    calcSide11, // <--- Lagt til
+    calcSide12, 
+    calcSide13, 
+    calcSide14, 
+    calcSide16
+  ].forEach(fn => typeof fn === 'function' && fn());
 
   if (!isLoadingData) {
     syncInputsToData();
@@ -2156,6 +2169,93 @@ function toggleLibraryHours() {
   }
 }
 
+/* =========================================================
+   SIDE 10: FREMMEDSPRÅK OG ALTERNATIVER
+   ========================================================= */
+function calcSide10() {
+  try {
+    // --- 10A: Fremmedspråk ---
+    const trinnsA = [8, 9, 10];
+
+    // Rader 1 til 7: Horisontal summering per språk
+    for (let row = 1; row <= 7; row++) {
+      const rowSum = sumIds(trinnsA.map(t => `s10_a_${row}_${t}`));
+      setNumber(`s10_a_${row}_sum`, rowSum);
+    }
+
+    // Vertikal summering per trinn (Rad 8)
+    trinnsA.forEach(t => {
+      const colIds = [];
+      for (let row = 1; row <= 7; row++) {
+        colIds.push(`s10_a_${row}_${t}`);
+      }
+      setNumber(`s10_a_sum_${t}`, sumIds(colIds));
+    });
+
+    // Total for 10A (Nederst til høyre)
+    const totalA = sumIds([8, 9, 10].map(t => `s10_a_sum_${t}`));
+    setNumber('s10_a_total', totalA);
+
+
+    // --- 10B: Alternativer til fremmedspråk ---
+    const trinnsB = [8, 9, 10];
+
+    // Rader 1 til 5: Horisontal summering per tilbud
+    for (let row = 1; row <= 5; row++) {
+      const rowSum = sumIds(trinnsB.map(t => `s10_b_${row}_${t}`));
+      setNumber(`s10_b_${row}_sum`, rowSum);
+    }
+
+    // Vertikal summering per trinn (Rad 6)
+    trinnsB.forEach(t => {
+      const colIds = [];
+      for (let row = 1; row <= 5; row++) {
+        colIds.push(`s10_b_${row}_${t}`);
+      }
+      setNumber(`s10_b_sum_${t}`, sumIds(colIds));
+    });
+
+    // Total for 10B (Nederst til høyre)
+    const totalB = sumIds([8, 9, 10].map(t => `s10_b_sum_${t}`));
+    setNumber('s10_b_total', totalB);
+
+  } catch (err) {
+    console.warn('Sjekk calcSide10:', err);
+  }
+}
+
+
+/* =========================================================
+   SIDE 11: VALGFAG PÅ UNGDOMSTRINNET
+   ========================================================= */
+function calcSide11() {
+  try {
+    const trinns = [8, 9, 10];
+
+    // Rader 1 til 14: Horisontal summering per valgfag
+    for (let row = 1; row <= 14; row++) {
+      const rowSum = sumIds(trinns.map(t => `s11_a_${row}_${t}`));
+      setNumber(`s11_a_${row}_sum`, rowSum);
+    }
+
+    // Vertikal summering per trinn (Rad 15: Sum elever i valgfag)
+    trinns.forEach(t => {
+      const colIds = [];
+      for (let row = 1; row <= 14; row++) {
+        colIds.push(`s11_a_${row}_${t}`);
+      }
+      setNumber(`s11_a_sum_${t}`, sumIds(colIds));
+    });
+
+    // Total for 11A (Nederst til høyre)
+    const total = sumIds([8, 9, 10].map(t => `s11_a_sum_${t}`));
+    setNumber('s11_a_total', total);
+
+  } catch (err) {
+    console.warn('Sjekk calcSide11:', err);
+  }
+}
+
 function calcSide12() {
   try {
     // 1. Sum for 12A
@@ -3618,20 +3718,28 @@ function bindEvents() {
     document.querySelectorAll('.print-page-check').forEach(cb => cb.checked = false);
   });
 
-  document.querySelectorAll('[data-nav="prev"]').forEach(b => b.addEventListener('click', () => navigatePage(-1)));
+document.querySelectorAll('[data-nav="prev"]').forEach(b => b.addEventListener('click', () => navigatePage(-1)));
   document.querySelectorAll('[data-nav="next"]').forEach(b => b.addEventListener('click', () => navigatePage(1)));
   document.querySelectorAll('[data-save],#save-1').forEach(b => b.addEventListener('click', () => saveData(true)));
 
-  allFormElements().forEach(el => {
-    const evt = ['radio', 'checkbox'].includes(el.type) || el.tagName === 'SELECT' ? 'change' : 'input';
-    el.addEventListener(evt, () => {
-      if (!isLoadingData) {
-        calculateAll(false);
-        autoSave();
+  // Hendelsesdelegering for alle skjemaelementer
+  const viewForm = document.getElementById('view-form');
+  if (viewForm) {
+    viewForm.addEventListener('input', (e) => {
+      if (!isLoadingData && e.target.matches('input, textarea')) {
+        if (typeof calculateAll === 'function') calculateAll(false);
+        if (typeof autoSave === 'function') autoSave();
       }
     });
-  });
-}
+
+    viewForm.addEventListener('change', (e) => {
+      if (!isLoadingData && e.target.matches('select, input[type="radio"], input[type="checkbox"]')) {
+        if (typeof calculateAll === 'function') calculateAll(false);
+        if (typeof autoSave === 'function') autoSave();
+      }
+    });
+  }
+} // <--- MERK: Denne krøllparentesen lukker bindEvents()
 
 document.addEventListener('DOMContentLoaded', () => {
   populateSchoolYears();
