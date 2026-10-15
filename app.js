@@ -2739,6 +2739,8 @@ function handleStartPrint() {
 }
 
 
+
+
 /* =========================================================
    SKOLEBEHANDLING, STARTSIDE, PAPIRKURV OG NAVIGASJON
    ========================================================= */

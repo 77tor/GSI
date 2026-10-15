@@ -148,13 +148,13 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 
 /* ========================================================= UTSKRIFT ========================================================= */
 @page { 
-  size: portrait; /* Endret fra landscape til stående A4 */
+  size: portrait; /* Stående A4 */
   margin: 10mm 12mm; 
 }
 
 @media print {
   body { 
-    zoom: 100%; /* Satt til 100% for at stående A4 skal fylles naturlig */
+    zoom: 100%; 
     transform-origin: top left; 
   }
 
@@ -216,18 +216,56 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
     overflow: visible !important;
   }
 
-  /* 5. Header og kort-styling tilpasset stående A4 */
+  /* 5. TOPPTEKST-STYLING FOR UTSKRIFT */
   .print-header { 
     display: flex !important; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 2px solid #000; 
-    padding-bottom: 4px; 
-    margin-bottom: 12px; 
-    font-size: 0.85rem; 
-    color: #000; 
+    justify-content: space-between !important; 
+    align-items: center !important; 
+    width: 100% !important;
+    padding-bottom: 6px !important; 
+    margin-bottom: 14px !important; 
+    box-sizing: border-box !important;
   }
 
+  /* Sterk / fremhevet skrift på første utskriftsside */
+  .print-header-first {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    font-size: 0.90rem !important;
+    border-bottom: 2px solid #0f172a !important;
+  }
+
+  /* Svakere / neddempet topptekst på påfølgende sider */
+  .print-header-subsequent {
+    font-weight: 400 !important;
+    color: #64748b !important;
+    font-size: 0.82rem !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
+
+  /* Venstre side: Skole - Kommune - Skoleår */
+  .print-header-left {
+    white-space: nowrap !important;
+  }
+
+  /* Høyre side: Sidetittel og Sidetall */
+  .print-header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    white-space: nowrap !important;
+  }
+
+  .print-header-title {
+    font-weight: 600 !important;
+  }
+
+  .print-header-page-num {
+    color: #475569 !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* 6. Innholdskort og tabeller */
   .section-card.print-section-hidden { 
     display: none !important; 
   }
