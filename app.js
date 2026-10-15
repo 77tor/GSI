@@ -2786,57 +2786,28 @@ function renderStartside() {
     return;
   }
 
-  // Liste over alle mulige skoleår
   const allYears = ['2026/2027', '2027/2028', '2028/2029'];
   let html = '';
 
   schools.forEach(s => {
-    // 1. Finn alle ferdigstilte skoleår for denne skolen
+    // Finn alle unike ferdigstilte år
     const completedYears = [];
     allYears.forEach(year => {
-      const yearKey = year.replace('/', '_');
-      if (localStorage.getItem(`status_${s.id}_${yearKey}`) === 'Ferdigstilt') {
-        completedYears.push(year);
+      const yearKey = year.replace('/', '_').replace('-', '_');
+      if (localStorage.getItem(`status_${s.id}_${yearKey}`) === 'Ferdigstilt' || localStorage.getItem(`gsi_archive_${s.id}_${yearKey}`)) {
+        if (!completedYears.includes(year)) {
+          completedYears.push(year);
+        }
       }
     });
 
-    // Sjekk om det gjeldende valgte året (eller default 2026/2027) er ferdigstilt via skolen selv
-    const activeYearDisplay = (typeof activeSchoolYear !== 'undefined' ? activeSchoolYear : '2026-2027').replace('-', '/');
-    const activeYearKey = activeYearDisplay.replace('/', '_');
-    if (s.status === 'Ferdigstilt' && !completedYears.includes(activeYearDisplay)) {
-      completedYears.push(activeYearDisplay);
-    }
+    // Finn gjeldende aktivt behandlingsår (det eldste ufylte året)
+    const currentWorkingYear = allYears.find(y => !completedYears.includes(y)) || '2027/2028';
 
-    // 2. RENDRE FERDIGSTILTE RADER (Kun "Vis (Låst)" - INGEN rediger/slett knapper)
-    completedYears.forEach(compYear => {
-      html += `
-        <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
-          <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${compYear}</td>
-          <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${s.orgnr}</td>
-          <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
-          <td style="padding: 14px 16px; color: #475569;">${s.fylke || ''}</td>
-          <td style="padding: 14px 16px; color: #475569;">${s.kommune || ''}</td>
-          <td style="padding: 14px 16px; white-space: nowrap;">
-            <span style="color: #16a34a; font-size: 0.9rem; margin-right: 4px;">●</span> 
-            <strong style="color: #15803d; font-size: 0.88rem;">Ferdigstilt</strong>
-          </td>
-          <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
-            <button type="button" class="btn" style="background: #475569; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600;" onclick="openFormForSchoolAndYear('${s.id}', '${compYear}')">
-              👁️ Vis (Låst)
-            </button>
-          </td>
-        </tr>
-      `;
-    });
-
-    // 3. FINN DET AKTIVE SKOLEÅRET SOM SKAL VÆRE "UNDER BEHANDLING"
-    // (Bruk det eldste året i listen som ennå IKKE er ferdigstilt)
-    let nextActiveYear = allYears.find(y => !completedYears.includes(y)) || '2027/2028';
-
-    // 4. RENDRE HOVEDRADEN FOR SKOLEN ("Under behandling" med Åpne, Rediger og Slett)
+    // 1. HOVEDRAD ØVERST (Aktiv skole med Åpne, Rediger og Slett)
     html += `
-      <tr style="border-bottom: 1px solid #cbd5e1; background: #f8fafc;">
-        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${nextActiveYear}</td>
+      <tr style="border-bottom: 1px solid #cbd5e1; background: #ffffff;">
+        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${currentWorkingYear}</td>
         <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${s.orgnr}</td>
         <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
         <td style="padding: 14px 16px; color: #475569;">${s.fylke || ''}</td>
@@ -2846,7 +2817,7 @@ function renderStartside() {
           <strong style="color: #b45309; font-size: 0.88rem;">Under behandling</strong>
         </td>
         <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
-          <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="openFormForSchoolAndYear('${s.id}', '${nextActiveYear}')">
+          <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="selectSchoolForInfo('${s.id}')">
             Åpne skjema
           </button>
           <button type="button" title="Rediger stamdata" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; margin-right: 8px;" onclick="openEditSchoolModal('${s.id}')">
@@ -2858,10 +2829,33 @@ function renderStartside() {
         </td>
       </tr>
     `;
+
+    // 2. FERDIGSTILTE UNDERLINJER DERSOM DET FINNES ARKIVERTE ÅR
+    completedYears.forEach(compYear => {
+      html += `
+        <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.9rem;">
+          <td style="padding: 10px 16px 10px 32px; color: #64748b; font-weight: 500;">↳ ${compYear}</td>
+          <td style="padding: 10px 16px; color: #94a3b8;">${s.orgnr}</td>
+          <td style="padding: 10px 16px; color: #64748b; font-style: italic;">${s.name} (Arkiv)</td>
+          <td style="padding: 10px 16px; color: #94a3b8;">${s.fylke || ''}</td>
+          <td style="padding: 10px 16px; color: #94a3b8;">${s.kommune || ''}</td>
+          <td style="padding: 10px 16px; white-space: nowrap;">
+            <span style="color: #16a34a; font-size: 0.85rem; margin-right: 4px;">●</span> 
+            <strong style="color: #15803d; font-size: 0.85rem;">Ferdigstilt</strong>
+          </td>
+          <td style="padding: 10px 16px; text-align: right; white-space: nowrap;">
+            <button type="button" class="btn" style="background: #475569; color: white; padding: 6px 14px; font-size: 0.82rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600;" onclick="openArchiveSchoolYear('${s.id}', '${compYear}')">
+              👁️ Vis (Låst)
+            </button>
+          </td>
+        </tr>
+      `;
+    });
   });
 
   tbody.innerHTML = html;
 }
+
 
 
 function openFormForSchoolAndYear(schoolId, year) {
@@ -2897,29 +2891,35 @@ function closeCompletionModal() {
   if (modal) modal.style.display = 'none';
 }
 
+/* Bekreft fullføring og lagring av "død" arkivkopi */
 function confirmCompletion() {
   closeCompletionModal();
 
-  const currentYear = document.getElementById('year-select')?.value || '2026/2027';
-  const yearKey = currentYear.replace('/', '_');
-  const schoolYearStatusKey = `status_${activeSchoolId}_${yearKey}`;
+  const currentYear = document.getElementById('year-select')?.value || activeSchoolYear || '2026/2027';
+  const yearKey = currentYear.replace('/', '_').replace('-', '_');
+  const archiveKey = `gsi_archive_${activeSchoolId}_${yearKey}`;
+  const statusKey = `status_${activeSchoolId}_${yearKey}`;
 
-  localStorage.setItem(schoolYearStatusKey, 'Ferdigstilt');
+  // 1. Lag et statisk "øyeblikksbilde" (Død arkivkopi)
+  const archiveSnapshot = {
+    schoolId: activeSchoolId,
+    schoolYear: currentYear,
+    completedAt: new Date().toISOString(),
+    formData: JSON.parse(JSON.stringify(formData || {})),
+    validationComments: JSON.parse(JSON.stringify(window.validationComments || {}))
+  };
 
-  const schools = getSchools();
-  const schoolIdx = schools.findIndex(s => s.id === activeSchoolId);
-  if (schoolIdx !== -1) {
-    schools[schoolIdx].status = 'Ferdigstilt';
-    localStorage.setItem('gsi_schools', JSON.stringify(schools));
-  }
+  // Lagre arkiv (overskriver automatisk tidligere utgave dersom det re-ferdigstilles)
+  localStorage.setItem(archiveKey, JSON.stringify(archiveSnapshot));
+  localStorage.setItem(statusKey, 'Ferdigstilt');
 
-  lockAllFormInputs(true);
+  // 2. Eksporter backup JSON
   exportBackupJSON(activeSchoolId, currentYear);
+
+  // 3. Returner til startsiden
   goToStartside();
 
-  if (typeof showSaveMessage === 'function') {
-    showSaveMessage('Skjemaet er ferdigstilt, låst og eksportert!');
-  }
+  showSaveMessage(`Skoleåret ${currentYear} er ferdigstilt og arkivert!`);
 }
 
 function lockAllFormInputs(shouldLock = true) {
@@ -2930,6 +2930,34 @@ function lockAllFormInputs(shouldLock = true) {
     }
   });
 }
+
+/* Åpne "død" lesekopi av ferdigstilt arkiv fra startsiden */
+function openArchiveSchoolYear(schoolId, year) {
+  activeSchoolId = schoolId;
+  const yearKey = year.replace('/', '_').replace('-', '_');
+  const archiveKey = `gsi_archive_${schoolId}_${yearKey}`;
+
+  const rawArchive = localStorage.getItem(archiveKey);
+  if (rawArchive) {
+    try {
+      const archiveData = JSON.parse(rawArchive);
+      formData = archiveData.formData || {};
+    } catch (e) {
+      console.error('Kunne ikke lese arkivkopi:', e);
+    }
+  }
+
+  // Sett valgt skoleår i toppmenyen
+  const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
+  if (yearSelect) yearSelect.value = year;
+  activeSchoolYear = year;
+
+  // Åpne skjema og lås alle celler
+  openFormForActiveSchool();
+  lockAllFormInputs(true);
+}
+
+window.openArchiveSchoolYear = openArchiveSchoolYear;
 
 function exportBackupJSON(schoolId, year) {
   const activeSchool = getSchools().find(s => s.id === schoolId);
@@ -3267,6 +3295,44 @@ function goToStartside() {
 
   renderStartside();
 }
+
+
+// Hjelpefunksjon for å vise lagringsmelding i grensesnittet
+function showSaveMessage(msg = 'Endringer er lagret') {
+  let toast = document.getElementById('save-toast-message');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'save-toast-message';
+    toast.style.cssText = `
+      position: fixed; bottom: 20px; right: 20px; 
+      background: #0f172a; color: #white; padding: 10px 18px; 
+      border-radius: 6px; font-size: 0.88rem; z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: opacity 0.3s ease;
+      color: white;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 2500);
+}
+
+// Side-navigasjon for Forrige/Neste-knappene
+function navigatePage(direction) {
+  const newPage = currentPage + direction;
+  if (typeof selectPage === 'function') {
+    selectPage(newPage);
+  }
+}
+
+window.showSaveMessage = showSaveMessage;
+window.navigatePage = navigatePage;
+
 
 /* =========================================================
    HENDELSER OG OPPSTART
