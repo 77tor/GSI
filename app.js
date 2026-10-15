@@ -2644,6 +2644,8 @@ function handleStartPrint() {
     return;
   }
 
+  const totalPagesCount = checkedPageIds.length;
+
   // Hent skjemadata for utskrift
   let printData = {};
   if (isDataMode && selectedYear) {
@@ -2679,7 +2681,7 @@ function handleStartPrint() {
 
   let activePrintPageCount = 0;
 
-  // Gå gjennom alle sider og gjør kun valgte sider synlige
+  // Gå gjennom alle sider
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2692,7 +2694,7 @@ function handleStartPrint() {
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
-      // 1. Legg kun ÉN hovedtopptekst øverst på hver skjemaside (1-18)
+      // Sett inn topptekst med sidetall (Side X/Y)
       const isFirstPrintPage = activePrintPageCount === 1;
       const printHeader = document.createElement('div');
       printHeader.className = `print-header print-header-instance ${isFirstPrintPage ? 'print-header-main' : 'print-header-sub'}`;
@@ -2701,11 +2703,12 @@ function handleStartPrint() {
         <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
         <div class="print-header-right">
           <span class="print-header-title">${pageTitle}</span>
+          <span class="print-header-page-num">Side ${activePrintPageCount}/${totalPagesCount}</span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
 
-      // 2. Skjul deloppgaver som ikke er huket av i utskriftsdialogen
+      // Skjul deloppgaver som ikke er huket av i utskriftsdialogen
       const sections = pageEl.querySelectorAll('.section-card');
       sections.forEach((secEl, idx) => {
         const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
