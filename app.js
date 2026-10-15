@@ -307,18 +307,38 @@ function selectPage(id) {
   if (id < 1 || id > 18) return;
   
   // Hindre navigasjon til sider som er deaktiverte
-  if (getDisabledPages().includes(id)) return;
+  if (typeof getDisabledPages === 'function' && getDisabledPages().includes(id)) return;
 
-  saveData(false);
+  if (typeof saveData === 'function') saveData(false);
 
   currentPage = id;
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', Number(p.dataset.page) === id));
 
-  updateHeading();
-  renderSidebar();
+  if (typeof updateHeading === 'function') updateHeading();
+  if (typeof renderSidebar === 'function') renderSidebar();
 
-  // Kjører automatisk kontroll når brukeren går til Side 17
-  if (id === 17 && typeof runValidation === 'function') runValidation(false);
+  // NÅR BRUKEREN GÅR TIL SIDE 17:
+  if (id === 17) {
+    // 1. Tving slide-bryteren til å stå "AV"
+    const toggle = document.getElementById('toggle-passed-checks');
+    if (toggle) toggle.checked = false;
+
+    // 2. Skjul loggboksen for gjennomførte kontroller
+    const logContainer = document.getElementById('validation-log-container');
+    if (logContainer) logContainer.style.display = 'none';
+
+    // 3. Tilbakestill avviksvinduet til innledende tilstand til brukeren trykker «Kontroller skjema»
+    const container = document.getElementById('validation-results');
+    const countSpan = document.getElementById('validation-count');
+    if (countSpan) countSpan.textContent = '0';
+    if (container) {
+      container.innerHTML = `
+        <div style="padding: 16px; color: #e2e8f0; font-style: italic;">
+          Trykk på knappen «Kontroller skjema» ovenfor for å starte kontrollen av opplysningene i skjemaet.
+        </div>
+      `;
+    }
+  }
 }
 
 
