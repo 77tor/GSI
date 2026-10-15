@@ -147,19 +147,115 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 .modal-footer { padding: 16px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
 
 /* ========================================================= UTSKRIFT ========================================================= */
-@page { size: landscape; margin: 8mm 10mm; }
+@page { 
+  size: landscape; 
+  margin: 8mm 10mm; 
+}
+
 @media print {
-  body { zoom: 83%; transform-origin: top left; }
-  .topbar, .sidebar, .button-bar, .modal-backdrop, .btn-fetch-prev, #save-1, .page-head { display: none !important; }
-  html, body, .app, .main-container, .main, .main-content, #pages, .page, .section-card, .address-grid, table, .table-s9-c, .print-header { width: 100% !important; min-width: 100% !important; max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; padding-left: 0 !important; padding-right: 0 !important; box-sizing: border-box !important; }
-  .page { display: none !important; }
-  .page.print-visible { display: block !important; page-break-after: always; break-after: page; margin-bottom: 0 !important; }
-  .print-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 12px; font-size: 0.8rem; color: #000; }
-  .section-card.print-section-hidden { display: none !important; }
-  .section-card { padding: 10px !important; margin-bottom: 10px !important; break-inside: avoid !important; page-break-inside: avoid !important; }
-  th, td { padding: 3px 6px !important; font-size: 0.82rem !important; }
-  tr, table { break-inside: avoid !important; page-break-inside: avoid !important; }
-  input, select, textarea { border: none !important; border-bottom: 1px solid #444 !important; background: transparent !important; color: #000 !important; padding: 2px !important; }
+  body { 
+    zoom: 83%; 
+    transform-origin: top left; 
+  }
+
+  /* 1. Skjul alt uviktig grensesnitt, støy og menyer */
+  .topbar, 
+  .sidebar, 
+  #app-sidebar, 
+  .tools-menu-container, 
+  .button-bar, 
+  .modal-backdrop, 
+  .modal, 
+  .btn-fetch-prev, 
+  #save-1, 
+  .page-head, 
+  #view-startside, 
+  #view-info { 
+    display: none !important; 
+  }
+
+  /* 2. CRITICAL FIX: Opphev alle høyde- og scrollbegrensninger slik at alle sider skrives ut */
+  html, 
+  body, 
+  .app, 
+  .main-container, 
+  .main, 
+  .main-content, 
+  #view-form, 
+  #pages, 
+  .content { 
+    height: auto !important; 
+    min-height: auto !important; 
+    max-height: none !important; 
+    overflow: visible !important; 
+    position: static !important; 
+    width: 100% !important; 
+    min-width: 100% !important; 
+    max-width: none !important; 
+    margin-left: 0 !important; 
+    margin-right: 0 !important; 
+    padding-left: 0 !important; 
+    padding-right: 0 !important; 
+    box-sizing: border-box !important; 
+    background: #ffffff !important;
+  }
+
+  /* 3. Skjul alle usynlige sider */
+  .page { 
+    display: none !important; 
+  }
+
+  /* 4. Tving synlighet og sideskift for alle avkryssede sider (.print-visible) */
+  .page.print-visible { 
+    display: block !important; 
+    visibility: visible !important;
+    page-break-after: always !important; 
+    break-after: page !important; 
+    margin-bottom: 0 !important; 
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* 5. Styling for overskrifter, kort og tabeller */
+  .print-header { 
+    display: flex !important; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 2px solid #000; 
+    padding-bottom: 4px; 
+    margin-bottom: 12px; 
+    font-size: 0.8rem; 
+    color: #000; 
+  }
+
+  .section-card.print-section-hidden { 
+    display: none !important; 
+  }
+
+  .section-card { 
+    padding: 10px !important; 
+    margin-bottom: 10px !important; 
+    break-inside: avoid !important; 
+    page-break-inside: avoid !important; 
+  }
+
+  th, td { 
+    padding: 3px 6px !important; 
+    font-size: 0.82rem !important; 
+  }
+
+  tr, table { 
+    break-inside: avoid !important; 
+    page-break-inside: avoid !important; 
+  }
+
+  input, select, textarea { 
+    border: none !important; 
+    border-bottom: 1px solid #444 !important; 
+    background: transparent !important; 
+    color: #000 !important; 
+    padding: 2px !important; 
+  }
 }
 
 /* ========================================================= 5. SEKSJONSKORT ========================================================= */

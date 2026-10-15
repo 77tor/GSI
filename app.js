@@ -2644,13 +2644,23 @@ function handleStartPrint() {
     return;
   }
 
+  // Hent data for valgt skoleår om man har valgt "Med data"
   let printData = {};
   if (isDataMode && selectedYear) {
-    const key = typeof storageKeyFor === 'function' ? storageKeyFor(selectedYear) : `gsi_data_${activeSchoolId}_${selectedYear}`;
-    const raw = localStorage.getItem(key);
-    if (raw) {
-      try { printData = JSON.parse(raw) || {}; } catch (e) { printData = {}; }
+    const yearKey = selectedYear.replace('/', '_').replace('-', '_');
+    // Sjekk først i arkiv, deretter i ordinært storage
+    const archiveRaw = localStorage.getItem(`gsi_archive_${activeSchoolId}_${yearKey}`);
+    if (archiveRaw) {
+      try { printData = JSON.parse(archiveRaw).formData || {}; } catch (e) {}
+    } else {
+      const key = typeof storageKeyFor === 'function' ? storageKeyFor(selectedYear) : `gsi_data_${activeSchoolId}_${selectedYear}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        try { printData = JSON.parse(raw) || {}; } catch (e) {}
+      }
     }
+  } else if (isDataMode) {
+    printData = { ...formData };
   }
 
   const backupFormData = { ...formData };
@@ -2660,12 +2670,15 @@ function handleStartPrint() {
   if (typeof syncDataToInputs === 'function') syncDataToInputs();
   if (typeof calculateAll === 'function') calculateAll(false);
 
-  const schoolName = formData['s1_skole'] || 'Skole';
-  const muniName = formData['s1_kommunenavn'] || 'Kommune';
+  const schoolName = formData['s1_skole'] || document.getElementById('topbar-school')?.textContent || 'Skole';
+  const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
+  // Fjern tidligere utskriftselementer
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
+  document.body.classList.add('is-printing-mode');
 
+  // Gå gjennom alle sider og gjør de valgte synlige for utskrift
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2675,16 +2688,20 @@ function handleStartPrint() {
 
     if (checkedPageIds.includes(pageNum)) {
       pageEl.classList.add('print-visible');
+      pageEl.style.display = 'block'; // Tvinger visning under utskrift
 
       const printHeader = document.createElement('div');
       printHeader.className = 'print-header print-header-instance';
       printHeader.innerHTML = `
-        <div><strong>${schoolName}</strong> — ${muniName}</div>
-        <div><strong>${pageTitle}</strong></div>
-        <div>${yearText}</div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 16px; font-size: 0.9rem; color: #334155;">
+          <div><strong>${schoolName}</strong> — ${muniName}</div>
+          <div><strong>${pageTitle}</strong></div>
+          <div>${yearText}</div>
+        </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
 
+      // Skjul deloppgaver som ikke er huket av
       const sections = pageEl.querySelectorAll('.section-card');
       sections.forEach((secEl, idx) => {
         const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
@@ -2695,6 +2712,7 @@ function handleStartPrint() {
 
     } else {
       pageEl.classList.remove('print-visible');
+      pageEl.style.display = 'none';
     }
   });
 
@@ -2703,6 +2721,8 @@ function handleStartPrint() {
   setTimeout(() => {
     window.print();
 
+    // Tilbakestill tilstanden etter utskrift
+    document.body.classList.remove('is-printing-mode');
     formData = backupFormData;
     if (typeof syncDataToInputs === 'function') syncDataToInputs();
     if (typeof calculateAll === 'function') calculateAll(false);
@@ -2710,11 +2730,12 @@ function handleStartPrint() {
     document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
     document.querySelectorAll('.page').forEach(pageEl => {
       pageEl.classList.remove('print-visible');
+      pageEl.style.display = '';
       pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
     });
 
     if (typeof selectPage === 'function') selectPage(backupPage);
-  }, 150);
+  }, 200);
 }
 
 
