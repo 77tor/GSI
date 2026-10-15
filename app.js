@@ -2790,7 +2790,7 @@ function renderStartside() {
   let html = '';
 
   schools.forEach(s => {
-    // Finn alle unike ferdigstilte år
+    // Finn alle ferdigstilte skoleår for denne skolen
     const completedYears = [];
     allYears.forEach(year => {
       const yearKey = year.replace('/', '_').replace('-', '_');
@@ -2801,13 +2801,13 @@ function renderStartside() {
       }
     });
 
-    // Finn gjeldende aktivt behandlingsår (det eldste ufylte året)
-    const currentWorkingYear = allYears.find(y => !completedYears.includes(y)) || '2027/2028';
+    // Finn det eldste behandlingsåret som ennå IKKE er ferdigstilt
+    const nextActiveYear = allYears.find(y => !completedYears.includes(y)) || '2027/2028';
 
-    // 1. HOVEDRAD ØVERST (Aktiv skole med Åpne, Rediger og Slett)
+    // 1. HOVEDRAD ØVERST (Under behandling - Åpner direkte på det aktive skoleåret)
     html += `
       <tr style="border-bottom: 1px solid #cbd5e1; background: #ffffff;">
-        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${currentWorkingYear}</td>
+        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${nextActiveYear}</td>
         <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${s.orgnr}</td>
         <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
         <td style="padding: 14px 16px; color: #475569;">${s.fylke || ''}</td>
@@ -2817,7 +2817,7 @@ function renderStartside() {
           <strong style="color: #b45309; font-size: 0.88rem;">Under behandling</strong>
         </td>
         <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
-          <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="selectSchoolForInfo('${s.id}')">
+          <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="openFormForActiveSchool('${s.id}', '${nextActiveYear}')">
             Åpne skjema
           </button>
           <button type="button" title="Rediger stamdata" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; margin-right: 8px;" onclick="openEditSchoolModal('${s.id}')">
@@ -2830,7 +2830,7 @@ function renderStartside() {
       </tr>
     `;
 
-    // 2. FERDIGSTILTE UNDERLINJER DERSOM DET FINNES ARKIVERTE ÅR
+    // 2. FERDIGSTILTE UNDERLINJER
     completedYears.forEach(compYear => {
       html += `
         <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.9rem;">
@@ -2855,7 +2855,6 @@ function renderStartside() {
 
   tbody.innerHTML = html;
 }
-
 
 
 function openFormForSchoolAndYear(schoolId, year) {
@@ -3289,7 +3288,13 @@ function syncActiveSchoolStamdata() {
   }
 }
 
-function openFormForActiveSchool() {
+/* Åpne aktivt arbeidsår for redigering (Åpne skjema) */
+function openFormForActiveSchool(schoolId, targetYear) {
+  if (schoolId) {
+    activeSchoolId = schoolId;
+    selectSchoolForInfo(schoolId);
+  }
+
   const vStart = document.getElementById('view-startside');
   const vForm = document.getElementById('view-form');
   const vSidebar = document.getElementById('app-sidebar');
@@ -3303,10 +3308,26 @@ function openFormForActiveSchool() {
 
   if (typeof toggleTopbarControls === 'function') toggleTopbarControls(true);
 
-  // Re-aktiver og lås opp alle skjemainputs og topplinjekontroller for redigering
+  // Lås opp skjemaet og dropdown-menyen for redigering
   lockAllFormInputs(false);
 
-  // Last inn data for det aktiverte skoleåret
+  // Sett valgt skoleår i toppmenyen dersom det sendes med
+  if (targetYear) {
+    const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
+    if (yearSelect) {
+      let opt = Array.from(yearSelect.options).find(o => o.value === targetYear || o.value === targetYear.replace('/', '-'));
+      if (!opt) {
+        opt = document.createElement('option');
+        opt.value = targetYear;
+        opt.textContent = targetYear;
+        yearSelect.appendChild(opt);
+      }
+      yearSelect.value = opt.value;
+    }
+    activeSchoolYear = targetYear.replace('/', '-');
+  }
+
+  // Last inn data for det spesifikke skoleåret
   if (typeof loadDataForYear === 'function') loadDataForYear();
   if (typeof syncActiveSchoolStamdata === 'function') syncActiveSchoolStamdata();
   if (typeof saveData === 'function') saveData(false);
