@@ -2923,10 +2923,33 @@ function confirmCompletion() {
 }
 
 function lockAllFormInputs(shouldLock = true) {
-  const inputs = document.querySelectorAll('#view-form input, #view-form select, #view-form textarea');
+  // Lås/lås opp alle felter i selve skjemaet
+  const inputs = document.querySelectorAll('#view-form input, #view-form select, #view-form textarea, #view-form button');
   inputs.forEach(el => {
-    if (!el.closest('.button-bar') && el.id !== 'toggle-passed-checks') {
+    // Behold navigasjonsknappene (Forrige/Neste/Sidevalg) aktive slik at brukeren kan bla gjennom sidene
+    const isNavigation = el.closest('.button-bar') && (el.getAttribute('data-nav') || el.classList.contains('btn-nav'));
+    const isSidebarLink = el.closest('#app-sidebar');
+    
+    if (!isNavigation && !isSidebarLink) {
       el.disabled = shouldLock;
+    }
+  });
+
+  // Lås/lås opp skoleår-velgeren i toppmenyen
+  const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
+  if (yearSelect) {
+    yearSelect.disabled = shouldLock;
+  }
+
+  // Lås/lås opp spesifikt "Hent fra forrige år"-knapper
+  document.querySelectorAll('[onclick*="copyPreviousYearPageData"], #btn-copy-prev-year').forEach(btn => {
+    btn.disabled = shouldLock;
+    if (shouldLock) {
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    } else {
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
     }
   });
 }
@@ -2937,6 +2960,7 @@ function openArchiveSchoolYear(schoolId, year) {
   const yearKey = year.replace('/', '_').replace('-', '_');
   const archiveKey = `gsi_archive_${schoolId}_${yearKey}`;
 
+  // 1. Les ut frosne arkivdata
   const rawArchive = localStorage.getItem(archiveKey);
   if (rawArchive) {
     try {
@@ -2944,18 +2968,40 @@ function openArchiveSchoolYear(schoolId, year) {
       formData = archiveData.formData || {};
     } catch (e) {
       console.error('Kunne ikke lese arkivkopi:', e);
+      formData = {};
     }
+  } else {
+    formData = {};
   }
 
-  // Sett valgt skoleår i toppmenyen
-  const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
-  if (yearSelect) yearSelect.value = year;
-  activeSchoolYear = year;
+  activeSchoolYear = year.replace('/', '-');
 
-  // Åpne skjema og lås alle celler
+  // 2. Synkroniser toppmenyens skoleår-dropdown og LÅS den til dette skoleåret
+  const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
+  if (yearSelect) {
+    // Sjekk om valget finnes i dropdownen, hvis ikke legg det til midlertidig
+    let opt = Array.from(yearSelect.options).find(o => o.value === year || o.value === activeSchoolYear);
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = year;
+      opt.textContent = year;
+      yearSelect.appendChild(opt);
+    }
+    yearSelect.value = opt.value;
+    yearSelect.disabled = true; // Lås dropdownen for det ferdigstilte året
+  }
+
+  // 3. Åpne skjema, fyll feltene og lås alle input-elementer
   openFormForActiveSchool();
+
+  // Synkroniser de innlastede arkivdataene direkte til HTML-feltene
+  if (typeof syncDataToInputs === 'function') syncDataToInputs();
+  if (typeof calculateAll === 'function') calculateAll(false);
+
+  // Tving komplett låsing (inkludert "Hent fra forrige år"-knapp)
   lockAllFormInputs(true);
 }
+
 
 window.openArchiveSchoolYear = openArchiveSchoolYear;
 
@@ -3273,8 +3319,15 @@ function setInputValue(id, val) {
 }
 
 function goToStartside() {
-  saveData(false);
+  if (typeof saveData === 'function') saveData(false);
   activeSchoolId = null;
+
+  // Lås opp skoleår-dropdownen igjen til normal bruk
+  const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
+  if (yearSelect) yearSelect.disabled = false;
+
+  // Lås opp form inputs
+  lockAllFormInputs(false);
 
   toggleTopbarControls(false);
 
@@ -3295,6 +3348,10 @@ function goToStartside() {
 
   renderStartside();
 }
+
+window.openArchiveSchoolYear = openArchiveSchoolYear;
+window.lockAllFormInputs = lockAllFormInputs;
+window.goToStartside = goToStartside;
 
 
 // Hjelpefunksjon for å vise lagringsmelding i grensesnittet
