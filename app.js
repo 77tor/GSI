@@ -2690,7 +2690,7 @@ function handleStartPrint() {
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
-      // Bygg en utskriftstabell der <thead> gjentas automatisk på HVERT ark i utskriften
+      // Bygg utskriftstabell med <thead> for topptekst (Uten sidetall eller tfoot)
       const tableWrapper = document.createElement('table');
       tableWrapper.className = 'print-table-wrapper';
       tableWrapper.innerHTML = `
@@ -2701,7 +2701,6 @@ function handleStartPrint() {
                 <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
                 <div class="print-header-right">
                   <span class="print-header-title">${pageTitle}</span>
-                  <span class="print-header-page-num">Side <span class="print-page-val"></span></span>
                 </div>
               </div>
             </th>
@@ -2714,7 +2713,7 @@ function handleStartPrint() {
         </tbody>
       `;
 
-      // Flytt alle barn av pageEl inn i <td> på utskriftstabellen
+      // Flytt alt innhold inn i <td> på utskriftstabellen
       const contentCell = tableWrapper.querySelector('.print-content-cell');
       while (pageEl.firstChild) {
         contentCell.appendChild(pageEl.firstChild);
