@@ -2644,8 +2644,6 @@ function handleStartPrint() {
     return;
   }
 
-  const totalPagesCount = checkedPageIds.length;
-
   // Hent skjemadata for utskrift
   let printData = {};
   if (isDataMode && selectedYear) {
@@ -2679,9 +2677,7 @@ function handleStartPrint() {
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
-  let printedPageCounter = 0;
-
-  // Generer oppdaterte topper for hver valgte side
+  // Gå gjennom alle sider og gjør de valgte synlige for utskrift
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2690,24 +2686,19 @@ function handleStartPrint() {
     pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
 
     if (checkedPageIds.includes(pageNum)) {
-      printedPageCounter++;
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
-      // Sjekk om dette er første side i utskriften for sterkere skrift
-      const isFirstPage = printedPageCounter === 1;
-
       const printHeader = document.createElement('div');
-      printHeader.className = `print-header print-header-instance ${isFirstPage ? 'print-header-first' : 'print-header-subsequent'}`;
+      printHeader.className = 'print-header print-header-instance';
       
-      // OPPDATERT HTML-STRUKTUR (Ingen inline style som overstyrer CSS-en)
       printHeader.innerHTML = `
         <div class="print-header-left">
           ${schoolName} - ${muniName} - ${yearText}
         </div>
         <div class="print-header-right">
           <span class="print-header-title">${pageTitle}</span>
-          <span class="print-header-page-num">Side ${printedPageCounter}/${totalPagesCount}</span>
+          <span class="print-header-page-num">Side <span class="page-number-counter"></span></span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
