@@ -2218,6 +2218,7 @@ function calcSide16() {
   setNumber('s16_d_sum', sumIds([1, 2, 3, 4].map(r => `s16_d_${r}`)));
 }
 
+
 /* =========================================================
    NULLSTILLING, EKSPORT, IMPORT OG UTSKRIFT
    ========================================================= */
@@ -2381,29 +2382,26 @@ function handleResetSelect(event) {
   event.target.value = '';
 }
 
-
+/* EKSPORT AV KOMPLETT SIKKERHETSKOPI FRA STARTSIDE */
 function exportJSON() {
-  syncInputsToData();
-  saveData(false); // Sørg for at alt for aktiv skole er lagret i localStorage først
+  if (typeof syncInputsToData === 'function') syncInputsToData();
+  if (typeof saveData === 'function') saveData(false);
 
-  // 1. Hent alle aktive og slettede skoler
   const schools = getSchools();
   const deletedSchools = getDeletedSchools();
 
-  // 2. Samle opp alle skjemadata (alle nøkler i localStorage som starter på gsi_data_)
   const allFormData = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('gsi_data_')) {
+    if (key && (key.startsWith('gsi_data_') || key.startsWith('status_'))) {
       try {
-        allFormData[key] = JSON.parse(localStorage.getItem(key)) || {};
+        allFormData[key] = localStorage.getItem(key);
       } catch (e) {
         console.warn('Kunne ikke lese nøkkel ved eksport:', key);
       }
     }
   }
 
-  // 3. Bygg en komplett system-pakke
   const exportPayload = {
     version: '2.0',
     exportedAt: new Date().toISOString(),
@@ -2429,7 +2427,7 @@ function exportJSON() {
   }
 }
 
-
+/* IMPORT AV SIKKERHETSKOPI */
 function importJSON(event) {
   const file = event.target.files?.[0];
   if (!file) return;
@@ -2438,15 +2436,12 @@ function importJSON(event) {
   reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-
-      // Sjekk om det er en ny komplett backup (v2) eller gammel enkelt-eksport
       const isFullBackup = Boolean(imported.allFormData && imported.schools);
 
       let confirmMsg = `Vil du importere data fra filen "${file.name}"?\n\nDette vil oppdatere dine skoler og skjemaer med innholdet i filen.`;
       if (!window.confirm(confirmMsg)) return;
 
       if (isFullBackup) {
-        // --- 1. HÅNDTER KOMPLETT BACKUP (ALLE SKOLER OG ÅR) ---
         if (Array.isArray(imported.schools)) {
           localStorage.setItem('gsi_schools', JSON.stringify(imported.schools));
         }
@@ -2454,27 +2449,26 @@ function importJSON(event) {
           localStorage.setItem('gsi_schools_deleted', JSON.stringify(imported.deletedSchools));
         }
 
-        // Skriv inn alle lagrede skjemanøkler til localStorage
         if (imported.allFormData && typeof imported.allFormData === 'object') {
           Object.keys(imported.allFormData).forEach(key => {
-            localStorage.setItem(key, JSON.stringify(imported.allFormData[key]));
+            const val = typeof imported.allFormData[key] === 'string' ? imported.allFormData[key] : JSON.stringify(imported.allFormData[key]);
+            localStorage.setItem(key, val);
           });
         }
       } else {
-        // --- 2. BAKOVERKOMPATIBELT: HÅNDTER GAMMEL / ENKELTFILEKSPORT ---
         const newFormData = imported.formData || imported;
         if (typeof newFormData === 'object' && newFormData !== null) {
           formData = newFormData;
-          saveDataForYear(activeSchoolYear);
+          if (typeof saveDataForYear === 'function') saveDataForYear(activeSchoolYear);
         }
       }
 
       // Oppdater visningen
       if (!activeSchoolId) {
-        renderStartside();
+        if (typeof renderStartside === 'function') renderStartside();
       } else {
-        loadDataForYear();
-        syncActiveSchoolStamdata(); // Sikrer at importerte skoledata umiddelbart vises i feltene
+        if (typeof loadDataForYear === 'function') loadDataForYear();
+        if (typeof syncActiveSchoolStamdata === 'function') syncActiveSchoolStamdata();
         if (typeof saveData === 'function') saveData(false);
       }
 
@@ -2490,7 +2484,6 @@ function importJSON(event) {
   reader.readAsText(file);
 }
 
-
 function copyPreviousYearPageData() {
   const [startY, endY] = activeSchoolYear.split('-').map(Number);
   if (!startY) {
@@ -2500,7 +2493,7 @@ function copyPreviousYearPageData() {
   
   const prevSchoolYear = `${startY - 1}-${endY - 1}`;
   const prevYearDisplay = `${startY - 1}/${endY - 1}`;
-  const prevKey = storageKeyFor(prevSchoolYear);
+  const prevKey = typeof storageKeyFor === 'function' ? storageKeyFor(prevSchoolYear) : `gsi_data_${activeSchoolId}_${prevSchoolYear}`;
 
   const prevDataRaw = localStorage.getItem(prevKey);
   if (!prevDataRaw) {
@@ -2516,7 +2509,7 @@ function copyPreviousYearPageData() {
     return;
   }
 
-  const pageObj = pages.find(p => p.id === currentPage);
+  const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === currentPage) : null;
   const pageName = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${currentPage}`;
 
   const confirmCopy = window.confirm(
@@ -2548,11 +2541,13 @@ function copyPreviousYearPageData() {
     return;
   }
 
-  syncDataToInputs();
-  calculateAll(false);
-  saveData(false);
+  if (typeof syncDataToInputs === 'function') syncDataToInputs();
+  if (typeof calculateAll === 'function') calculateAll(false);
+  if (typeof saveData === 'function') saveData(false);
 
-  showSaveMessage(`Data for ${pageName} ble hentet fra ${prevYearDisplay}!`);
+  if (typeof showSaveMessage === 'function') {
+    showSaveMessage(`Data for ${pageName} ble hentet fra ${prevYearDisplay}!`);
+  }
 }
 
 function getSchoolYearOptions() {
@@ -2584,7 +2579,7 @@ function openPrintModal() {
     });
   }
 
-  if (pagesList) {
+  if (pagesList && typeof pages !== 'undefined') {
     pagesList.innerHTML = '';
     pages.forEach(p => {
       const pageEl = document.querySelector(`.page[data-page="${p.id}"]`);
@@ -2653,7 +2648,8 @@ function handleStartPrint() {
 
   let printData = {};
   if (isDataMode && selectedYear) {
-    const raw = localStorage.getItem(storageKeyFor(selectedYear));
+    const key = typeof storageKeyFor === 'function' ? storageKeyFor(selectedYear) : `gsi_data_${activeSchoolId}_${selectedYear}`;
+    const raw = localStorage.getItem(key);
     if (raw) {
       try { printData = JSON.parse(raw) || {}; } catch (e) { printData = {}; }
     }
@@ -2663,8 +2659,8 @@ function handleStartPrint() {
   const backupPage = currentPage;
 
   formData = printData;
-  syncDataToInputs();
-  calculateAll(false);
+  if (typeof syncDataToInputs === 'function') syncDataToInputs();
+  if (typeof calculateAll === 'function') calculateAll(false);
 
   const schoolName = formData['s1_skole'] || 'Skole';
   const muniName = formData['s1_kommunenavn'] || 'Kommune';
@@ -2674,7 +2670,7 @@ function handleStartPrint() {
 
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
-    const pageObj = pages.find(p => p.id === pageNum);
+    const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
     const pageTitle = pageObj ? `${pageObj.id}. ${pageObj.name}` : `Side ${pageNum}`;
 
     pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
@@ -2710,8 +2706,8 @@ function handleStartPrint() {
     window.print();
 
     formData = backupFormData;
-    syncDataToInputs();
-    calculateAll(false);
+    if (typeof syncDataToInputs === 'function') syncDataToInputs();
+    if (typeof calculateAll === 'function') calculateAll(false);
 
     document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
     document.querySelectorAll('.page').forEach(pageEl => {
