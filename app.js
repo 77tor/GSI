@@ -2674,11 +2674,11 @@ function handleStartPrint() {
   const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
-  // Fjern tidligere topptekst-instanser
-  document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
+  // Fjern tidligere utskriftscontainere
+  document.querySelectorAll('.print-table-wrapper').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
-  // Gå gjennom alle skjemasider og gjør de valgte synlige
+  // Gå gjennom alle skjemasider
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2690,17 +2690,36 @@ function handleStartPrint() {
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
-      // Sett inn strukturert topptekst der sidetallet fylles ut av CSS
-      const printHeader = document.createElement('div');
-      printHeader.className = 'print-header print-header-instance';
-      printHeader.innerHTML = `
-        <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
-        <div class="print-header-right">
-          <span class="print-header-title">${pageTitle}</span>
-          <span class="print-header-page-num">Side <span class="print-page-val"></span></span>
-        </div>
+      // Bygg en utskriftstabell der <thead> gjentas automatisk på HVERT ark i utskriften
+      const tableWrapper = document.createElement('table');
+      tableWrapper.className = 'print-table-wrapper';
+      tableWrapper.innerHTML = `
+        <thead>
+          <tr>
+            <th>
+              <div class="print-header">
+                <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
+                <div class="print-header-right">
+                  <span class="print-header-title">${pageTitle}</span>
+                  <span class="print-header-page-num">Side <span class="print-page-val"></span></span>
+                </div>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="print-content-cell"></td>
+          </tr>
+        </tbody>
       `;
-      pageEl.insertBefore(printHeader, pageEl.firstChild);
+
+      // Flytt alle barn av pageEl inn i <td> på utskriftstabellen
+      const contentCell = tableWrapper.querySelector('.print-content-cell');
+      while (pageEl.firstChild) {
+        contentCell.appendChild(pageEl.firstChild);
+      }
+      pageEl.appendChild(tableWrapper);
 
       // Skjul deloppgaver som ikke er huket av i utskriftsdialogen
       const sections = pageEl.querySelectorAll('.section-card');
@@ -2728,8 +2747,17 @@ function handleStartPrint() {
     if (typeof syncDataToInputs === 'function') syncDataToInputs();
     if (typeof calculateAll === 'function') calculateAll(false);
 
-    document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
+    // Flytt innholdet ut av utskriftstabellen igjen
     document.querySelectorAll('.page').forEach(pageEl => {
+      const contentCell = pageEl.querySelector('.print-content-cell');
+      if (contentCell) {
+        while (contentCell.firstChild) {
+          pageEl.appendChild(contentCell.firstChild);
+        }
+      }
+      const tableWrapper = pageEl.querySelector('.print-table-wrapper');
+      if (tableWrapper) tableWrapper.remove();
+
       pageEl.classList.remove('print-visible');
       pageEl.style.display = '';
       pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
@@ -2740,7 +2768,6 @@ function handleStartPrint() {
 }
 
 window.handleStartPrint = handleStartPrint;
-
 
 
 
