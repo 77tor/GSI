@@ -2644,11 +2644,12 @@ function handleStartPrint() {
     return;
   }
 
-  // Hent data for valgt skoleår om man har valgt "Med data"
+  const totalPagesCount = checkedPageIds.length;
+
+  // Hent skjemadata for utskrift
   let printData = {};
   if (isDataMode && selectedYear) {
     const yearKey = selectedYear.replace('/', '_').replace('-', '_');
-    // Sjekk først i arkiv, deretter i ordinært storage
     const archiveRaw = localStorage.getItem(`gsi_archive_${activeSchoolId}_${yearKey}`);
     if (archiveRaw) {
       try { printData = JSON.parse(archiveRaw).formData || {}; } catch (e) {}
@@ -2674,11 +2675,13 @@ function handleStartPrint() {
   const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
-  // Fjern tidligere utskriftselementer
+  // Fjern tidligere utskriftstopptekster
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
-  // Gå gjennom alle sider og gjør de valgte synlige for utskrift
+  let printedPageCounter = 0;
+
+  // Generer oppdaterte topper for hver valgte side
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2687,21 +2690,29 @@ function handleStartPrint() {
     pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
 
     if (checkedPageIds.includes(pageNum)) {
+      printedPageCounter++;
       pageEl.classList.add('print-visible');
-      pageEl.style.display = 'block'; // Tvinger visning under utskrift
+      pageEl.style.display = 'block';
+
+      // Sjekk om dette er første side i utskriften for sterkere skrift
+      const isFirstPage = printedPageCounter === 1;
 
       const printHeader = document.createElement('div');
-      printHeader.className = 'print-header print-header-instance';
+      printHeader.className = `print-header print-header-instance ${isFirstPage ? 'print-header-first' : 'print-header-subsequent'}`;
+      
+      // OPPDATERT HTML-STRUKTUR (Ingen inline style som overstyrer CSS-en)
       printHeader.innerHTML = `
-        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 16px; font-size: 0.9rem; color: #334155;">
-          <div><strong>${schoolName}</strong> — ${muniName}</div>
-          <div><strong>${pageTitle}</strong></div>
-          <div>${yearText}</div>
+        <div class="print-header-left">
+          ${schoolName} - ${muniName} - ${yearText}
+        </div>
+        <div class="print-header-right">
+          <span class="print-header-title">${pageTitle}</span>
+          <span class="print-header-page-num">Side ${printedPageCounter}/${totalPagesCount}</span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
 
-      // Skjul deloppgaver som ikke er huket av
+      // Skjul deloppgaver som ikke er huket av i utskriftsdialogen
       const sections = pageEl.querySelectorAll('.section-card');
       sections.forEach((secEl, idx) => {
         const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
@@ -2737,6 +2748,8 @@ function handleStartPrint() {
     if (typeof selectPage === 'function') selectPage(backupPage);
   }, 200);
 }
+
+window.handleStartPrint = handleStartPrint;
 
 
 
