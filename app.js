@@ -2673,7 +2673,7 @@ function handleStartPrint() {
   const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
-  // Fjern tidligere utskriftstopptekster
+  // Fjern tidligere topptekster
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
@@ -2692,13 +2692,12 @@ function handleStartPrint() {
       const printHeader = document.createElement('div');
       printHeader.className = 'print-header print-header-instance';
       
+      // Strukturer toppteksten uten hardkodede sidetall i JS
       printHeader.innerHTML = `
-        <div class="print-header-left">
-          ${schoolName} - ${muniName} - ${yearText}
-        </div>
+        <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
         <div class="print-header-right">
           <span class="print-header-title">${pageTitle}</span>
-          <span class="print-header-page-num">Side <span class="page-number-counter"></span></span>
+          <span class="print-page-number">Side <span class="page-num-val"></span></span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
