@@ -2673,11 +2673,13 @@ function handleStartPrint() {
   const muniName = formData['s1_kommunenavn'] || document.getElementById('topbar-municipality')?.textContent || 'Kommune';
   const yearText = `Skoleår ${selectedYear ? selectedYear.replace('-', '/') : activeSchoolYear}`;
 
-  // Fjern tidligere topptekster
+  // Fjern tidligere utskriftselementer
   document.querySelectorAll('.print-header-instance').forEach(el => el.remove());
   document.body.classList.add('is-printing-mode');
 
-  // Gå gjennom alle sider og gjør de valgte synlige for utskrift
+  let activePrintPageCount = 0;
+
+  // Telle og tilrettelegge valgte sider
   document.querySelectorAll('.page').forEach(pageEl => {
     const pageNum = parseInt(pageEl.getAttribute('data-page'), 10);
     const pageObj = (typeof pages !== 'undefined') ? pages.find(p => p.id === pageNum) : null;
@@ -2686,28 +2688,38 @@ function handleStartPrint() {
     pageEl.querySelectorAll('.section-card').forEach(sc => sc.classList.remove('print-section-hidden'));
 
     if (checkedPageIds.includes(pageNum)) {
+      activePrintPageCount++;
       pageEl.classList.add('print-visible');
       pageEl.style.display = 'block';
 
+      // 1. Hovedtopptekst øverst på skjemasiden
       const printHeader = document.createElement('div');
-      printHeader.className = 'print-header print-header-instance';
-      
-      // Strukturer toppteksten uten hardkodede sidetall i JS
+      printHeader.className = 'print-header print-header-instance print-header-main';
       printHeader.innerHTML = `
         <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
         <div class="print-header-right">
           <span class="print-header-title">${pageTitle}</span>
-          <span class="print-page-number">Side <span class="page-num-val"></span></span>
         </div>
       `;
       pageEl.insertBefore(printHeader, pageEl.firstChild);
 
-      // Skjul deloppgaver som ikke er huket av i utskriftsdialogen
+      // 2. Legg til topptekst før hver ny seksjon/kort for å sikre dekning på side 2, 3, 4 osv.
       const sections = pageEl.querySelectorAll('.section-card');
       sections.forEach((secEl, idx) => {
         const subCb = document.querySelector(`.print-section-check[data-page="${pageNum}"][data-section-idx="${idx}"]`);
         if (subCb && !subCb.checked) {
           secEl.classList.add('print-section-hidden');
+        } else {
+          // Sett inn undertopptekst over kort som brekker
+          const subHeader = document.createElement('div');
+          subHeader.className = 'print-header print-header-instance print-header-sub';
+          subHeader.innerHTML = `
+            <div class="print-header-left">${schoolName} - ${muniName} - ${yearText}</div>
+            <div class="print-header-right">
+              <span class="print-header-title">${pageTitle}</span>
+            </div>
+          `;
+          secEl.parentNode.insertBefore(subHeader, secEl);
         }
       });
 
