@@ -2951,7 +2951,30 @@ function confirmCompletion() {
   const archiveKey = `gsi_archive_${activeSchoolId}_${yearKey}`;
   const statusKey = `status_${activeSchoolId}_${yearKey}`;
 
-  // 1. Lag et statisk "øyeblikksbilde" (Død arkivkopi)
+  // --- AUTOMATISK KONTROLL OG SKJUL/VIS-TOGGLE PÅ SIDE 17 ---
+  // 1. Sett bryteren "Vis alle utførte kontroller" til PÅ i grensesnittet og tilstanden
+  const showAllToggle = document.getElementById('toggle-show-all-controls') || document.getElementById('show-all-controls-toggle');
+  if (showAllToggle) {
+    showAllToggle.checked = true;
+  }
+  if (typeof state !== 'undefined') {
+    state.showAllControls = true;
+  }
+
+  // 2. Tving kjøring av skjemakontroll slik at alle resultatene og kommentarene blir oppdatert
+  if (typeof runValidation === 'function') {
+    runValidation();
+  } else if (typeof runAllControls === 'function') {
+    runAllControls();
+  }
+
+  // 3. Lagre tilstanden i formData slik at arkivet husker at alt var kontrollert og at bryteren står PÅ
+  if (typeof formData !== 'undefined') {
+    formData['controls_checked'] = true;
+    formData['show_all_controls'] = true;
+  }
+
+  // 4. Lag et statisk "øyeblikksbilde" (Død arkivkopi)
   const archiveSnapshot = {
     schoolId: activeSchoolId,
     schoolYear: currentYear,
@@ -2964,13 +2987,13 @@ function confirmCompletion() {
   localStorage.setItem(archiveKey, JSON.stringify(archiveSnapshot));
   localStorage.setItem(statusKey, 'Ferdigstilt');
 
-  // 2. Eksporter backup JSON
+  // 5. Eksporter backup JSON
   exportBackupJSON(activeSchoolId, currentYear);
 
-  // 3. Returner til startsiden
+  // 6. Returner til startsiden
   goToStartside();
 
-  showSaveMessage(`Skoleåret ${currentYear} er ferdigstilt og arkivert!`);
+  showSaveMessage(`Skoleåret ${currentYear} er ferdigstilt, kontrollert og arkivert!`);
 }
 
 function lockAllFormInputs(shouldLock = true) {
@@ -3022,6 +3045,9 @@ function openArchiveSchoolYear(schoolId, year) {
     try {
       const archiveData = JSON.parse(rawArchive);
       formData = archiveData.formData || {};
+      if (archiveData.validationComments) {
+        window.validationComments = archiveData.validationComments;
+      }
     } catch (e) {
       console.error('Kunne ikke lese arkivkopi:', e);
       formData = {};
@@ -3035,7 +3061,6 @@ function openArchiveSchoolYear(schoolId, year) {
   // 2. Synkroniser toppmenyens skoleår-dropdown og LÅS den til dette skoleåret
   const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
   if (yearSelect) {
-    // Sjekk om valget finnes i dropdownen, hvis ikke legg det til midlertidig
     let opt = Array.from(yearSelect.options).find(o => o.value === year || o.value === activeSchoolYear);
     if (!opt) {
       opt = document.createElement('option');
@@ -3053,6 +3078,17 @@ function openArchiveSchoolYear(schoolId, year) {
   // Synkroniser de innlastede arkivdataene direkte til HTML-feltene
   if (typeof syncDataToInputs === 'function') syncDataToInputs();
   if (typeof calculateAll === 'function') calculateAll(false);
+
+  // Sett bryteren på side 17 til PÅ og tving frem alle gjennomførte kontroller
+  const showAllToggle = document.getElementById('toggle-show-all-controls') || document.getElementById('show-all-controls-toggle');
+  if (showAllToggle) {
+    showAllToggle.checked = true;
+  }
+  if (typeof runValidation === 'function') {
+    runValidation();
+  } else if (typeof runAllControls === 'function') {
+    runAllControls();
+  }
 
   // Tving komplett låsing (inkludert "Hent fra forrige år"-knapp)
   lockAllFormInputs(true);
