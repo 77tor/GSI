@@ -3266,3 +3266,6 @@ window.restoreSchool = restoreSchool;
 window.permanentlyDeleteSchool = permanentlyDeleteSchool;
 window.exportJSON = exportJSON;
 window.importJSON = importJSON;
+window.openCompletionModal = openCompletionModal;
+window.closeCompletionModal = closeCompletionModal;
+window.confirmCompletion = confirmCompletion;
