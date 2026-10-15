@@ -2923,10 +2923,10 @@ function confirmCompletion() {
 }
 
 function lockAllFormInputs(shouldLock = true) {
-  // Lås/lås opp alle felter i selve skjemaet
+  // 1. Lås/lås opp alle felter og knapper i skjemaet
   const inputs = document.querySelectorAll('#view-form input, #view-form select, #view-form textarea, #view-form button');
   inputs.forEach(el => {
-    // Behold navigasjonsknappene (Forrige/Neste/Sidevalg) aktive slik at brukeren kan bla gjennom sidene
+    // Behold alltid navigasjonsknappene (Forrige/Neste/Sidevalg) aktive
     const isNavigation = el.closest('.button-bar') && (el.getAttribute('data-nav') || el.classList.contains('btn-nav'));
     const isSidebarLink = el.closest('#app-sidebar');
     
@@ -2935,13 +2935,13 @@ function lockAllFormInputs(shouldLock = true) {
     }
   });
 
-  // Lås/lås opp skoleår-velgeren i toppmenyen
+  // 2. Lås/lås opp skoleår-velgeren i toppmenyen
   const yearSelect = document.getElementById('year-select') || document.getElementById('school-year-select');
   if (yearSelect) {
     yearSelect.disabled = shouldLock;
   }
 
-  // Lås/lås opp spesifikt "Hent fra forrige år"-knapper
+  // 3. Lås/lås opp spesifikt "Hent fra forrige år"-knapper
   document.querySelectorAll('[onclick*="copyPreviousYearPageData"], #btn-copy-prev-year').forEach(btn => {
     btn.disabled = shouldLock;
     if (shouldLock) {
@@ -2953,6 +2953,11 @@ function lockAllFormInputs(shouldLock = true) {
     }
   });
 }
+
+window.openFormForActiveSchool = openFormForActiveSchool;
+window.lockAllFormInputs = lockAllFormInputs;
+
+
 
 /* Åpne "død" lesekopi av ferdigstilt arkiv fra startsiden */
 function openArchiveSchoolYear(schoolId, year) {
@@ -3298,16 +3303,12 @@ function openFormForActiveSchool() {
 
   if (typeof toggleTopbarControls === 'function') toggleTopbarControls(true);
 
+  // Re-aktiver og lås opp alle skjemainputs og topplinjekontroller for redigering
+  lockAllFormInputs(false);
+
+  // Last inn data for det aktiverte skoleåret
   if (typeof loadDataForYear === 'function') loadDataForYear();
-
   if (typeof syncActiveSchoolStamdata === 'function') syncActiveSchoolStamdata();
-
-  // Sjekk om det valgte skoleåret er ferdigstilt, og lås inputs om nødvendig
-  const currentYear = document.getElementById('year-select')?.value || '2026/2027';
-  const yearKey = currentYear.replace('/', '_');
-  const isCompleted = localStorage.getItem(`status_${activeSchoolId}_${yearKey}`) === 'Ferdigstilt';
-  lockAllFormInputs(isCompleted);
-
   if (typeof saveData === 'function') saveData(false);
 
   if (typeof selectPage === 'function') selectPage(1);
