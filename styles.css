@@ -148,13 +148,13 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 
 /* ========================================================= UTSKRIFT ========================================================= */
 @page { 
-  size: landscape; 
-  margin: 8mm 10mm; 
+  size: portrait; /* Endret fra landscape til stående A4 */
+  margin: 10mm 12mm; 
 }
 
 @media print {
   body { 
-    zoom: 83%; 
+    zoom: 100%; /* Satt til 100% for at stående A4 skal fylles naturlig */
     transform-origin: top left; 
   }
 
@@ -174,7 +174,7 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
     display: none !important; 
   }
 
-  /* 2. CRITICAL FIX: Opphev alle høyde- og scrollbegrensninger slik at alle sider skrives ut */
+  /* 2. Full bredde og oppheving av høydebegrensninger */
   html, 
   body, 
   .app, 
@@ -205,7 +205,7 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
     display: none !important; 
   }
 
-  /* 4. Tving synlighet og sideskift for alle avkryssede sider (.print-visible) */
+  /* 4. Tving synlighet og sideskift per skjemaside */
   .page.print-visible { 
     display: block !important; 
     visibility: visible !important;
@@ -216,7 +216,7 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
     overflow: visible !important;
   }
 
-  /* 5. Styling for overskrifter, kort og tabeller */
+  /* 5. Header og kort-styling tilpasset stående A4 */
   .print-header { 
     display: flex !important; 
     justify-content: space-between; 
@@ -224,7 +224,7 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
     border-bottom: 2px solid #000; 
     padding-bottom: 4px; 
     margin-bottom: 12px; 
-    font-size: 0.8rem; 
+    font-size: 0.85rem; 
     color: #000; 
   }
 
@@ -233,15 +233,15 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
   }
 
   .section-card { 
-    padding: 10px !important; 
-    margin-bottom: 10px !important; 
+    padding: 12px !important; 
+    margin-bottom: 12px !important; 
     break-inside: avoid !important; 
     page-break-inside: avoid !important; 
   }
 
   th, td { 
-    padding: 3px 6px !important; 
-    font-size: 0.82rem !important; 
+    padding: 4px 8px !important; 
+    font-size: 0.85rem !important; 
   }
 
   tr, table { 
