@@ -319,24 +319,48 @@ function selectPage(id) {
 
   // NÅR BRUKEREN GÅR TIL SIDE 17:
   if (id === 17) {
-    // 1. Tving slide-bryteren til å stå "AV"
-    const toggle = document.getElementById('toggle-passed-checks');
-    if (toggle) toggle.checked = false;
+    const isLockedOrFinalized = (typeof formData !== 'undefined' && formData['is_finalized']) || 
+                                (document.getElementById('year-select')?.disabled) ||
+                                (document.getElementById('school-year-select')?.disabled);
 
-    // 2. Skjul loggboksen for gjennomførte kontroller
-    const logContainer = document.getElementById('validation-log-container');
-    if (logContainer) logContainer.style.display = 'none';
+    if (isLockedOrFinalized) {
+      // --- FERDIGSTILT / ARKIVERT MODUS ---
+      // 1. Tving slide-bryteren til å stå "PÅ"
+      const toggle = document.getElementById('toggle-passed-checks') || document.getElementById('toggle-show-all-controls');
+      if (toggle) toggle.checked = true;
 
-    // 3. Tilbakestill avviksvinduet til innledende tilstand til brukeren trykker «Kontroller skjema»
-    const container = document.getElementById('validation-results');
-    const countSpan = document.getElementById('validation-count');
-    if (countSpan) countSpan.textContent = '0';
-    if (container) {
-      container.innerHTML = `
-        <div style="padding: 16px; color: #e2e8f0; font-style: italic;">
-          Trykk på knappen «Kontroller skjema» ovenfor for å starte kontrollen av opplysningene i skjemaet.
-        </div>
-      `;
+      // 2. Vis loggboksen for gjennomførte kontroller
+      const logContainer = document.getElementById('validation-log-container');
+      if (logContainer) logContainer.style.display = 'block';
+
+      // 3. Kjør kontrollrutine slik at resultatene og tekstene fylles ut
+      if (typeof runValidation === 'function') {
+        runValidation(true);
+      } else if (typeof runAllControls === 'function') {
+        runAllControls(true);
+      }
+
+    } else {
+      // --- REDIGERBAR HOVEDSKJEMA MODUS ---
+      // 1. Tving slide-bryteren til å stå "AV"
+      const toggle = document.getElementById('toggle-passed-checks') || document.getElementById('toggle-show-all-controls');
+      if (toggle) toggle.checked = false;
+
+      // 2. Skjul loggboksen for gjennomførte kontroller
+      const logContainer = document.getElementById('validation-log-container');
+      if (logContainer) logContainer.style.display = 'none';
+
+      // 3. Tilbakestill avviksvinduet til innledende tilstand til brukeren trykker «Kontroller skjema»
+      const container = document.getElementById('validation-results');
+      const countSpan = document.getElementById('validation-count');
+      if (countSpan) countSpan.textContent = '0';
+      if (container) {
+        container.innerHTML = `
+          <div style="padding: 16px; color: #cbd5e1; font-style: italic;">
+            Trykk på knappen «Kontroller skjema» ovenfor for å starte kontrollen av opplysningene i skjemaet.
+          </div>
+        `;
+      }
     }
   }
 }
@@ -2943,6 +2967,7 @@ function closeCompletionModal() {
 }
 
 /* Bekreft fullføring og lagring av "død" arkivkopi */
+/* Bekreft fullføring og lagring av "død" arkivkopi */
 function confirmCompletion() {
   closeCompletionModal();
 
@@ -2972,6 +2997,7 @@ function confirmCompletion() {
   if (typeof formData !== 'undefined') {
     formData['controls_checked'] = true;
     formData['show_all_controls'] = true;
+    formData['is_finalized'] = true; // Viktig flagg for gjenkjenning!
   }
 
   // 4. Lag et statisk "øyeblikksbilde" (Død arkivkopi)
@@ -3034,6 +3060,7 @@ window.lockAllFormInputs = lockAllFormInputs;
 
 
 /* Åpne "død" lesekopi av ferdigstilt arkiv fra startsiden */
+/* Åpne "død" lesekopi av ferdigstilt arkiv fra startsiden */
 function openArchiveSchoolYear(schoolId, year) {
   activeSchoolId = schoolId;
   const yearKey = year.replace('/', '_').replace('-', '_');
@@ -3045,6 +3072,7 @@ function openArchiveSchoolYear(schoolId, year) {
     try {
       const archiveData = JSON.parse(rawArchive);
       formData = archiveData.formData || {};
+      formData['is_finalized'] = true; // Flagg at dette er et arkivert/ferdigstilt skjema
       if (archiveData.validationComments) {
         window.validationComments = archiveData.validationComments;
       }
@@ -3079,23 +3107,28 @@ function openArchiveSchoolYear(schoolId, year) {
   if (typeof syncDataToInputs === 'function') syncDataToInputs();
   if (typeof calculateAll === 'function') calculateAll(false);
 
-  // Sett bryteren på side 17 til PÅ og tving frem alle gjennomførte kontroller
-  const showAllToggle = document.getElementById('toggle-show-all-controls') || document.getElementById('show-all-controls-toggle');
-  if (showAllToggle) {
-    showAllToggle.checked = true;
-  }
-  if (typeof runValidation === 'function') {
-    runValidation();
-  } else if (typeof runAllControls === 'function') {
-    runAllControls();
-  }
-
   // Tving komplett låsing (inkludert "Hent fra forrige år"-knapp)
   lockAllFormInputs(true);
+
+  // 4. Sett bryteren på side 17 til PÅ og gjør klar kontrollene dersom brukeren går til side 17 senere
+  setTimeout(() => {
+    const toggle = document.getElementById('toggle-passed-checks') || document.getElementById('toggle-show-all-controls');
+    if (toggle) toggle.checked = true;
+
+    const logContainer = document.getElementById('validation-log-container');
+    if (logContainer) logContainer.style.display = 'block';
+
+    if (typeof runValidation === 'function') {
+      runValidation(true);
+    } else if (typeof runAllControls === 'function') {
+      runAllControls(true);
+    }
+  }, 100);
 }
 
-
 window.openArchiveSchoolYear = openArchiveSchoolYear;
+
+
 
 function exportBackupJSON(schoolId, year) {
   const activeSchool = getSchools().find(s => s.id === schoolId);
