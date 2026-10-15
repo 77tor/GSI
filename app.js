@@ -2786,36 +2786,70 @@ function renderStartside() {
     return;
   }
 
-  const currentActiveYear = typeof activeSchoolYear !== 'undefined' ? activeSchoolYear : '2026-2027';
-  const currentYearDisplay = currentActiveYear.replace('-', '/');
-  const availableYears = ['2026/2027', '2025/2026', '2024/2025'];
-
+  // Liste over alle mulige skoleår
+  const allYears = ['2026/2027', '2027/2028', '2028/2029'];
   let html = '';
 
   schools.forEach(s => {
-    const activeYearKey = currentYearDisplay.replace('/', '_');
-    const isCurrentCompleted = localStorage.getItem(`status_${s.id}_${activeYearKey}`) === 'Ferdigstilt' || s.status === 'Ferdigstilt';
+    // 1. Finn alle ferdigstilte skoleår for denne skolen
+    const completedYears = [];
+    allYears.forEach(year => {
+      const yearKey = year.replace('/', '_');
+      if (localStorage.getItem(`status_${s.id}_${yearKey}`) === 'Ferdigstilt') {
+        completedYears.push(year);
+      }
+    });
 
-    const currentDotColor = isCurrentCompleted ? '#16a34a' : '#d97706';
-    const currentStatusText = isCurrentCompleted ? 'Ferdigstilt' : 'Under behandling';
+    // Sjekk om det gjeldende valgte året (eller default 2026/2027) er ferdigstilt via skolen selv
+    const activeYearDisplay = (typeof activeSchoolYear !== 'undefined' ? activeSchoolYear : '2026-2027').replace('-', '/');
+    const activeYearKey = activeYearDisplay.replace('/', '_');
+    if (s.status === 'Ferdigstilt' && !completedYears.includes(activeYearDisplay)) {
+      completedYears.push(activeYearDisplay);
+    }
 
-    // 1. HOVEDRAD FOR SKOLEN
+    // 2. RENDRE FERDIGSTILTE RADER (Kun "Vis (Låst)" - INGEN rediger/slett knapper)
+    completedYears.forEach(compYear => {
+      html += `
+        <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+          <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${compYear}</td>
+          <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${s.orgnr}</td>
+          <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
+          <td style="padding: 14px 16px; color: #475569;">${s.fylke || ''}</td>
+          <td style="padding: 14px 16px; color: #475569;">${s.kommune || ''}</td>
+          <td style="padding: 14px 16px; white-space: nowrap;">
+            <span style="color: #16a34a; font-size: 0.9rem; margin-right: 4px;">●</span> 
+            <strong style="color: #15803d; font-size: 0.88rem;">Ferdigstilt</strong>
+          </td>
+          <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
+            <button type="button" class="btn" style="background: #475569; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600;" onclick="openFormForSchoolAndYear('${s.id}', '${compYear}')">
+              👁️ Vis (Låst)
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    // 3. FINN DET AKTIVE SKOLEÅRET SOM SKAL VÆRE "UNDER BEHANDLING"
+    // (Bruk det eldste året i listen som ennå IKKE er ferdigstilt)
+    let nextActiveYear = allYears.find(y => !completedYears.includes(y)) || '2027/2028';
+
+    // 4. RENDRE HOVEDRADEN FOR SKOLEN ("Under behandling" med Åpne, Rediger og Slett)
     html += `
-      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
-        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${currentYearDisplay}</td>
+      <tr style="border-bottom: 1px solid #cbd5e1; background: #f8fafc;">
+        <td style="padding: 14px 16px; font-weight: 600; color: #334155;">${nextActiveYear}</td>
         <td style="padding: 14px 16px; font-weight: 500; color: #64748b;">${s.orgnr}</td>
         <td style="padding: 14px 16px; font-weight: 700; color: #0f172a; font-size: 1.05rem;">${s.name}</td>
         <td style="padding: 14px 16px; color: #475569;">${s.fylke || ''}</td>
         <td style="padding: 14px 16px; color: #475569;">${s.kommune || ''}</td>
         <td style="padding: 14px 16px; white-space: nowrap;">
-          <span style="color: ${currentDotColor}; font-size: 0.9rem; margin-right: 4px;">●</span> 
-          <strong style="color: ${isCurrentCompleted ? '#15803d' : '#b45309'}; font-size: 0.88rem;">${currentStatusText}</strong>
+          <span style="color: #d97706; font-size: 0.9rem; margin-right: 4px;">●</span> 
+          <strong style="color: #b45309; font-size: 0.88rem;">Under behandling</strong>
         </td>
         <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
-          <button type="button" class="btn" style="background: ${isCurrentCompleted ? '#475569' : '#0f172a'}; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="selectSchoolForInfo('${s.id}')">
-            ${isCurrentCompleted ? '👁️ Vis (Låst)' : 'Åpne skjema'}
+          <button type="button" class="btn" style="background: #0f172a; color: white; padding: 8px 18px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; margin-right: 8px;" onclick="openFormForSchoolAndYear('${s.id}', '${nextActiveYear}')">
+            Åpne skjema
           </button>
-          <button type="button" title="Rediger stamdata" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; margin-right: 8px;" onclick="openEditSchoolModal('${s.id}')">
+          <button type="button" title="Rediger stamdata" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; margin-right: 8px;" onclick="openEditSchoolModal('${s.id}')">
             ✏️ Rediger
           </button>
           <button type="button" title="Flytt til slettede skoler" style="background: transparent; color: #94a3b8; border: none; padding: 6px 8px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'" onclick="softDeleteSchool('${s.id}')">
@@ -2824,38 +2858,11 @@ function renderStartside() {
         </td>
       </tr>
     `;
-
-    // 2. FERDIGSTILTE SKOLEÅR (UNDERLINJER) — KUN DERSOM DE FAKTISK ER FERDIGSTILT
-    availableYears.forEach(year => {
-      const yearKey = year.replace('/', '_');
-      const isYearCompleted = localStorage.getItem(`status_${s.id}_${yearKey}`) === 'Ferdigstilt';
-
-      // Vis kun som underlinje dersom skoleåret er et ANNET år enn det aktiverte, og det ER ferdigstilt
-      if (isYearCompleted && year !== currentYearDisplay) {
-        html += `
-          <tr style="background: #f8fafc; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem;">
-            <td style="padding: 8px 16px 8px 32px; color: #64748b; font-weight: 500;">↳ ${year}</td>
-            <td style="padding: 8px 16px; color: #94a3b8;">${s.orgnr}</td>
-            <td style="padding: 8px 16px; color: #475569; font-style: italic;">
-              Ferdigstilt arkiv for ${s.name}
-            </td>
-            <td style="padding: 8px 16px; color: #94a3b8;">${s.fylke || ''}</td>
-            <td style="padding: 8px 16px; color: #94a3b8;">${s.kommune || ''}</td>
-            <td style="padding: 8px 16px; white-space: nowrap;">
-              <span style="color: #16a34a; font-size: 0.8rem; margin-right: 4px;">●</span> 
-              <strong style="color: #15803d;">Ferdigstilt</strong>
-            </td>
-            <td style="padding: 8px 16px; text-align: right;">
-              <span style="color: #94a3b8; font-size: 0.8rem; font-style: italic; margin-right: 12px;">🔒 Arkivert</span>
-            </td>
-          </tr>
-        `;
-      }
-    });
   });
 
   tbody.innerHTML = html;
 }
+
 
 function openFormForSchoolAndYear(schoolId, year) {
   activeSchoolId = schoolId;
