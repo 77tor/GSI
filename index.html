@@ -164,7 +164,10 @@
 <!-- SIDE 1 -->
 <section class="page active" id="page-1" data-page="1">
   <section class="section-card">
-    <div class="section-header">A. Enhet</div>
+    <div class="section-header">
+  <span>A. Enhet</span>
+  <button type="button" class="info-btn" data-info="s1_a" title="Informasjon">?</button>
+</div>
     <div class="section-body">
       <div class="form-group"><label for="s1_skole">Skole:</label><input id="s1_skole" type="text" readonly></div>
 
@@ -206,7 +209,10 @@
 
   <!-- A. Skolens målform -->
   <section class="section-card">
-    <div class="section-header">A. Skolens målform <span class="help-icon">?</span></div>
+    <div class="section-header">
+  <span>A. Skolens målform</span>
+  <button type="button" class="info-btn" data-info="s2_a" title="Informasjon">?</button>
+</div>
     <div class="section-body">
       <div class="radio-group">
         <label class="radio-option"><input type="radio" name="s2_maalform" id="s2_maalform_bokmaal" value="Bokmål"> <span>Bokmål</span></label>
@@ -219,7 +225,8 @@
 
   <!-- B. Laveste trinn -->
   <section class="section-card">
-    <div class="section-header">B. Hva er normalt laveste trinn ved skolen? <span class="help-icon">?</span></div>
+    <div class="section-header">
+  <span>B. Hva er normalt laveste trinn ved skolen?</span><button type="button" class="info-btn" data-info="s2_b" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="form-group">
         <select id="s2_laveste_trinn">
@@ -240,7 +247,9 @@
 
   <!-- C. Høyeste trinn -->
   <section class="section-card">
-    <div class="section-header">C. Hva er normalt høyeste trinn ved skolen? <span class="help-icon">?</span></div>
+    <div class="section-header">
+  <span>C. Hva er normalt høyeste trinn ved skolen?</span><button type="button" class="info-btn" data-info="s2_c" title="Informasjon">?</button></div>
+ 
     <div class="section-body">
       <div class="form-group">
         <select id="s2_hoyeste_trinn" onchange="renderSidebar(); if(typeof saveData === 'function') saveData(false);">
@@ -261,7 +270,9 @@
 
   <!-- D. SFO -->
   <section class="section-card">
-    <div class="section-header">D. Har skolen tilbud om SFO? <span class="help-icon">?</span></div>
+    <div class="section-header">
+  <span>D. Har skolen tilbud om SFO?</span><button type="button" class="info-btn" data-info="s2_d" title="Informasjon">?</button></div>
+
     <div class="section-body">
       <div class="radio-inline">
         <label class="radio-option"><input type="radio" name="s2_sfo" id="s2_sfo_ja" value="Ja" onchange="renderSidebar(); if(typeof saveData === 'function') saveData(false);"> <span>Ja</span></label>
@@ -284,7 +295,9 @@
 
 <!-- A. ELEVER PER TRINN -->
 <section class="section-card">
-  <div class="section-header">A. Elever per trinn</div>
+    <div class="section-header">
+  <span>A. Elever per trinn</span><button type="button" class="info-btn" data-info="s3_a" title="Informasjon">?</button></div>
+
   <div class="section-body">
     <div class="info-box">
       Alle elever som går på skolen, skal registreres, selv om eleven er folkeregistrert i en annen kommune.
@@ -320,7 +333,8 @@
 </section>
   <!-- B. UNDERVISNINGSTIMER -->
   <section class="section-card">
-    <div class="section-header">B. Undervisningstimer</div>
+    <div class="section-header">
+  <span>B. Undervisningstimer</span><button type="button" class="info-btn" data-info="s3_b" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="info-box">Timer til fysisk aktivitet og leksehjelp skal ikke føres her, men i del 12.</div>
       <div class="table-wrap">
@@ -349,7 +363,8 @@
 
   <!-- C. ASYLSØKERE -->
   <section class="section-card">
-    <div class="section-header">C. Asylsøkere</div>
+    <div class="section-header">
+  <span>C. Asylsøkere</span><button type="button" class="info-btn" data-info="s3_c" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="info-box">Foreldre fra Ukraina, som har kollektiv beskyttelse, skal ikke registreres som asylsøkere her.</div>
       <div class="table-wrap">
@@ -378,7 +393,8 @@
 
   <!-- D. TEGNSPRÅK OG PUNKTSKRIFT -->
   <section class="section-card">
-    <div class="section-header">D. Elever med tegnspråk og punktskriftopplæring</div>
+    <div class="section-header">
+  <span>D. Elever med tegnspråk og punktskriftopplæring</span><button type="button" class="info-btn" data-info="s3_d" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="table-wrap">
         <table class="gsi-table table-s3-d">
@@ -397,10 +413,8 @@
 
 <!-- E. FINANSIERT AV ANNEN KOMMUNE -->
 <section class="section-card">
-  <div class="section-header">
-    <span>E. Hvor mange av elevene oppgitt i 3A blir finansiert av en annen kommune?</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+      <div class="section-header">
+  <span>E. Hvor mange av elevene oppgitt i 3A blir finansiert av en annen kommune?</span><button type="button" class="info-btn" data-info="s3_e" title="Informasjon">?</button></div>
   <div class="section-body table-wrap">
     <table class="gsi-table" id="table-s3-e">
       <colgroup>
@@ -442,7 +456,9 @@
 
   <!-- F. HJEMMEUNDERVISNING -->
   <section class="section-card">
-    <div class="section-header">F. Hjemmeundervisning</div>
+    <div class="section-header">
+  <span>F. Hjemmeundervisning</span><button type="button" class="info-btn" data-info="s3_f" title="Informasjon">?</button></div>
+
     <div class="section-body">
       <div class="table-wrap">
         <table class="gsi-table table-s3-f">
@@ -458,7 +474,8 @@
 
   <!-- G. IKKE MØTT VED SKOLESTART -->
   <section class="section-card">
-    <div class="section-header">G. Elever som ikke har møtt ved skolestart</div>
+    <div class="section-header">
+  <span>G. Elever som ikke har møtt ved skolestart</span><button type="button" class="info-btn" data-info="s3_g" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="table-wrap">
         <table class="gsi-table table-s3-g">
@@ -486,7 +503,8 @@
 
   <!-- A. Årstimer til undervisning totalt -->
   <section class="section-card">
-    <div class="section-header">A. Årstimer til undervisning totalt</div>
+    <div class="section-header">
+  <span>A. Årstimer til undervisning totalt</span><button type="button" class="info-btn" data-info="s4_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <div class="table-note">Timer til fysisk aktivitet og leksehjelp skal føres i del 12. Dersom årstimer gis samtidig til elever fra flere årstrinn, skal årstimer føres på det høyeste årstrinnet.</div>
       <table class="gsi-table table-s4-a">
@@ -505,7 +523,8 @@
 
   <!-- B. Individuelt tilrettelagt opplæring -->
   <section class="section-card">
-    <div class="section-header">B. Årstimer til individuelt tilrettelagt opplæring, særskilt språkopplæring og andre ressurser</div>
+    <div class="section-header">
+  <span>B. Årstimer til individuelt tilrettelagt opplæring, særskilt språkopplæring og andre ressurser</span><button type="button" class="info-btn" data-info="s4_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s4-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="calc-col"><col><col class="sum-col"></colgroup>
@@ -534,7 +553,8 @@
 
   <!-- C. Ordinær undervisning -->
   <section class="section-card">
-    <div class="section-header">C. Årstimer til ordinær undervisning</div>
+    <div class="section-header">
+  <span>C. Årstimer til ordinær undervisning</span><button type="button" class="info-btn" data-info="s4_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s4-c">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="calc-col"><col><col class="sum-col"></colgroup>
@@ -550,7 +570,8 @@
 
   <!-- D. Andre oppgaver -->
   <section class="section-card">
-    <div class="section-header">D. Årstimer til andre oppgaver utført av undervisningspersonale</div>
+    <div class="section-header">
+  <span>D. Årstimer til andre oppgaver utført av undervisningspersonale</span><button type="button" class="info-btn" data-info="s4_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <div class="table-note">Her føres timer til oppgaver som går fratrekk i undervisningsplikten. Eksempler på oppgaver er kontaktlærerfunksjon, tidsressurspott, seniortiltak og pedagogisk veiledning. For øvrige eksempler se veiledningen.</div>
       <table class="gsi-table table-s4-d">
@@ -567,7 +588,8 @@
 
   <!-- E. Elevrettet arbeid -->
   <section class="section-card">
-    <div class="section-header">E. Årstimer til elevrettet arbeid utført av assistenter og annet personale (ikke undervisningspersonale)</div>
+    <div class="section-header">
+  <span>E. Årstimer til elevrettet arbeid utført av assistenter og annet personale (ikke undervisningspersonale)</span><button type="button" class="info-btn" data-info="s4_e" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <div class="table-note">Her føres årstimer utført av assistenter og annet elevrettet arbeid. Det er 1687,5 årstimer i et årsverk.</div>
       <table class="gsi-table table-s4-e">
@@ -601,7 +623,8 @@
 
   <!-- A. ANTALL LÆRERE -->
   <section class="section-card">
-    <div class="section-header">A. Antall lærere</div>
+    <div class="section-header">
+  <span>A. Antall lærere</span><button type="button" class="info-btn" data-info="s5_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">Læreren registreres på høyeste trinn hen underviser på.</p>
       <table class="gsi-table table-s5-a">
@@ -620,7 +643,8 @@
 
   <!-- B. ANNET PERSONALE -->
   <section class="section-card">
-    <div class="section-header">B. Annet personale i elevrettet arbeid</div>
+    <div class="section-header">
+  <span>B. Annet personale i elevrettet arbeid</span><button type="button" class="info-btn" data-info="s5_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s5-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -638,7 +662,8 @@
 
   <!-- C. KOMPETANSEKRAV -->
   <section class="section-card">
-    <div class="section-header">C. Antall lærere som oppfyller kompetansekravene</div>
+    <div class="section-header">
+  <span>C. Antall lærere som oppfyller kompetansekravene</span><button type="button" class="info-btn" data-info="s5_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">En lærer skal bare registreres en gang. Dersom læreren underviser både på 1.-7. trinn og 8.-10. trinn skal læreren kun føres på det trinnet hen underviser mest.</p>
       <table class="gsi-table table-s5-c">
@@ -656,7 +681,8 @@
 
   <!-- D. KOMPETANSEKRAV FOR UNDERVISNING -->
   <section class="section-card">
-    <div class="section-header">D. Kompetansekrav for undervisning</div>
+    <div class="section-header">
+  <span>D. Kompetansekrav for undervisning</span><button type="button" class="info-btn" data-info="s5_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">Lærere fordelt på antall studiepoeng de har i fagene de underviser i.</p>
       <table class="gsi-table table-s5-d">
@@ -678,7 +704,8 @@
 
   <!-- E. INDIVIDUELT TILRETTELAGT OPPLÆRING -->
   <section class="section-card">
-    <div class="section-header">E. Antall ansatte som gir individuelt tilrettelagt opplæring</div>
+    <div class="section-header">
+  <span>E. Antall ansatte som gir individuelt tilrettelagt opplæring</span><button type="button" class="info-btn" data-info="s5_e" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s5-e">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
@@ -697,7 +724,8 @@
 
   <!-- F. SPESIALPEDAGOGISK KOMPETANSE -->
   <section class="section-card">
-    <div class="section-header">F. Antall ansatte med spesialpedagogisk kompetanse</div>
+    <div class="section-header">
+  <span>F. Antall ansatte med spesialpedagogisk kompetanse</span><button type="button" class="info-btn" data-info="s5_f" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">Her registreres ansatte som har minimum 30 studiepoeng i spesialpedagogikk. Både spesialpedagoger, lærere med studiepoeng i spesialpedagogikk og andre ansatte med denne kompetansen skal registreres her. Ansatte skal registreres uavhengig av om de jobber direkte med barn med ITO eller ikke.</p>
       <table class="gsi-table table-s5-f">
@@ -726,7 +754,8 @@
 
   <!-- A. ÅRSVERK TIL LEDEROPPGAVER -->
   <section class="section-card">
-    <div class="section-header">A. Årsverk til lederoppgaver - 50 prosent stilling = 0,5</div>
+    <div class="section-header">
+  <span>A. Årsverk til lederoppgaver - 50 prosent stilling = 0,5</span><button type="button" class="info-btn" data-info="s6_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s6-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
@@ -742,25 +771,37 @@
     </div>
   </section>
 
-  <!-- B. ÅRSRAMME FOR UNDERVISNING -->
-  <section class="section-card">
-    <div class="section-header">B. Årsramme for undervisning (forhåndsutfylt)</div>
-    <div class="section-body table-wrap">
-      <table class="gsi-table table-s6-b">
-        <colgroup><col class="desc-wide"><col><col></colgroup>
-        <thead>
-          <tr><th>Forhåndsutfylt. Endres kun hvis skoleeier har vedtatt en annen årsramme for undervisning.</th><th>1.-7. trinn</th><th>8.-10. trinn</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Lesetall</td><td><input id="s6_b_17" type="number" value="741"></td><td><input id="s6_b_810" type="number" value="656"></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<!-- B. ÅRSRAMME FOR UNDERVISNING -->
+<section class="section-card">
+  <div class="section-header">
+    <span>B. Årsramme for undervisning (forhåndsutfylt)</span>
+    <button type="button" class="info-btn" data-info="s6_b" title="Informasjon">?</button>
+  </div>
+  <div class="section-body table-wrap">
+    <table class="gsi-table table-s6-b">
+      <colgroup><col class="desc-wide"><col><col></colgroup>
+      <thead>
+        <tr>
+          <th>Forhåndsutfylt. Endres kun hvis skoleeier har vedtatt en annen årsramme for undervisning.</th>
+          <th>1.-7. trinn</th>
+          <th>8.-10. trinn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Lesetall</td>
+          <td><input id="s6_b_17" type="number" placeholder="741"></td>
+          <td><input id="s6_b_810" type="number" placeholder="656"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
   <!-- C. SUM BEREGNEDE ÅRSVERK TIL UNDERVISNING -->
   <section class="section-card">
-    <div class="section-header">C. Sum beregnede årsverk til undervisning</div>
+    <div class="section-header">
+  <span>C. Sum beregnede årsverk til undervisning</span><button type="button" class="info-btn" data-info="s6_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s6-c">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
@@ -776,7 +817,8 @@
 
   <!-- D. ÅRSVERK TIL ANNET PERSONALE -->
   <section class="section-card">
-    <div class="section-header">D. Årsverk til annet personale</div>
+    <div class="section-header">
+  <span>D. Årsverk til annet personale</span><button type="button" class="info-btn" data-info="s6_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s6-d">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
@@ -817,7 +859,8 @@
 
   <!-- A. ELEVER SOM FÅR INDIVIDUELT TILRETTELAGT OPPLÆRING -->
   <section class="section-card">
-    <div class="section-header">A. Elever som får individuelt tilrettelagt opplæring inkludert videreføring av vedtak om spesialundervisning</div>
+    <div class="section-header">
+  <span>A. Elever som får individuelt tilrettelagt opplæring inkludert videreføring av vedtak om spesialundervisning</span><button type="button" class="info-btn" data-info="s7_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s7-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -843,10 +886,8 @@
 
 <!-- B. PERSONLIG ASSISTANSE, FYSISK TILRETTELEGGING OG TEKNISKE HJELPEMIDLER -->
 <section class="section-card">
-  <div class="section-header">
-    <span>B. Personlig assistanse, fysisk tilrettelegging og tekniske hjelpemidler</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>B. Personlig assistanse, fysisk tilrettelegging og tekniske hjelpemidler</span><button type="button" class="info-btn" data-info="s7_b" title="Informasjon">?</button></div>
   <div class="section-body table-wrap">
     <table class="gsi-table" id="table-s7-b" style="width: 100%; table-layout: fixed;">
       <colgroup>
@@ -910,7 +951,8 @@
 
   <!-- C. FASTE AVDELINGER -->
   <section class="section-card">
-    <div class="section-header">C. Faste avdelinger for individuelt tilrettelagt opplæring</div>
+    <div class="section-header">
+  <span>C. Faste avdelinger for individuelt tilrettelagt opplæring</span><button type="button" class="info-btn" data-info="s7_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">Elever med fast tilhørighet i avdeling for individuelt tilrettelagt opplæring/videreførte vedtak om spesialundervisning skal føres her. Dette gjelder både egne skoler for individuelt tilrettelagt opplæring og skoler der elever har fast tilhørighet til "forsterket" avdeling for individuelt tilrettelagt opplæring. Tilfeldige elevgrupper med individuelt tilrettelagt opplæring som oppstår i en ordinær skole, skal ikke telles her.</p>
       <table class="gsi-table table-s7-c">
@@ -927,7 +969,8 @@
 
   <!-- D. ALTERNATIV OPPLÆRINGSARENA -->
   <section class="section-card">
-    <div class="section-header">D. Alternativ opplæringsarena</div>
+    <div class="section-header">
+  <span>D. Alternativ opplæringsarena</span><button type="button" class="info-btn" data-info="s7_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s7-d">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col class="sum-col"></colgroup>
@@ -943,7 +986,8 @@
 
   <!-- E. ORGANISERING -->
   <section class="section-card">
-    <div class="section-header">E. Organisering av individuelt tilrettelagt opplæring</div>
+    <div class="section-header">
+  <span>E. Organisering av individuelt tilrettelagt opplæring</span><button type="button" class="info-btn" data-info="s7_e" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s7-e">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -962,7 +1006,8 @@
 
   <!-- F. TILDELTE TIMER -->
   <section class="section-card">
-    <div class="section-header">F. Tildelte timer til individuelt tilrettelagt opplæring med undervisningspersonale</div>
+    <div class="section-header">
+  <span>F. Tildelte timer til individuelt tilrettelagt opplæring med undervisningspersonale</span><button type="button" class="info-btn" data-info="s7_f" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s7-f">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col><col class="sum-col"></colgroup>
@@ -982,7 +1027,8 @@
 
   <!-- G. PERSONLIG ASSISTANSE / ASSISTENT -->
   <section class="section-card">
-    <div class="section-header">G. Antall elever som har vedtak om personlig assistanse eller timer med assistent i videreført vedtak om spesialundervisning</div>
+    <div class="section-header">
+  <span>G. Antall elever som har vedtak om personlig assistanse eller timer med assistent i videreført vedtak om spesialundervisning</span><button type="button" class="info-btn" data-info="s7_g" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s7-g">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -1002,10 +1048,9 @@
 
 <!-- H. ELEVER FRA ANDRE KOMMUNER -->
 <section class="section-card">
-  <div class="section-header">
-    <span>H. Elever med individuelt tilrettelagt opplæring fra andre kommuner</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>H. Elever med individuelt tilrettelagt opplæring fra andre kommuner</span><button type="button" class="info-btn" data-info="s7_h" title="Informasjon">?</button></div>
+
   <div class="section-body table-wrap">
     <p class="table-note">
       Kommunale skoler skal registrere antall elever fra andre kommuner som får individuelt tilrettelagt opplæring. Privatskoler og private skoler (godkjent etter opplæringsloven § 22-1), statlige og fylkeskommunale skoler skal registrere alle elever med individuelt tilrettelagt opplæring fra alle kommuner, også den kommunen som skolen er geografisk plassert i.
@@ -1071,7 +1116,8 @@
 
   <!-- A. FORSTERKET OPPLÆRING I NORSK -->
   <section class="section-card">
-    <div class="section-header">A. Forsterket opplæring i norsk</div>
+    <div class="section-header">
+  <span>A. Forsterket opplæring i norsk</span><button type="button" class="info-btn" data-info="s8_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s8-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
@@ -1097,7 +1143,8 @@
 
   <!-- B. ELEVER I EGNE UNDERVISNINGSGRUPPER -->
   <section class="section-card">
-    <div class="section-header">B. Elever i egne undervisningsgrupper for språklige minoriteter</div>
+    <div class="section-header">
+  <span>B. Elever i egne undervisningsgrupper for språklige minoriteter</span><button type="button" class="info-btn" data-info="s8_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s8-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -1114,10 +1161,8 @@
 
 <!-- C. MORSMÅLSOPPLÆRING OG TOSRÅKLIG OPPLÆRING -->
 <section class="section-card">
-  <div class="section-header">
-    <span>C. Antall elever som får morsmålsopplæring, tospråklig opplæring i fag eller annen tilrettelagt opplæring</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>C. Antall elever som får morsmålsopplæring, tospråklig opplæring i fag eller annen tilrettelagt opplæring</span><button type="button" class="info-btn" data-info="s8_c" title="Informasjon">?</button></div>
   <div class="section-body table-wrap">
     <table class="gsi-table" id="table-s8-c" style="width: 100%; table-layout: fixed;">
       <colgroup>
@@ -1170,9 +1215,7 @@
   <!-- D. ELEVER FRA ANDRE KOMMUNER (DYNAMISK TABELL) -->
   <section class="section-card">
     <div class="section-header">
-      <span>D. Elever med forsterket opplæring fra andre kommuner</span>
-      <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-    </div>
+  <span>D. Elever med forsterket opplæring fra andre kommuner</span><button type="button" class="info-btn" data-info="s8_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">
         Kommunale skoler skal registrere antall elever fra andre kommuner som får forsterket opplæring i norsk. Private skoler (godkjent etter opplæringsloven § 22-1), statlige og fylkeskommunale skoler skal registrere alle elever med forsterket opplæring i norsk fra alle kommuner, også den kommunen som skolen er geografisk plassert i.
@@ -1230,7 +1273,8 @@
 
   <!-- DEL A -->
   <section class="section-card">
-    <div class="section-header">A. Opplæringsspråk</div>
+    <div class="section-header">
+  <span>A. Opplæringsspråk</span><button type="button" class="info-btn" data-info="s9_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s9-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="language-col"><col class="language-col"><col class="language-col"><col class="language-col"><col class="sum-col"><col class="student-col"></colgroup>
@@ -1257,7 +1301,8 @@
 
   <!-- DEL B -->
   <section class="section-card">
-    <div class="section-header">B. Elevgrupper</div>
+    <div class="section-header">
+  <span>B. Elevgrupper</span><button type="button" class="info-btn" data-info="s9_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s9-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col class="sum-col"></colgroup>
@@ -1275,10 +1320,8 @@
 
 <!-- C. SAMISKE SPRÅK, KVENSK OG FINSK -->
 <section class="section-card">
-  <div class="section-header">
-    <span>C. Samiske språk, kvensk og finsk</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>C. Samiske språk, kvensk og finsk</span><button type="button" class="info-btn" data-info="s9_c" title="Informasjon">?</button></div>
   <div class="section-body table-wrap">
     <table class="gsi-table" id="table-s9-c" style="width: 100%; table-layout: fixed;">
       <colgroup>
@@ -1354,7 +1397,8 @@
 
   <!-- DEL D -->
   <section class="section-card">
-    <div class="section-header">D. Fjernundervisning</div>
+    <div class="section-header">
+  <span>D. Fjernundervisning</span><button type="button" class="info-btn" data-info="s9_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <p class="table-note">Elever med fjernundervisning i samisk skal registreres både i 9C og 9D</p>
       <table class="gsi-table table-s9-d">
@@ -1383,13 +1427,14 @@
 <!-- SIDE 10 -->
 <section class="page" id="page-10" data-page="10">
 
-  <!-- A. FREMMEDSPRÅK -->
+  <!-- A. ELEVER MED FREMMEDSPRÅK, FORDYPNING ELLER ARBEIDSLIVSFAG -->
   <section class="section-card">
-    <div class="section-header">A. Fremmedspråk, språklig fordypning og arbeidslivsfag</div>
+    <div class="section-header">
+  <span>A. Elever med fremmedspråk, fordypning eller arbeidslivsfag</span><button type="button" class="info-btn" data-info="s10_a" title="Informasjon">?</button></div>
     <div class="section-body">
 
       <div class="info-box" style="margin-top: 10px;">
-        Her registreres antall elever på 8., 9. og 10. trinn som tar fremmedspråk med karakter.
+        Elever registreres på årstrinn og språk. Hver elev skal kun registreres med ett fremmedspråk. Dersom enkelte elever har flere fremmedspråk kan dette noteres i merknadsfeltet.
       </div>
 
       <div class="table-wrap">
@@ -1397,67 +1442,170 @@
           <colgroup>
             <col class="row-no">
             <col class="desc-wide">
-            <col class="number-col">
-            <col class="number-col">
-            <col class="number-col">
+            <!-- 8. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 9. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 10. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- Total -->
             <col class="sum-col">
           </colgroup>
           <thead>
             <tr>
-              <th></th>
-              <th>Fremmedspråk</th>
-              <th>8. trinn</th>
-              <th>9. trinn</th>
-              <th>10. trinn</th>
-              <th>Sum</th>
+              <th rowspan="2"></th>
+              <th rowspan="2"></th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" style="text-align: center;">Sum 8.-10.<br>trinn</th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>Tysk</td><td><input id="s10_a_1_8" type="number" min="0"></td><td><input id="s10_a_1_9" type="number" min="0"></td><td><input id="s10_a_1_10" type="number" min="0"></td><td class="auto"><input id="s10_a_1_sum" type="number" readonly></td></tr>
-            <tr><td>2</td><td>Fransk</td><td><input id="s10_a_2_8" type="number" min="0"></td><td><input id="s10_a_2_9" type="number" min="0"></td><td><input id="s10_a_2_10" type="number" min="0"></td><td class="auto"><input id="s10_a_2_sum" type="number" readonly></td></tr>
-            <tr><td>3</td><td>Spansk</td><td><input id="s10_a_3_8" type="number" min="0"></td><td><input id="s10_a_3_9" type="number" min="0"></td><td><input id="s10_a_3_10" type="number" min="0"></td><td class="auto"><input id="s10_a_3_sum" type="number" readonly></td></tr>
-            <tr><td>4</td><td>Russisk</td><td><input id="s10_a_4_8" type="number" min="0"></td><td><input id="s10_a_4_9" type="number" min="0"></td><td><input id="s10_a_4_10" type="number" min="0"></td><td class="auto"><input id="s10_a_4_sum" type="number" readonly></td></tr>
-            <tr><td>5</td><td>Kinesisk</td><td><input id="s10_a_5_8" type="number" min="0"></td><td><input id="s10_a_5_9" type="number" min="0"></td><td><input id="s10_a_5_10" type="number" min="0"></td><td class="auto"><input id="s10_a_5_sum" type="number" readonly></td></tr>
-            <tr><td>6</td><td>Engelsk fordypning</td><td><input id="s10_a_6_8" type="number" min="0"></td><td><input id="s10_a_6_9" type="number" min="0"></td><td><input id="s10_a_6_10" type="number" min="0"></td><td class="auto"><input id="s10_a_6_sum" type="number" readonly></td></tr>
-            <tr><td>7</td><td>Andre fremmedspråk</td><td><input id="s10_a_7_8" type="number" min="0"></td><td><input id="s10_a_7_9" type="number" min="0"></td><td><input id="s10_a_7_10" type="number" min="0"></td><td class="auto"><input id="s10_a_7_sum" type="number" readonly></td></tr>
-            <tr class="total-row"><td>8</td><td>Sum fremmedspråk</td><td class="auto"><input id="s10_a_sum_8" type="number" readonly></td><td class="auto"><input id="s10_a_sum_9" type="number" readonly></td><td class="auto"><input id="s10_a_sum_10" type="number" readonly></td><td class="auto"><input id="s10_a_total" type="number" readonly></td></tr>
+            <tr>
+              <td>1</td><td>Tysk</td>
+              <td><input id="s10_a_1_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_1_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_1_8sum" type="number" readonly></td>
+              <td><input id="s10_a_1_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_1_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_1_9sum" type="number" readonly></td>
+              <td><input id="s10_a_1_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_1_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_1_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_1_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>2</td><td>Fransk</td>
+              <td><input id="s10_a_2_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_2_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_2_8sum" type="number" readonly></td>
+              <td><input id="s10_a_2_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_2_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_2_9sum" type="number" readonly></td>
+              <td><input id="s10_a_2_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_2_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_2_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_2_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>3</td><td>Spansk</td>
+              <td><input id="s10_a_3_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_3_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_3_8sum" type="number" readonly></td>
+              <td><input id="s10_a_3_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_3_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_3_9sum" type="number" readonly></td>
+              <td><input id="s10_a_3_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_3_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_3_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_3_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>4</td><td>Italiensk</td>
+              <td><input id="s10_a_4_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_4_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_4_8sum" type="number" readonly></td>
+              <td><input id="s10_a_4_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_4_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_4_9sum" type="number" readonly></td>
+              <td><input id="s10_a_4_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_4_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_4_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_4_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>5</td><td>Russisk</td>
+              <td><input id="s10_a_5_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_5_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_5_8sum" type="number" readonly></td>
+              <td><input id="s10_a_5_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_5_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_5_9sum" type="number" readonly></td>
+              <td><input id="s10_a_5_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_5_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_5_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_5_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>6</td><td>Andre språk</td>
+              <td><input id="s10_a_6_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_6_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_6_8sum" type="number" readonly></td>
+              <td><input id="s10_a_6_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_6_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_6_9sum" type="number" readonly></td>
+              <td><input id="s10_a_6_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_6_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_6_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_6_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>7</td><td>Fordypning engelsk</td>
+              <td><input id="s10_a_7_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_7_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_7_8sum" type="number" readonly></td>
+              <td><input id="s10_a_7_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_7_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_7_9sum" type="number" readonly></td>
+              <td><input id="s10_a_7_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_7_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_7_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_7_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>8</td><td>Fordypning norsk</td>
+              <td><input id="s10_a_8_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_8_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_8_8sum" type="number" readonly></td>
+              <td><input id="s10_a_8_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_8_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_8_9sum" type="number" readonly></td>
+              <td><input id="s10_a_8_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_8_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_8_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_8_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>9</td><td>Fordypning samisk</td>
+              <td><input id="s10_a_9_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_9_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_9_8sum" type="number" readonly></td>
+              <td><input id="s10_a_9_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_9_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_9_9sum" type="number" readonly></td>
+              <td><input id="s10_a_9_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_9_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_9_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_9_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>10</td><td>Arbeidslivsfag</td>
+              <td><input id="s10_a_10_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_10_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_10_8sum" type="number" readonly></td>
+              <td><input id="s10_a_10_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_10_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_10_9sum" type="number" readonly></td>
+              <td><input id="s10_a_10_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_10_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_10_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_10_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>11</td><td>Fordypning matematikk</td>
+              <td><input id="s10_a_11_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_11_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_11_8sum" type="number" readonly></td>
+              <td><input id="s10_a_11_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_11_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_11_9sum" type="number" readonly></td>
+              <td><input id="s10_a_11_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_11_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_11_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_11_total" type="number" readonly></td>
+            </tr>
+            <tr>
+              <td>12</td><td>Fordypning i arbeid</td>
+              <td><input id="s10_a_12_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_12_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_12_8sum" type="number" readonly></td>
+              <td><input id="s10_a_12_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_12_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_12_9sum" type="number" readonly></td>
+              <td><input id="s10_a_12_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_a_12_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_a_12_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_12_total" type="number" readonly></td>
+            </tr>
+            <tr class="total-row">
+              <td>13</td><td>Sum elever</td>
+              <td class="auto"><input id="s10_a_sum_8g" type="number" readonly></td><td class="auto"><input id="s10_a_sum_8j" type="number" readonly></td><td class="auto"><input id="s10_a_sum_8" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_sum_9g" type="number" readonly></td><td class="auto"><input id="s10_a_sum_9j" type="number" readonly></td><td class="auto"><input id="s10_a_sum_9" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_sum_10g" type="number" readonly></td><td class="auto"><input id="s10_a_sum_10j" type="number" readonly></td><td class="auto"><input id="s10_a_sum_10" type="number" readonly></td>
+              <td class="auto"><input id="s10_a_total" type="number" readonly></td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- B. ALTERNATIVER TIL FREMMEDSPRÅK -->
+  <!-- B. ELEVER UTEN FREMMEDSPRÅK, FORDYPNING ELLER ARBEIDSLIVSFAG -->
   <section class="section-card">
-    <div class="section-header">B. Alternativer til fremmedspråk</div>
+    <div class="section-header">
+  <span>B. Elever uten fremmedspråk, fordypning eller arbeidslivsfag</span><button type="button" class="info-btn" data-info="s10_b" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="table-wrap">
         <table class="gsi-table table-s10-b">
           <colgroup>
             <col class="row-no">
             <col class="desc-wide">
-            <col class="number-col">
-            <col class="number-col">
-            <col class="number-col">
+            <!-- 8. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 9. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 10. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- Total -->
             <col class="sum-col">
           </colgroup>
           <thead>
             <tr>
-              <th></th>
-              <th>Fag / Tilbud</th>
-              <th>8. trinn</th>
-              <th>9. trinn</th>
-              <th>10. trinn</th>
-              <th>Sum</th>
+              <th rowspan="2"></th>
+              <th rowspan="2"></th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" style="text-align: center;">Sum 8.-10.<br>trinn</th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
+              <th>Gutter</th><th>Jenter</th><th>Sum</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>Språklig fordypning i norsk</td><td><input id="s10_b_1_8" type="number" min="0"></td><td><input id="s10_b_1_9" type="number" min="0"></td><td><input id="s10_b_1_10" type="number" min="0"></td><td class="auto"><input id="s10_b_1_sum" type="number" readonly></td></tr>
-            <tr><td>2</td><td>Språklig fordypning i samisk</td><td><input id="s10_b_2_8" type="number" min="0"></td><td><input id="s10_b_2_9" type="number" min="0"></td><td><input id="s10_b_2_10" type="number" min="0"></td><td class="auto"><input id="s10_b_2_sum" type="number" readonly></td></tr>
-            <tr><td>3</td><td>Språklig fordypning i finsk/kvensk</td><td><input id="s10_b_3_8" type="number" min="0"></td><td><input id="s10_b_3_9" type="number" min="0"></td><td><input id="s10_b_3_10" type="number" min="0"></td><td class="auto"><input id="s10_b_3_sum" type="number" readonly></td></tr>
-            <tr><td>4</td><td>Arbeidslivsfag</td><td><input id="s10_b_4_8" type="number" min="0"></td><td><input id="s10_b_4_9" type="number" min="0"></td><td><input id="s10_b_4_10" type="number" min="0"></td><td class="auto"><input id="s10_b_4_sum" type="number" readonly></td></tr>
-            <tr><td>5</td><td>Tegnspråk</td><td><input id="s10_b_5_8" type="number" min="0"></td><td><input id="s10_b_5_9" type="number" min="0"></td><td><input id="s10_b_5_10" type="number" min="0"></td><td class="auto"><input id="s10_b_5_sum" type="number" readonly></td></tr>
-            <tr class="total-row"><td>6</td><td>Sum alternativer til fremmedspråk</td><td class="auto"><input id="s10_b_sum_8" type="number" readonly></td><td class="auto"><input id="s10_b_sum_9" type="number" readonly></td><td class="auto"><input id="s10_b_sum_10" type="number" readonly></td><td class="auto"><input id="s10_b_total" type="number" readonly></td></tr>
+            <tr>
+              <td>1</td><td>Antall elever</td>
+              <td><input id="s10_b_1_8g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_b_1_8j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_b_1_8sum" type="number" readonly></td>
+              <td><input id="s10_b_1_9g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_b_1_9j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_b_1_9sum" type="number" readonly></td>
+              <td><input id="s10_b_1_10g" type="number" min="0" oninput="calcSide10()"></td><td><input id="s10_b_1_10j" type="number" min="0" oninput="calcSide10()"></td><td class="auto"><input id="s10_b_1_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s10_b_1_total" type="number" readonly></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1470,57 +1618,226 @@
     <button class="btn" data-nav="next">Neste</button>
     <button class="btn btn-white" data-save>Lagre</button>
   </div>
+
 </section>
 
 
 <!-- SIDE 11 -->
 <section class="page" id="page-11" data-page="11">
 
-  <!-- A. VALGFAG PÅ UNGDOMSTRINNET -->
+  <!-- A. ANTALL ELEVER MED VALGFAG -->
   <section class="section-card">
-    <div class="section-header">A. Elever på ungdomstrinnet (Valgfag)</div>
+    <div class="section-header">
+  <span>A. Antall elever med valgfag</span><button type="button" class="info-btn" data-info="s11_a" title="Informasjon">?</button></div>
     <div class="section-body">
 
-      <div class="info-box" style="margin-top: 10px;">
-        Før opp antall elever som deltar i de ulike valgfagene fordelt på trinn. Elever kan kun ha ett valgfag om gangen per skoleår.
-      </div>
-
       <div class="table-wrap">
-        <table class="gsi-table table-s11-a">
+        <table class="gsi-table table-s11" id="table-s11-a">
           <colgroup>
             <col class="row-no">
             <col class="desc-wide">
-            <col class="number-col">
-            <col class="number-col">
-            <col class="number-col">
+            <!-- 8. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 9. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- 10. trinn -->
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <!-- Total -->
+            <col class="sum-col">
+            <!-- Slett-knapp -->
+            <col style="width: 35px;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2"></th>
+              <th rowspan="2">Valgfag</th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" class="auto-head" style="text-align: center;">Sum 8. -<br>10. trinn</th>
+              <th rowspan="2" class="auto-head"></th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+            </tr>
+          </thead>
+          <tbody id="s11-a-tbody">
+            <!-- Rader legges til dynamisk via JavaScript -->
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td id="s11_a_sum_no">1</td>
+              <td>Sum elever</td>
+              <td class="auto"><input id="s11_a_sum_8g" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_8j" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_8" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_9g" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_9j" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_9" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_10g" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_10j" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_sum_10" type="number" readonly></td>
+              <td class="auto"><input id="s11_a_total" type="number" readonly></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="margin-top: 10px;">
+          <button type="button" id="add-s11-a-row-btn" onclick="addS11Row()" style="background: #000000; color: #ffffff; font-weight: bold; padding: 6px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">
+            Legg til rad
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. ANTALL ELEVER SOM TAR FAG FRA VIDEREGÅENDE I STEDET FOR VALGFAG -->
+  <section class="section-card">
+    <div class="section-header">
+  <span>B. Antall elever som tar fag fra videregående i stedet for valgfag</span><button type="button" class="info-btn" data-info="s11_b" title="Informasjon">?</button></div>
+    <div class="section-body">
+      <div class="info-box">
+        Elever som tar fag fra videregående, men som følger ordinær opplæring i valgfag føres ikke her, men i 11A og 13G.
+      </div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s11">
+          <colgroup>
+            <col class="row-no"><col class="desc-wide">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
             <col class="sum-col">
           </colgroup>
           <thead>
             <tr>
-              <th></th>
-              <th>Valgfag</th>
-              <th>8. trinn</th>
-              <th>9. trinn</th>
-              <th>10. trinn</th>
-              <th>Sum</th>
+              <th rowspan="2"></th><th rowspan="2"></th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" class="auto-head" style="text-align: center;">Sum 8. -<br>10. trinn</th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>1</td><td>Design og redesign</td><td><input id="s11_a_1_8" type="number" min="0"></td><td><input id="s11_a_1_9" type="number" min="0"></td><td><input id="s11_a_1_10" type="number" min="0"></td><td class="auto"><input id="s11_a_1_sum" type="number" readonly></td></tr>
-            <tr><td>2</td><td>Fysisk fostring og helse</td><td><input id="s11_a_2_8" type="number" min="0"></td><td><input id="s11_a_2_9" type="number" min="0"></td><td><input id="s11_a_2_10" type="number" min="0"></td><td class="auto"><input id="s11_a_2_sum" type="number" readonly></td></tr>
-            <tr><td>3</td><td>Friluftsliv</td><td><input id="s11_a_3_8" type="number" min="0"></td><td><input id="s11_a_3_9" type="number" min="0"></td><td><input id="s11_a_3_10" type="number" min="0"></td><td class="auto"><input id="s11_a_3_sum" type="number" readonly></td></tr>
-            <tr><td>4</td><td>Innsats for andre</td><td><input id="s11_a_4_8" type="number" min="0"></td><td><input id="s11_a_4_9" type="number" min="0"></td><td><input id="s11_a_4_10" type="number" min="0"></td><td class="auto"><input id="s11_a_4_sum" type="number" readonly></td></tr>
-            <tr><td>5</td><td>Medier og kommunikasjon</td><td><input id="s11_a_5_8" type="number" min="0"></td><td><input id="s11_a_5_9" type="number" min="0"></td><td><input id="s11_a_5_10" type="number" min="0"></td><td class="auto"><input id="s11_a_5_sum" type="number" readonly></td></tr>
-            <tr><td>6</td><td>Programmering</td><td><input id="s11_a_6_8" type="number" min="0"></td><td><input id="s11_a_6_9" type="number" min="0"></td><td><input id="s11_a_6_10" type="number" min="0"></td><td class="auto"><input id="s11_a_6_sum" type="number" readonly></td></tr>
-            <tr><td>7</td><td>Sal og scene</td><td><input id="s11_a_7_8" type="number" min="0"></td><td><input id="s11_a_7_9" type="number" min="0"></td><td><input id="s11_a_7_10" type="number" min="0"></td><td class="auto"><input id="s11_a_7_sum" type="number" readonly></td></tr>
-            <tr><td>8</td><td>Teknologi og design</td><td><input id="s11_a_8_8" type="number" min="0"></td><td><input id="s11_a_8_9" type="number" min="0"></td><td><input id="s11_a_8_10" type="number" min="0"></td><td class="auto"><input id="s11_a_8_sum" type="number" readonly></td></tr>
-            <tr><td>9</td><td>Trafikk</td><td><input id="s11_a_9_8" type="number" min="0"></td><td><input id="s11_a_9_9" type="number" min="0"></td><td><input id="s11_a_9_10" type="number" min="0"></td><td class="auto"><input id="s11_a_9_sum" type="number" readonly></td></tr>
-            <tr><td>10</td><td>Demokrati i praksis</td><td><input id="s11_a_10_8" type="number" min="0"></td><td><input id="s11_a_10_9" type="number" min="0"></td><td><input id="s11_a_10_10" type="number" min="0"></td><td class="auto"><input id="s11_a_10_sum" type="number" readonly></td></tr>
-            <tr><td>11</td><td>Forsker i praksis</td><td><input id="s11_a_11_8" type="number" min="0"></td><td><input id="s11_a_11_9" type="number" min="0"></td><td><input id="s11_a_11_10" type="number" min="0"></td><td class="auto"><input id="s11_a_11_sum" type="number" readonly></td></tr>
-            <tr><td>12</td><td>Praktisk håndverksfag</td><td><input id="s11_a_12_8" type="number" min="0"></td><td><input id="s11_a_12_9" type="number" min="0"></td><td><input id="s11_a_12_10" type="number" min="0"></td><td class="auto"><input id="s11_a_12_sum" type="number" readonly></td></tr>
-            <tr><td>13</td><td>Internasjonalt samarbeid</td><td><input id="s11_a_13_8" type="number" min="0"></td><td><input id="s11_a_13_9" type="number" min="0"></td><td><input id="s11_a_13_10" type="number" min="0"></td><td class="auto"><input id="s11_a_13_sum" type="number" readonly></td></tr>
-            <tr><td>14</td><td>Levende kulturarv</td><td><input id="s11_a_14_8" type="number" min="0"></td><td><input id="s11_a_14_9" type="number" min="0"></td><td><input id="s11_a_14_10" type="number" min="0"></td><td class="auto"><input id="s11_a_14_sum" type="number" readonly></td></tr>
-            <tr class="total-row"><td>15</td><td>Sum elever i valgfag</td><td class="auto"><input id="s11_a_sum_8" type="number" readonly></td><td class="auto"><input id="s11_a_sum_9" type="number" readonly></td><td class="auto"><input id="s11_a_sum_10" type="number" readonly></td><td class="auto"><input id="s11_a_total" type="number" readonly></td></tr>
+            <tr>
+              <td>1</td><td>Antall elever</td>
+              <td><input id="s11_b_1_8g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_b_1_8j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_b_1_8sum" type="number" readonly></td>
+              <td><input id="s11_b_1_9g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_b_1_9j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_b_1_9sum" type="number" readonly></td>
+              <td><input id="s11_b_1_10g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_b_1_10j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_b_1_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s11_b_1_total" type="number" readonly></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. ANTALL ELEVER UTEN VALGFAG -->
+  <section class="section-card">
+    <div class="section-header">
+  <span>C. Antall elever uten valgfag</span><button type="button" class="info-btn" data-info="s11_c" title="Informasjon">?</button></div>
+    <div class="section-body">
+      <div class="info-box">
+        Elever som tar fag fra videregående i stedet for valgfag skal ikke føres her, men i 11B.
+      </div>
+      <div class="table-wrap">
+        <table class="gsi-table table-s11">
+          <colgroup>
+            <col class="row-no"><col class="desc-wide">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="sum-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2"></th><th rowspan="2"></th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" class="auto-head" style="text-align: center;">Sum 8. -<br>10. trinn</th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>Antall elever</td>
+              <td><input id="s11_c_1_8g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_c_1_8j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_c_1_8sum" type="number" readonly></td>
+              <td><input id="s11_c_1_9g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_c_1_9j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_c_1_9sum" type="number" readonly></td>
+              <td><input id="s11_c_1_10g" type="number" min="0" oninput="calcSide11()"></td>
+              <td><input id="s11_c_1_10j" type="number" min="0" oninput="calcSide11()"></td>
+              <td class="auto"><input id="s11_c_1_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s11_c_1_total" type="number" readonly></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. SUM ELEVER MED OG UTEN VALGFAG -->
+  <section class="section-card">
+    <div class="section-header">
+  <span>D. Sum elever med og uten valgfag</span><button type="button" class="info-btn" data-info="s11_d" title="Informasjon">?</button></div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table class="gsi-table table-s11">
+          <colgroup>
+            <col class="row-no"><col class="desc-wide">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="number-col"><col class="number-col"><col class="sum-col">
+            <col class="sum-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2"></th><th rowspan="2"></th>
+              <th colspan="3" style="text-align: center;">8. trinn</th>
+              <th colspan="3" style="text-align: center;">9. trinn</th>
+              <th colspan="3" style="text-align: center;">10. trinn</th>
+              <th rowspan="2" class="auto-head" style="text-align: center;">Sum 8. -<br>10. trinn</th>
+            </tr>
+            <tr>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+              <th>Gutter</th><th>Jenter</th><th class="auto-head">Sum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="total-row">
+              <td>1</td><td>Sum elever</td>
+              <td class="auto"><input id="s11_d_1_8g" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_8j" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_8sum" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_9g" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_9j" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_9sum" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_10g" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_10j" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_10sum" type="number" readonly></td>
+              <td class="auto"><input id="s11_d_1_total" type="number" readonly></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1533,14 +1850,19 @@
     <button class="btn" data-nav="next">Neste</button>
     <button class="btn btn-white" data-save>Lagre</button>
   </div>
+
 </section>
+
 
 <!-- SIDE 12 -->
 <section class="page" id="page-12" data-page="12">
 
-  <!-- A. ELEVTIMER TIL FYSISK AKTIVITET (Vises kun hvis elever på 5.-7. trinn) -->
+  <!-- A. ELEVTIMER TIL FYSISK AKTIVITET -->
   <section class="section-card" id="s12-a-card" style="display: none;">
-    <div class="section-header">A. Antall elevtimer til fysisk aktivitet per år</div>
+    <div class="section-header">
+      <span>A. Antall elevtimer til fysisk aktivitet per år</span>
+      <button type="button" class="info-btn" data-info="s12_a" title="Informasjon">?</button>
+    </div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s12-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
@@ -1551,20 +1873,26 @@
           <tr><td>1</td><td>5. trinn</td><td><input id="s12_a_5" type="number" min="0" oninput="calcSide12()"></td></tr>
           <tr><td>2</td><td>6. trinn</td><td><input id="s12_a_6" type="number" min="0" oninput="calcSide12()"></td></tr>
           <tr><td>3</td><td>7. trinn</td><td><input id="s12_a_7" type="number" min="0" oninput="calcSide12()"></td></tr>
-          <tr class="total-row"><td>4</td><td>Sum elevtimer</td><td class="auto"><input id="s12_a_sum" type="number" readonly></td></tr>
+          <tr><td>4</td><td>8. trinn</td><td><input id="s12_a_8" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr><td>5</td><td>9. trinn</td><td><input id="s12_a_9" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr><td>6</td><td>10. trinn</td><td><input id="s12_a_10" type="number" min="0" oninput="calcSide12()"></td></tr>
+          <tr class="total-row"><td>7</td><td>Sum elevtimer</td><td class="auto"><input id="s12_a_sum" type="number" readonly></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- B. ÅRSTIMER TIL FYSISK AKTIVITET (Vises kun hvis elever på 5.-7. trinn) -->
+  <!-- B. ÅRSTIMER TIL FYSISK AKTIVITET -->
   <section class="section-card" id="s12-b-card" style="display: none;">
-    <div class="section-header">B. Antall årstimer til fysisk aktivitet per år</div>
+    <div class="section-header">
+      <span>B. Antall årstimer til fysisk aktivitet per år</span>
+      <button type="button" class="info-btn" data-info="s12_b" title="Informasjon">?</button>
+    </div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s12-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="number-col"></colgroup>
         <thead>
-          <tr><th colspan="2"></th><th>5.-7. trinn</th></tr>
+          <tr><th colspan="2"></th><th>5.-10. trinn</th></tr>
         </thead>
         <tbody>
           <tr><td>1</td><td>Årstimer</td><td><input id="s12_b_1" type="number" min="0" step="0.1" oninput="calcSide12()"></td></tr>
@@ -1573,9 +1901,12 @@
     </div>
   </section>
 
-  <!-- C. LEKSEHJELP (Vises alltid) -->
+  <!-- C. LEKSEHJELP -->
   <section class="section-card" id="s12-c-card">
-    <div class="section-header">C. Leksehjelp på 1.-10. trinn</div>
+    <div class="section-header">
+      <span>C. Leksehjelp på 1.-10. trinn</span>
+      <button type="button" class="info-btn" data-info="s12_c" title="Informasjon">?</button>
+    </div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s12-c">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="students-col"><col class="hours-col"></colgroup>
@@ -1609,13 +1940,13 @@
 </section>
 
 
-
 <!-- SIDE 13 -->
 <section class="page" id="page-13" data-page="13">
 
   <!-- DEL A -->
   <section class="section-card">
-    <div class="section-header">A. Skoleskyss</div>
+    <div class="section-header">
+  <span>A. Skoleskyss</span><button type="button" class="info-btn" data-info="s13_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s13-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col class="sum-col"></colgroup>
@@ -1631,7 +1962,8 @@
 
   <!-- DEL B -->
   <section class="section-card">
-    <div class="section-header">B. Omdisponering av timetall (25 %-regelen)</div>
+    <div class="section-header">
+  <span>B. Omdisponering av timetall (25 %-regelen)</span><button type="button" class="info-btn" data-info="s13_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s13-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
@@ -1648,7 +1980,8 @@
 
   <!-- DEL C -->
   <section class="section-card">
-    <div class="section-header">C. Leirskoleopphold / andre skoleturer med overnatting</div>
+    <div class="section-header">
+  <span>C. Leirskoleopphold / andre skoleturer med overnatting</span><button type="button" class="info-btn" data-info="s13_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s13-c">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col></colgroup>
@@ -1674,10 +2007,8 @@
 
 <!-- DEL D -->
 <section class="section-card">
-  <div class="section-header">
-    <span>D. Tilgang til skolebibliotek</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>D. Tilgang til skolebibliotek</span><button type="button" class="info-btn" data-info="s13_d" title="Informasjon">?</button></div>
   <div class="section-body radio-section">
     <div class="radio-row">
       <span>Egne lokaler til skolebiblioteket</span>
@@ -1714,7 +2045,8 @@
 
   <!-- DEL E -->
   <section class="section-card">
-    <div class="section-header">E. Antall elever med tilgang til egen digital enhet (en-til-en dekning)</div>
+    <div class="section-header">
+  <span>E. Antall elever med tilgang til egen digital enhet (en-til-en dekning)</span><button type="button" class="info-btn" data-info="s13_e" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="info-box">En elev registreres kun en gang, ved flere typer velg den som er mest i bruk. Tilgang til private digitale enheter hjemme skal ikke registreres.</div>
       <div class="table-wrap">
@@ -1740,7 +2072,8 @@
 
   <!-- DEL F -->
   <section class="section-card">
-    <div class="section-header">F. Beredskap</div>
+    <div class="section-header">
+  <span>F. Beredskap</span><button type="button" class="info-btn" data-info="s13_f" title="Informasjon">?</button></div>
     <div class="section-body radio-section">
       <div class="question-row"><div>Har skolen beredskapsplaner for å dekke alvorlige hendelser?</div><div class="question-options"><label><input type="radio" name="s13_f_1" id="s13_f_1_ja" value="ja"> Ja</label><label><input type="radio" name="s13_f_1" id="s13_f_1_nei" value="nei"> Nei</label></div></div>
       <div class="question-row"><div>Dekker beredskapsplanen også alvorlige tilsiktede hendelser (eksempelvis: skyteepisoder, gisselsituasjoner og bombeangrep)?</div><div class="question-options"><label><input type="radio" name="s13_f_2" id="s13_f_2_ja" value="ja"> Ja</label><label><input type="radio" name="s13_f_2" id="s13_f_2_nei" value="nei"> Nei</label></div></div>
@@ -1750,7 +2083,8 @@
 
   <!-- DEL G -->
   <section class="section-card">
-    <div class="section-header">G. Elever på ungdomstrinnet som tar fag fra videregående opplæring</div>
+    <div class="section-header">
+  <span>G. Elever på ungdomstrinnet som tar fag fra videregående opplæring</span><button type="button" class="info-btn" data-info="s13_g" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s13-g">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col class="sum-col"></colgroup>
@@ -1779,7 +2113,8 @@
 
   <!-- DEL A -->
   <section class="section-card">
-    <div class="section-header">A. Antall barn med plass i SFO</div>
+    <div class="section-header">
+  <span>A. Antall barn med plass i SFO</span><button type="button" class="info-btn" data-info="s14_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s14-a">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
@@ -1800,10 +2135,8 @@
 
 <!-- B. ANSATTES UTDANNING -->
 <section class="section-card">
-  <div class="section-header">
-    <span>B. Ansattes utdanning</span>
-    <span style="cursor: pointer;" title="Informasjon">&#9432;</span>
-  </div>
+    <div class="section-header">
+  <span>B. Ansattes utdanning</span><button type="button" class="info-btn" data-info="s14_b" title="Informasjon">?</button></div>
   <div class="section-body table-wrap">
     <table class="gsi-table" id="table-s14-b" style="width: 100%; table-layout: fixed;">
       <colgroup>
@@ -1866,7 +2199,8 @@
 
   <!-- DEL C -->
   <section class="section-card">
-    <div class="section-header">C. Foreldrebetaling</div>
+    <div class="section-header">
+  <span>C. Foreldrebetaling</span><button type="button" class="info-btn" data-info="s14_c" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s14-c">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="amount-col"></colgroup>
@@ -1887,7 +2221,8 @@
 
   <!-- DEL D -->
   <section class="section-card">
-    <div class="section-header">D. Rabattordninger</div>
+    <div class="section-header">
+  <span>D. Rabattordninger</span><button type="button" class="info-btn" data-info="s14_d" title="Informasjon">?</button></div>
     <div class="section-body radio-section">
       <div class="radio-row"><span>Har ordningen lokale inntektsgraderte satser?</span><label><input type="radio" name="s14_d_1" id="s14_d_1_ja" value="ja"> Ja</label><label><input type="radio" name="s14_d_1" id="s14_d_1_nei" value="nei"> Nei</label></div>
       <div class="radio-row"><span>Har ordningen lokale friplasser?</span><label><input type="radio" name="s14_d_2" id="s14_d_2_ja" value="ja"> Ja</label><label><input type="radio" name="s14_d_2" id="s14_d_2_nei" value="nei"> Nei</label></div>
@@ -1897,7 +2232,8 @@
 
   <!-- DEL E -->
   <section class="section-card">
-    <div class="section-header">E. Hvor mange elever deltar i en ordning med inntektsgraderte satser?</div>
+    <div class="section-header">
+  <span>E. Hvor mange elever deltar i en ordning med inntektsgraderte satser?</span><button type="button" class="info-btn" data-info="s14_e" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s14-e">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col></colgroup>
@@ -1946,7 +2282,8 @@
 
   <!-- DEL A -->
   <section class="section-card">
-    <div class="section-header">A. Fordrevne ukrainske elever</div>
+    <div class="section-header">
+  <span>A. Fordrevne ukrainske elever</span><button type="button" class="info-btn" data-info="s16_a" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="info-box">
         Fordrevne fra Ukraina skal føres både i del 8 og i del 16. Skolene registrerer elever som får et fullverdig eller delvis tilbud ved skolen. Kommunen sørger for at de som ikke blir rapportert ved skolene, legges inn på kommunen sentralt. Med et fullverdig opplæringstilbud menes et tilbud i tråd med opplæringsloven. Både de som får et opplæringstilbud som ikke er fullverdig og de som ikke får et opplæringstilbud i det hele tatt, skal registreres i kolonnen 2.
@@ -1982,7 +2319,8 @@
 
   <!-- DEL B -->
   <section class="section-card">
-    <div class="section-header">B. Forsterket opplæring i norsk</div>
+    <div class="section-header">
+  <span>B. Forsterket opplæring i norsk</span><button type="button" class="info-btn" data-info="s16_b" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s16-b">
         <colgroup><col class="row-no"><col class="desc-wide"><col class="sum-col"></colgroup>
@@ -1998,7 +2336,8 @@
 
   <!-- DEL C -->
   <section class="section-card">
-    <div class="section-header">C. Egne undervisningsgrupper</div>
+    <div class="section-header">
+  <span>C. Egne undervisningsgrupper</span><button type="button" class="info-btn" data-info="s16_c" title="Informasjon">?</button></div>
     <div class="section-body">
       <div class="info-box">
         Her registreres ukrainske fordrevne elever som går i egne undervisningsgrupper for minoritetsspråklige elever. Gruppene kan ha elever fra andre steder enn Ukraina. I så fall føres kun fordrevne fra Ukraina her, mens alle elevene i gruppa føres i del 8.
@@ -2019,7 +2358,8 @@
 
   <!-- DEL D -->
   <section class="section-card">
-    <div class="section-header">D. Morsmålsopplæring og/eller tospråklig opplæring i fag</div>
+    <div class="section-header">
+  <span>D. Morsmålsopplæring og/eller tospråklig opplæring i fag</span><button type="button" class="info-btn" data-info="s16_d" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s16-d">
         <colgroup><col class="row-no"><col class="desc-wide"><col><col><col><col><col class="sum-col"></colgroup>
@@ -2104,7 +2444,8 @@
 
   <!-- DEL A -->
   <section class="section-card">
-    <div class="section-header">A. Skjemaet er fylt ut av:</div>
+    <div class="section-header">
+  <span>A. Skjemaet er fylt ut av:</span><button type="button" class="info-btn" data-info="s18_a" title="Informasjon">?</button></div>
     <div class="section-body table-wrap">
       <table class="gsi-table table-s18-a">
         <colgroup><col class="name-col"><col class="email-col"><col class="role-col"></colgroup>
@@ -2124,7 +2465,8 @@
 
   <!-- DEL B -->
   <section class="section-card">
-    <div class="section-header">B. Merknader fra skolen:</div>
+    <div class="section-header">
+  <span>B. Merknader fra skolen:</span><button type="button" class="info-btn" data-info="s18_b" title="Informasjon">?</button></div>
     <div class="section-body">
       <textarea id="s18_merknad_skole" placeholder="Eventuelle merknader..."></textarea>
     </div>
@@ -2132,7 +2474,8 @@
 
   <!-- DEL C -->
   <section class="section-card">
-    <div class="section-header">C. Merknader fra kommunen:</div>
+    <div class="section-header">
+  <span>C. Merknader fra kommunen:</span><button type="button" class="info-btn" data-info="s18_c" title="Informasjon">?</button></div>
     <div class="section-body">
       <textarea id="s18_merknad_kommune" placeholder="Eventuelle merknader..."></textarea>
     </div>
@@ -2395,8 +2738,11 @@
   </div>
 </div>
 
+
 <script src="sprak.js"></script>
 <script src="kommuner.js"></script>
+<script src="info.js"></script>
 <script src="app.js"></script>
+
 </body>
 </html>

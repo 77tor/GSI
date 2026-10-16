@@ -84,6 +84,150 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
   background-color: #f1f5f9 !important;
 }
 
+/* =========================================================
+   SECTION HEADER OG INFO-KNAPP (OPPDATERT MED RIKTIG STIL)
+   ========================================================= */
+.section-header {
+  background: #57749b !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 8px 12px !important;
+  min-height: 38px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+/* Info-knapp: Rund, hvit sirkel med ? i midten */
+.info-btn {
+  background: transparent !important;
+  border: 1.5px solid #ffffff !important;
+  color: #ffffff !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  opacity: 0.9 !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.info-btn:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+/* =========================================================
+   INFO-SIDEPANEL (HØYREMENY MATCHING ORIGINALEN)
+   ========================================================= */
+.info-drawer-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  z-index: 99999 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.25s ease !important;
+}
+
+.info-drawer-backdrop.active {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.info-drawer-box {
+  background: #3b526d !important;
+  color: #ffffff !important;
+  width: 360px !important;
+  max-width: 85vw !important;
+  height: 100vh !important;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.25s ease !important;
+}
+
+.info-drawer-backdrop.active .info-drawer-box {
+  transform: translateX(0) !important;
+}
+
+.info-drawer-top {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 12px 16px 4px 16px !important;
+}
+
+.info-drawer-close-x {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 22px !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  opacity: 0.8 !important;
+}
+
+.info-drawer-close-x:hover {
+  opacity: 1 !important;
+}
+
+.info-drawer-header {
+  font-size: 1.05rem !important;
+  font-weight: bold !important;
+  padding: 0 18px 12px 18px !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.info-drawer-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 16px 18px !important;
+  font-size: 0.88rem !important;
+  line-height: 1.5 !important;
+  color: #e1e8f0 !important;
+  white-space: pre-wrap !important;
+}
+
+.info-drawer-footer {
+  padding: 12px 18px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  text-align: right !important;
+}
+
+.info-drawer-footer button {
+  background: #ffffff !important;
+  color: #2c3e50 !important;
+  border: none !important;
+  padding: 6px 18px !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  font-size: 0.85rem !important;
+}
+
+.info-drawer-footer button:hover {
+  background: #e2e8f0 !important;
+}
+
+
 /* ========================================================= 4. HOVEDINNHOLD ========================================================= */
 .main, #view-form {
   flex: 1;
@@ -797,22 +941,78 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 
 
 /* =========================================================
-   SIDE 10 – GJELDER IKKE BARNESKOLE
+   SIDE 10 – BREDDE OG TABELLOPPBYGGING
    ========================================================= */
 
-#page-10{max-width:750px}
-#page-10 .section-card{margin-bottom:18px}
-#page-10 .section-body{padding:18px}
-#page-10 .school-level-notice{border:1px solid #9aaec5;background:#f5f5f5;padding:18px;text-align:center;font-size:15px}
+/* Øk maksbredden slik at 12 kolonner får god plass uten overlapping */
+#page-10 {
+  max-width: 1100px !important;
+}
 
-/* =========================================================
-   SIDE 11 – GJELDER IKKE BARNESKOLE
-   ========================================================= */
+#page-10 .section-card {
+  margin-bottom: 18px;
+}
 
-#page-11{max-width:750px}
-#page-11 .section-card{margin-bottom:18px}
-#page-11 .section-body{padding:18px}
-#page-11 .school-level-notice{border:1px solid #9aaec5;background:#f5f5f5;padding:18px;text-align:center;font-size:15px}
+#page-10 .section-body {
+  padding: 18px;
+}
+
+#page-10 .school-level-notice {
+  border: 1px solid #9aaec5;
+  background: #f5f5f5;
+  padding: 18px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* Tilpassede kolonnebredder for tabeller med mange kolonner (10A og 10B) */
+.table-s10-a,
+.table-s10-b {
+  font-size: 12px;
+}
+
+/* Gjør fag/beskrivelse-kolonnen smalere slik at tall-kolonnene får plass */
+.table-s10-a col.desc-wide,
+.table-s10-b col.desc-wide {
+  width: 20%;
+}
+
+/* Definer bredden på gutter/jenter (tall)-kolonnene */
+.table-s10-a col.number-col,
+.table-s10-b col.number-col {
+  width: 6.5%;
+}
+
+/* Definer bredden på sum-kolonnene */
+.table-s10-a col.sum-col,
+.table-s10-b col.sum-col {
+  width: 9%;
+}
+
+/* Forhindre at teksten i overskriftene krasjer */
+.gsi-table th {
+  padding: 4px 2px;
+  word-break: normal;
+  white-space: normal !important; /* Lar <br> og naturlig tekstring fungere */
+  line-height: 1.1;
+}
+
+
+/* SIDE 11 – STIL OG BREDDE */
+#page-11 { max-width: 1100px !important; }
+#page-11 .section-card { margin-bottom: 18px; }
+#page-11 .section-body { padding: 18px; }
+#page-11 .school-level-notice { border: 1px solid #9aaec5; background: #f5f5f5; padding: 18px; text-align: center; font-size: 15px; }
+.table-s11 { font-size: 12px; }
+.table-s11 col.desc-wide { width: 20%; }
+.table-s11 col.number-col { width: 6.5%; }
+.table-s11 col.sum-col { width: 8.5%; }
+
+/* SUM-CELLER OG "SUM"-OVERSKRIFTER (MØRKEGRÅ BAKGRUNN) */
+.gsi-table td.auto, .gsi-table th.auto-head, .gsi-table .total-row td { background-color: #b8c4d1 !important; }
+.gsi-table td.auto input, .gsi-table .total-row td input { background: transparent !important; border: 0 !important; box-shadow: none !important; font-weight: bold !important; color: #000 !important; }
+.gsi-table .total-row td:first-child, .gsi-table td:first-child { background-color: #c4e8d7 !important; text-align: center; font-weight: 500; }
+
 
 /* =========================================================
    SIDE 12 – FYSISK AKTIVITET OG LEKSEHJELP

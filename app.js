@@ -19,13 +19,13 @@ let activeSchoolYear = '';
 let isLoadingData = false;
 
 
-
 /* =========================================================
    HJELPEFUNKSJONER
    ========================================================= */
 
 const parseNum = val => (Number.isFinite(Number.parseFloat(val)) ? Number.parseFloat(val) : 0);
 const numberValue = id => parseNum(document.getElementById(id)?.value);
+const getNumber = id => numberValue(id);
 
 function setNumber(id, value) {
   let n = parseNum(value);
@@ -41,6 +41,7 @@ function setNumber(id, value) {
 const sumIds = ids => ids.reduce((sum, id) => sum + numberValue(id), 0);
 const rangeIds = (prefix, from, to, suffix = '') => Array.from({ length: to - from + 1 }, (_, i) => `${prefix}${from + i}${suffix}`);
 const allFormElements = () => document.querySelectorAll('main input[id], main select[id], main textarea[id], main input[name]');
+
 
 /* =========================================================
    SKOLEÅR OG HÅNDTERING (SEPARERT PER SKOLE OG ÅR)
@@ -2174,50 +2175,65 @@ function toggleLibraryHours() {
    ========================================================= */
 function calcSide10() {
   try {
-    // --- 10A: Fremmedspråk ---
-    const trinnsA = [8, 9, 10];
+    const trinnetList = [8, 9, 10];
 
-    // Rader 1 til 7: Horisontal summering per språk
-    for (let row = 1; row <= 7; row++) {
-      const rowSum = sumIds(trinnsA.map(t => `s10_a_${row}_${t}`));
-      setNumber(`s10_a_${row}_sum`, rowSum);
+    // --- TABELL 10A: Elever med fremmedspråk/fordypning ---
+    
+    // 1. Horisontal summering per rad (Rad 1 til 12)
+    for (let row = 1; row <= 12; row++) {
+      trinnetList.forEach(t => {
+        // Summer Gutter + Jenter per trinn
+        const sumTrinn = sumIds([`s10_a_${row}_${t}g`, `s10_a_${row}_${t}j`]);
+        setNumber(`s10_a_${row}_${t}sum`, sumTrinn);
+      });
+
+      // Total per rad tvers over alle trinn (Rad-total til høyre)
+      const rowTotal = sumIds([
+        `s10_a_${row}_8sum`,
+        `s10_a_${row}_9sum`,
+        `s10_a_${row}_10sum`
+      ]);
+      setNumber(`s10_a_${row}_total`, rowTotal);
     }
 
-    // Vertikal summering per trinn (Rad 8)
-    trinnsA.forEach(t => {
-      const colIds = [];
-      for (let row = 1; row <= 7; row++) {
-        colIds.push(`s10_a_${row}_${t}`);
+    // 2. Vertikal summering per kolonne (Rad 13: Sum elever)
+    trinnetList.forEach(t => {
+      const gIds = [];
+      const jIds = [];
+      const sumIdsArr = [];
+
+      for (let row = 1; row <= 12; row++) {
+        gIds.push(`s10_a_${row}_${t}g`);
+        jIds.push(`s10_a_${row}_${t}j`);
+        sumIdsArr.push(`s10_a_${row}_${t}sum`);
       }
-      setNumber(`s10_a_sum_${t}`, sumIds(colIds));
+
+      // Summer kolonnene for trinn t
+      setNumber(`s10_a_sum_${t}g`, sumIds(gIds));
+      setNumber(`s10_a_sum_${t}j`, sumIds(jIds));
+      setNumber(`s10_a_sum_${t}`, sumIds(sumIdsArr));
     });
 
-    // Total for 10A (Nederst til høyre)
-    const totalA = sumIds([8, 9, 10].map(t => `s10_a_sum_${t}`));
+    // 3. Totalsum for hele tabell 10A (Nederst til høyre)
+    const totalA = sumIds(['s10_a_sum_8', 's10_a_sum_9', 's10_a_sum_10']);
     setNumber('s10_a_total', totalA);
 
 
-    // --- 10B: Alternativer til fremmedspråk ---
-    const trinnsB = [8, 9, 10];
-
-    // Rader 1 til 5: Horisontal summering per tilbud
-    for (let row = 1; row <= 5; row++) {
-      const rowSum = sumIds(trinnsB.map(t => `s10_b_${row}_${t}`));
-      setNumber(`s10_b_${row}_sum`, rowSum);
-    }
-
-    // Vertikal summering per trinn (Rad 6)
-    trinnsB.forEach(t => {
-      const colIds = [];
-      for (let row = 1; row <= 5; row++) {
-        colIds.push(`s10_b_${row}_${t}`);
-      }
-      setNumber(`s10_b_sum_${t}`, sumIds(colIds));
+    // --- TABELL 10B: Elever uten fremmedspråk/fordypning ---
+    
+    trinnetList.forEach(t => {
+      // Summer Gutter + Jenter for rad 1 per trinn
+      const sumTrinnB = sumIds([`s10_b_1_${t}g`, `s10_b_1_${t}j`]);
+      setNumber(`s10_b_1_${t}sum`, sumTrinnB);
     });
 
-    // Total for 10B (Nederst til høyre)
-    const totalB = sumIds([8, 9, 10].map(t => `s10_b_sum_${t}`));
-    setNumber('s10_b_total', totalB);
+    // Total for hele rad 1 i Tabell 10B (Nederst til høyre)
+    const totalB = sumIds([
+      's10_b_1_8sum',
+      's10_b_1_9sum',
+      's10_b_1_10sum'
+    ]);
+    setNumber('s10_b_1_total', totalB);
 
   } catch (err) {
     console.warn('Sjekk calcSide10:', err);
@@ -2226,67 +2242,224 @@ function calcSide10() {
 
 
 /* =========================================================
-   SIDE 11: VALGFAG PÅ UNGDOMSTRINNET
+   SIDE 11: VALGFAG
    ========================================================= */
-function calcSide11() {
-  try {
-    const trinns = [8, 9, 10];
 
-    // Rader 1 til 14: Horisontal summering per valgfag
-    for (let row = 1; row <= 14; row++) {
-      const rowSum = sumIds(trinns.map(t => `s11_a_${row}_${t}`));
-      setNumber(`s11_a_${row}_sum`, rowSum);
-    }
+const valgfagListe = [
+  "Demokrati i praksis",
+  "Design og redesign",
+  "Forsker i praksis",
+  "Friluftsliv",
+  "Fysisk fostring og helse",
+  "Innsats for andre",
+  "Internasjonalt samarbeid",
+  "Levende kulturarv",
+  "Medier og kommunikasjon",
+  "Praktisk håndverksfag",
+  "Programmering",
+  "Sal og scene",
+  "Teknologi og design",
+  "Trafikk"
+];
 
-    // Vertikal summering per trinn (Rad 15: Sum elever i valgfag)
-    trinns.forEach(t => {
-      const colIds = [];
-      for (let row = 1; row <= 14; row++) {
-        colIds.push(`s11_a_${row}_${t}`);
-      }
-      setNumber(`s11_a_sum_${t}`, sumIds(colIds));
-    });
+let s11Counter = 0;
 
-    // Total for 11A (Nederst til høyre)
-    const total = sumIds([8, 9, 10].map(t => `s11_a_sum_${t}`));
-    setNumber('s11_a_total', total);
+function addS11Row(selectedFag = "", data = {}) {
+  s11Counter++;
+  const rowId = s11Counter;
+  const tbody = document.getElementById("s11-a-tbody");
+  if (!tbody) return;
 
-  } catch (err) {
-    console.warn('Sjekk calcSide11:', err);
+  const tr = document.createElement("tr");
+  tr.id = `s11_a_row_${rowId}`;
+
+  let optionsHtml = '<option value="">-- Velg valgfag --</option>';
+  valgfagListe.forEach(fag => {
+    const sel = fag === selectedFag ? "selected" : "";
+    optionsHtml += `<option value="${fag}" ${sel}>${fag}</option>`;
+  });
+
+  tr.innerHTML = `
+    <td class="row-num"></td>
+    <td>
+      <select id="s11_a_${rowId}_fag" style="width: 100%; border: 0; background: #fff; font: inherit;" onchange="calcSide11()">
+        ${optionsHtml}
+      </select>
+    </td>
+    <td><input id="s11_a_${rowId}_8g" type="number" min="0" value="${data["8g"] || ""}" oninput="calcSide11()"></td>
+    <td><input id="s11_a_${rowId}_8j" type="number" min="0" value="${data["8j"] || ""}" oninput="calcSide11()"></td>
+    <td class="auto"><input id="s11_a_${rowId}_8sum" type="number" readonly></td>
+    <td><input id="s11_a_${rowId}_9g" type="number" min="0" value="${data["9g"] || ""}" oninput="calcSide11()"></td>
+    <td><input id="s11_a_${rowId}_9j" type="number" min="0" value="${data["9j"] || ""}" oninput="calcSide11()"></td>
+    <td class="auto"><input id="s11_a_${rowId}_9sum" type="number" readonly></td>
+    <td><input id="s11_a_${rowId}_10g" type="number" min="0" value="${data["10g"] || ""}" oninput="calcSide11()"></td>
+    <td><input id="s11_a_${rowId}_10j" type="number" min="0" value="${data["10j"] || ""}" oninput="calcSide11()"></td>
+    <td class="auto"><input id="s11_a_${rowId}_10sum" type="number" readonly></td>
+    <td class="auto"><input id="s11_a_${rowId}_total" type="number" readonly></td>
+    <td style="text-align: center;">
+      <button type="button" onclick="removeS11Row(${rowId})" style="background: transparent; border: none; color: red; font-weight: bold; cursor: pointer;">&#10005;</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+  renumberS11Rows();
+  calcSide11();
+}
+
+function removeS11Row(rowId) {
+  const row = document.getElementById(`s11_a_row_${rowId}`);
+  if (row) {
+    row.remove();
+    renumberS11Rows();
+    calcSide11();
   }
 }
 
-function calcSide12() {
-  try {
-    // 1. Sum for 12A
-    const sum12A = (numberValue('s12_a_5') || 0) + (numberValue('s12_a_6') || 0) + (numberValue('s12_a_7') || 0);
-    setNumber('s12_a_sum', sum12A);
+function renumberS11Rows() {
+  const tbody = document.getElementById("s11-a-tbody");
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll("tr");
+  rows.forEach((tr, index) => {
+    const numTd = tr.querySelector(".row-num");
+    if (numTd) numTd.textContent = index + 1;
+  });
+  const sumNoTd = document.getElementById("s11_a_sum_no");
+  if (sumNoTd) sumNoTd.textContent = rows.length + 1;
+}
 
-    // 2. Sum for 12C
-    ['students', 'hours'].forEach(type => {
-      setNumber(`s12_c_${type}_sum`, sumIds(rangeIds('s12_c_', 1, 10, `_${type}`)));
+function calcSide11() {
+  try {
+    const trinns = [8, 9, 10];
+    const tbody = document.getElementById("s11-a-tbody");
+    const rows = tbody ? tbody.querySelectorAll("tr") : [];
+
+    let sum11A = {
+      "8g": 0, "8j": 0, "8sum": 0,
+      "9g": 0, "9j": 0, "9sum": 0,
+      "10g": 0, "10j": 0, "10sum": 0,
+      "total": 0
+    };
+
+    // 1. Beregn hver rad i 11A
+    rows.forEach(tr => {
+      const parts = tr.id.split("_");
+      const rId = parts[parts.length - 1];
+
+      trinns.forEach(t => {
+        const g = getNumber(`s11_a_${rId}_${t}g`);
+        const j = getNumber(`s11_a_${rId}_${t}j`);
+        const sumTJ = g + j;
+        setNumber(`s11_a_${rId}_${t}sum`, sumTJ);
+
+        sum11A[`${t}g`] += g;
+        sum11A[`${t}j`] += j;
+        sum11A[`${t}sum`] += sumTJ;
+      });
+
+      const rowTotalVal = sumIds([`s11_a_${rId}_8sum`, `s11_a_${rId}_9sum`, `s11_a_${rId}_10sum`]);
+      setNumber(`s11_a_${rId}_total`, rowTotalVal);
     });
 
-    // 3. Vurder om 12A og 12B skal vises basert på 3A (5., 6. eller 7. trinn)
+    // Sett sum-rad for 11A
+    trinns.forEach(t => {
+      setNumber(`s11_a_sum_${t}g`, sum11A[`${t}g`]);
+      setNumber(`s11_a_sum_${t}j`, sum11A[`${t}j`]);
+      setNumber(`s11_a_sum_${t}`, sum11A[`${t}sum`]);
+    });
+    const totalA = sum11A["8sum"] + sum11A["9sum"] + sum11A["10sum"];
+    setNumber("s11_a_total", totalA);
+
+
+    // 2. Tabell 11B
+    trinns.forEach(t => {
+      const sumB = sumIds([`s11_b_1_${t}g`, `s11_b_1_${t}j`]);
+      setNumber(`s11_b_1_${t}sum`, sumB);
+    });
+    setNumber("s11_b_1_total", sumIds(["s11_b_1_8sum", "s11_b_1_9sum", "s11_b_1_10sum"]));
+
+
+    // 3. Tabell 11C
+    trinns.forEach(t => {
+      const sumC = sumIds([`s11_c_1_${t}g`, `s11_c_1_${t}j`]);
+      setNumber(`s11_c_1_${t}sum`, sumC);
+    });
+    setNumber("s11_c_1_total", sumIds(["s11_c_1_8sum", "s11_c_1_9sum", "s11_c_1_10sum"]));
+
+
+    // 4. Tabell 11D (Sum A + B + C)
+    trinns.forEach(t => {
+      const gD = getNumber(`s11_a_sum_${t}g`) + getNumber(`s11_b_1_${t}g`) + getNumber(`s11_c_1_${t}g`);
+      const jD = getNumber(`s11_a_sum_${t}j`) + getNumber(`s11_b_1_${t}j`) + getNumber(`s11_c_1_${t}j`);
+      const sumD = gD + jD;
+
+      setNumber(`s11_d_1_${t}g`, gD);
+      setNumber(`s11_d_1_${t}j`, jD);
+      setNumber(`s11_d_1_${t}sum`, sumD);
+    });
+
+    setNumber("s11_d_1_total", sumIds(["s11_d_1_8sum", "s11_d_1_9sum", "s11_d_1_10sum"]));
+
+  } catch (err) {
+    console.warn("Sjekk calcSide11:", err);
+  }
+}
+
+/* =========================================================
+   SIDE 12: 
+   ========================================================= */
+function calcSide12() {
+  try {
+    // 1. Summerer 5. til 10. trinn for 12A
+    const sum12A = sumIds(['s12_a_5', 's12_a_6', 's12_a_7', 's12_a_8', 's12_a_9', 's12_a_10']);
+    setNumber('s12_a_sum', sum12A);
+
+    // 2. Sum for 12C (Leksehjelp)
+    const studentIds = rangeIds('s12_c_', 1, 10, '_students');
+    const hourIds = rangeIds('s12_c_', 1, 10, '_hours');
+
+    setNumber('s12_c_students_sum', sumIds(studentIds));
+    setNumber('s12_c_hours_sum', sumIds(hourIds));
+
+    // 3. Styr visning av 12A og 12B basert på elever på trinn 5-10
     toggleSide12Tables();
   } catch (err) {
-    console.warn('Sjekk calcSide12:', err);
+    console.warn('Feil i calcSide12:', err);
   }
 }
 
 function toggleSide12Tables() {
-  const e5 = (numberValue('s3_a_5_sum') || 0) || ((numberValue('s3_a_5_gutter') || 0) + (numberValue('s3_a_5_jenter') || 0));
-  const e6 = (numberValue('s3_a_6_sum') || 0) || ((numberValue('s3_a_6_gutter') || 0) + (numberValue('s3_a_6_jenter') || 0));
-  const e7 = (numberValue('s3_a_7_sum') || 0) || ((numberValue('s3_a_7_gutter') || 0) + (numberValue('s3_a_7_jenter') || 0));
+  // 1. Hent verdi direkte fra Side 2C ("s2_hoyeste_trinn") eller fra lagrede formData
+  const maxTrinnSelect = document.getElementById('s2_hoyeste_trinn');
+  const maxTrinnVal = parseInt(maxTrinnSelect?.value || formData['s2_hoyeste_trinn'] || 0, 10);
 
-  const hasMellomtrinn = (e5 + e6 + e7) > 0;
+  // Vises dersom høyeste trinn valgt på Side 2 er 5. trinn eller høyere
+  const isTrinnOnSide2 = maxTrinnVal >= 5;
+
+  // 2. Sjekk om det er ført elever på 5.-10. trinn på Side 3
+  const e5 = numberValue('s3_a_5_sum') || (numberValue('s3_a_5_gutter') + numberValue('s3_a_5_jenter'));
+  const e6 = numberValue('s3_a_6_sum') || (numberValue('s3_a_6_gutter') + numberValue('s3_a_6_jenter'));
+  const e7 = numberValue('s3_a_7_sum') || (numberValue('s3_a_7_gutter') + numberValue('s3_a_7_jenter'));
+  const e8 = numberValue('s3_a_8_sum') || (numberValue('s3_a_8_gutter') + numberValue('s3_a_8_jenter'));
+  const e9 = numberValue('s3_a_9_sum') || (numberValue('s3_a_9_gutter') + numberValue('s3_a_9_jenter'));
+  const e10 = numberValue('s3_a_10_sum') || (numberValue('s3_a_10_gutter') + numberValue('s3_a_10_jenter'));
+
+  const hasEleverMellomUngdom = (e5 + e6 + e7 + e8 + e9 + e10) > 0;
+
+  // 3. Vises dersom enten Side 2 tilsier trinn >= 5 ELLER det er ført elever på side 3
+  const showTables = isTrinnOnSide2 || hasEleverMellomUngdom;
 
   const cardA = document.getElementById('s12-a-card');
   const cardB = document.getElementById('s12-b-card');
 
-  if (cardA) cardA.style.display = hasMellomtrinn ? 'block' : 'none';
-  if (cardB) cardB.style.display = hasMellomtrinn ? 'block' : 'none';
+  if (cardA) cardA.style.display = showTables ? 'block' : 'none';
+  if (cardB) cardB.style.display = showTables ? 'block' : 'none';
 }
+
+
+/* =========================================================
+   SIDE 13: 
+   ========================================================= */
+
 
 function calcSide13() {
   setNumber('s13_a_sum', numberValue('s13_a_1') + numberValue('s13_a_2'));
