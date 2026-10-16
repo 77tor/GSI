@@ -3,12 +3,28 @@ html, body { margin: 0 !important; padding: 0 !important; height: 100% !importan
 
 /* ========================================================= 2. TOPPFELT ========================================================= */
 .topbar { height: 72px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; background: #fff; position: sticky; top: 0; z-index: 20; padding-right: 12px; }
-.brand { font-size: 24px; padding: 0 26px; white-space: nowrap; }
+.brand {
+  font-size: 24px;
+  padding: 0 26px;
+  white-space: nowrap;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px; /* Avstand mellom logo og tekst */
+}
+
+.brand-logo {
+  height: 40px; /* Juster høyden slik at logoen passer optimalt i topplinjen */
+  width: auto;
+  display: block;
+}
 .year-control { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.15); padding: 4px 10px; border-radius: 6px; }
 .year-control label { font-weight: 500; }
 #year-select { font-weight: bold; background-color: #fff; color: #1a365d; border: 2px solid #2b6cb0; border-radius: 4px; padding: 3px 8px; cursor: pointer; }
 .mini-btn { padding: 5px 10px; background: #57749b; color: #fff; border: none; border-radius: 3px; cursor: pointer; font-size: 13px; }
 .file-btn input[type="file"] { display: none; }
+
+
 
 /* Bruker- og skoleinformasjon */
 .userbox { display: flex; align-items: center; background: #f4ead9; min-width: 390px; height: 100%; margin-left: auto; }
